@@ -1,0 +1,24 @@
+{
+  "name": "projetojeff",
+  "version": "1.0.0",
+  "description": "Projeto acadêmico desenvolvido no 6º semestre da UNIFEF pelo aluno Guilherme França Dela Rovere, sob orientação do professor Jefferson Antonio Ribeiro Passerine.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guilhermerovere/carteiraInvestimento.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/guilhermerovere/carteiraInvestimento/issues"
+  },
+  "homepage": "https://github.com/guilhermerovere/carteiraInvestimento#readme",
+  "devDependencies": {
+    "@fission-ai/openspec": "^1.10.0"
+  }
+}

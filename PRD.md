@@ -1,14 +1,121 @@
-# PRD — Sistema de Gestao de Ativos, Carteira e Corretoras
+# PRD - Sistema de Gestao de Ativos, Carteira e Corretoras
 
 ## 1. Visao do Produto
 
-Desenvolver uma plataforma full-stack para gestao de investimentos em acoes nacionais e internacionais, com autenticacao, carteira individual por usuario, controle de compras e vendas, saldo em caixa, calculo de preco medio, integracao com APIs externas, validacao regulatoria de corretoras, painel administrativo, auditoria e execucao completa via Docker.
+Desenvolver uma plataforma full-stack para gestao de investimentos em acoes nacionais e internacionais, com autenticacao, carteira individual por usuario, controle de caixa, compras e vendas, calculos financeiros, cotacoes externas, validacao regulatoria de corretoras, auditoria, painel administrativo e execucao completa via Docker.
 
 O sistema deve seguir **Spec-Driven Development (SDD)** com OpenSpec.
 
+O `PRD.md` define o escopo global do produto. As implementacoes devem ser divididas em changes menores no OpenSpec.
+
 ---
 
-## 2. Stack Obrigatoria
+## 2. Decisoes de Dominio Consolidadas
+
+Estas decisoes eliminam ambiguidades que nao devem ser redefinidas durante a implementacao.
+
+### 2.1. Moeda base
+
+- A moeda base da carteira e `BRL`.
+- O saldo em caixa e sempre armazenado em BRL.
+- Ativos B3 possuem cotacao em BRL.
+- Ativos dos EUA possuem cotacao em USD.
+- Para ativos em USD, o sistema deve obter a taxa `USD/BRL`.
+- AlphaVantage e o provedor primario para cotacoes dos EUA e cambio `USD/BRL`.
+- TwelveData e o fallback quando o provedor primario estiver indisponivel.
+- Para ativos B3, a taxa de cambio considerada e `1`.
+- O patrimonio consolidado, valor investido e lucro/prejuizo do dashboard devem ser apresentados em BRL.
+
+### 2.2. Corretoras e ativos sao catalogos globais
+
+`Corretora` e `Acao` sao entidades globais do sistema.
+
+Nao existe relacionamento direto permanente entre uma corretora e uma acao.
+
+A corretora utilizada deve ser registrada na `Transacao`.
+
+```text
+Usuario
+-> Carteira
+-> Transacao
+   -> Acao
+   -> Corretora
+```
+
+### 2.3. Permissoes sobre catalogos
+
+`ROLE_ADMIN` pode:
+- cadastrar corretoras;
+- atualizar corretoras quando necessario;
+- cadastrar ativos;
+- atualizar cotacoes manualmente;
+- administrar os catalogos globais.
+
+`ROLE_USER` pode:
+- consultar corretoras;
+- consultar ativos;
+- usar esses catalogos em suas proprias operacoes;
+- nunca alterar os catalogos globais.
+
+### 2.4. Evolucao patrimonial
+
+O sistema deve possuir snapshots diarios da carteira.
+
+Deve existir no maximo um snapshot por carteira por data.
+
+O snapshot do dia deve ser criado ou atualizado quando ocorrer:
+- deposito;
+- saque;
+- compra;
+- venda;
+- consulta do resumo da carteira apos atualizacao de cotacoes.
+
+Snapshots de dias anteriores nao devem ser alterados.
+
+### 2.5. Movimentacoes de caixa
+
+Depositos e saques devem possuir registro proprio em `movimentacoes_caixa`.
+
+Compras e vendas permanecem em `transacoes`.
+
+O saldo da carteira e atualizado pelas duas categorias, mas cada uma possui seu historico separado.
+
+### 2.6. Auditoria administrativa e privacidade
+
+O administrador pode visualizar eventos globais de seguranca, disponibilidade, compliance e operacao do sistema.
+
+A auditoria administrativa nao deve expor:
+- saldo de carteira;
+- patrimonio individual;
+- posicoes;
+- quantidade de ativos;
+- valores financeiros de transacoes privadas;
+- preco medio;
+- detalhes financeiros particulares de outros usuarios.
+
+Eventos administrativos podem conter:
+- usuario relacionado;
+- tipo de evento;
+- data/hora;
+- severidade;
+- endpoint;
+- resultado;
+- provedor externo;
+- dados de compliance de corretoras quando aplicavel.
+
+### 2.7. Historico de cotacoes
+
+Uma nova entrada em `historico_cotacoes` deve ser criada somente quando uma nova cotacao for obtida com sucesso de um provedor externo.
+
+Retorno de cotacao pelo cache:
+- nao gera nova entrada no historico.
+
+Nesta versao do produto:
+- nao existe expiracao automatica do historico de cotacoes.
+
+---
+
+## 3. Stack Obrigatoria
 
 ### Backend
 - Java 21
@@ -22,6 +129,8 @@ O sistema deve seguir **Spec-Driven Development (SDD)** com OpenSpec.
 - Caffeine Cache
 - Flyway
 - Swagger / OpenAPI
+- SLF4J
+- Maven
 
 ### Frontend
 - Next.js 15+
@@ -41,21 +150,17 @@ O sistema deve seguir **Spec-Driven Development (SDD)** com OpenSpec.
 
 ---
 
-## 3. Estrutura do Projeto
+## 4. Estrutura do Projeto
 
 ```text
 carteira-investimento/
 - backend/
-  - src/
-  - Dockerfile
-  - pom.xml
 - frontend/
-  - src/
-  - Dockerfile
-  - package.json
 - openspec/
+- PRD.md
 - .env
 - .env.example
+- .gitignore
 - docker-compose.yml
 - README.md
 - AGENTS.md
@@ -63,9 +168,7 @@ carteira-investimento/
 
 ---
 
-## 4. Arquitetura do Backend
-
-O backend deve seguir tres camadas principais:
+## 5. Arquitetura do Backend
 
 ```text
 domain/
@@ -77,7 +180,7 @@ domain/
 infrastructure/
 - configuracoes
 - seguranca
-- clientes de APIs
+- clientes externos
 - adapters
 
 presentation/
@@ -87,52 +190,64 @@ presentation/
 ```
 
 ### Entidades principais
+
 - Usuario
 - Corretora
 - Acao
+- HistoricoCotacao
 - Carteira
 - Posicao
 - Transacao
+- MovimentacaoCaixa
+- CarteiraSnapshot
 - LogAuditoria
-- HistoricoCotacao
 
 ### Padroes obrigatorios
+
 - Adapter
 - Strategy
 - Factory
 
-Os padroes devem isolar as integracoes externas do dominio.
+As integracoes externas devem permanecer isoladas do dominio.
 
 ---
 
-## 5. Perfis de Usuario
+## 6. Perfis de Usuario
 
 ### ROLE_USER
+
 Pode:
 - criar conta;
 - fazer login;
 - consultar o proprio perfil;
+- consultar catalogo de corretoras;
+- consultar catalogo de ativos;
 - visualizar somente sua propria carteira;
 - realizar depositos e saques;
 - registrar compras e vendas;
-- consultar posicoes, graficos e logs proprios.
+- consultar suas posicoes;
+- consultar seus graficos;
+- consultar seus proprios logs.
 
 ### ROLE_ADMIN
+
 Pode:
 - acessar `/admin`;
+- cadastrar e manter corretoras;
+- cadastrar e manter ativos;
+- atualizar cotacoes manualmente;
 - consultar metricas gerais;
-- acompanhar status das APIs externas;
-- visualizar falhas de validacao da CVM;
-- visualizar auditoria global.
+- acompanhar status das APIs;
+- consultar falhas CVM;
+- consultar auditoria global sem dados financeiros privados.
 
-O administrador **nao deve ter acesso aos dados privados de carteira de outros usuarios**.
+O administrador nao deve acessar carteiras privadas de outros usuarios.
 
 ---
 
-## 6. Autenticacao e Seguranca
+## 7. Autenticacao e Seguranca
 
 ### Cadastro
-Endpoint:
 
 ```http
 POST /api/v1/auth/register
@@ -142,22 +257,21 @@ Requisitos:
 - e-mail valido;
 - e-mail unico;
 - senha com no minimo 8 caracteres;
-- 1 letra maiuscula;
-- 1 letra minuscula;
-- 1 numero;
-- 1 caractere especial;
-- senha armazenada com BCrypt, strength 12;
-- novo usuario recebe `ROLE_USER`;
-- criar automaticamente uma carteira principal com saldo zero.
+- ao menos 1 letra maiuscula;
+- ao menos 1 letra minuscula;
+- ao menos 1 numero;
+- ao menos 1 caractere especial;
+- senha armazenada com BCrypt strength 12;
+- usuario recebe `ROLE_USER`;
+- uma carteira principal deve ser criada automaticamente com saldo zero.
 
 ### Login
-Endpoint:
 
 ```http
 POST /api/v1/auth/login
 ```
 
-Retornar JWT contendo:
+O JWT deve conter:
 - `usuarioId`;
 - `email`;
 - `role`.
@@ -170,25 +284,23 @@ GET /api/v1/auth/me
 
 ### Isolamento de dados
 
-Toda operacao privada deve usar o `usuario_id` obtido do JWT/SecurityContext.
+Toda operacao privada deve usar o `usuario_id` obtido do JWT e `SecurityContext`.
 
-Um usuario nunca pode consultar ou modificar recursos pertencentes a outro usuario.
+Nunca confiar em um `usuario_id` recebido do frontend para autorizar acesso a recursos privados.
 
-Tentativas de acesso cruzado devem retornar:
+Tentativa de acesso cruzado:
 
 ```http
 403 Forbidden
 ```
 
-e gerar registro de auditoria.
+A tentativa deve gerar auditoria.
 
 ---
 
-## 7. Administrador Padrao
+## 8. Administrador Padrao
 
-Na inicializacao do backend, um `CommandLineRunner` deve verificar a existencia do administrador configurado no `.env`.
-
-Variaveis:
+Na inicializacao, um `CommandLineRunner` deve verificar a existencia do administrador configurado por variaveis de ambiente.
 
 ```env
 ADMIN_NAME=Administrador do Sistema
@@ -198,26 +310,31 @@ ADMIN_PASSWORD=Admin@2026Secure
 
 Se nao existir:
 - criar usuario;
-- aplicar BCrypt a senha;
+- aplicar BCrypt;
 - atribuir `ROLE_ADMIN`;
 - marcar como ativo.
 
 Se ja existir:
-- nao executar nenhuma alteracao.
+- nao alterar o registro.
 
 O processo deve ser idempotente.
 
 ---
 
-## 8. Corretoras e Compliance
+## 9. Corretoras e Compliance
 
-### Cadastro de corretora
+Corretoras formam um catalogo global administrado por `ROLE_ADMIN`.
+
+### Cadastro
 
 ```http
 POST /api/v1/corretoras
 ```
 
-Entrada principal:
+Acesso:
+- somente `ROLE_ADMIN`.
+
+Entrada:
 - CNPJ;
 - numero opcional;
 - complemento opcional.
@@ -225,45 +342,43 @@ Entrada principal:
 Fluxo:
 
 ```text
-Receber CNPJ
-→ remover caracteres nao numericos
-→ validar digitos verificadores
-→ consultar Receita Federal
-→ exigir situacao ATIVA
-→ consultar CVM
-→ exigir registro ativo
-→ consultar endereco por CEP
-→ persistir corretora
+CNPJ
+-> sanitizar
+-> validar
+-> Receita Federal
+-> CVM
+-> CEP
+-> persistir
 ```
 
 ### Regras
 
 - CNPJ duplicado nao e permitido.
-- Corretora inativa na Receita Federal nao pode ser cadastrada.
-- Corretora sem registro ativo na CVM nao pode ser cadastrada.
-- Falha regulatoria deve retornar:
+- CNPJ deve ser validado localmente antes de chamadas externas.
+- Corretora deve estar `ATIVA` na Receita Federal.
+- Corretora deve possuir registro ativo na CVM.
+- Falha de validacao CVM deve retornar `422 Unprocessable Entity`.
+- Em falha regulatoria nenhuma corretora deve ser persistida.
+- Falhas de compliance devem gerar auditoria.
+
+### Endpoints
 
 ```http
-422 Unprocessable Entity
-```
-
-- Nenhuma informacao deve ser persistida se a validacao da CVM falhar.
-- A falha deve gerar log de auditoria.
-
-### Outros endpoints
-
-```http
+POST /api/v1/corretoras
 GET  /api/v1/corretoras
 GET  /api/v1/corretoras/{id}
 GET  /api/v1/corretoras/cnpj/{cnpj}
-POST /api/v1/corretoras/{id}/acoes/{acaoId}
 ```
 
-Listagens devem suportar paginacao.
+Nao deve existir endpoint de vinculacao permanente entre corretora e acao.
+
+Listagens devem possuir paginacao.
 
 ---
 
-## 9. Ativos e Cotacoes
+## 10. Ativos e Cotacoes
+
+Ativos formam um catalogo global administrado por `ROLE_ADMIN`.
 
 ### Cadastro
 
@@ -271,9 +386,13 @@ Listagens devem suportar paginacao.
 POST /api/v1/acoes
 ```
 
-O sistema deve identificar automaticamente o mercado pelo ticker.
+Acesso:
+- somente `ROLE_ADMIN`.
+
+O sistema deve identificar o mercado pelo ticker.
 
 ### B3
+
 Exemplos:
 
 ```text
@@ -286,9 +405,10 @@ IVVB11
 Configuracao:
 - mercado: `B3`;
 - moeda: `BRL`;
-- provedor principal: Brapi.
+- provedor: Brapi.
 
 ### Mercado americano
+
 Exemplos:
 
 ```text
@@ -301,13 +421,18 @@ NVDA
 Configuracao:
 - mercado: `US_MARKET`;
 - moeda: `USD`;
-- provedor: AlphaVantage ou TwelveData.
+- provedor primario: AlphaVantage;
+- fallback: TwelveData.
 
 ### Regras
+
 - ticker duplicado nao e permitido;
 - ticker inexistente retorna `404 Not Found`;
-- cotacao deve ser armazenada com data/hora;
-- consultas repetidas para o mesmo ticker em menos de 10 minutos devem usar cache Caffeine.
+- a cotacao deve preservar a moeda original do ativo;
+- toda cotacao externa deve possuir data/hora;
+- consultas repetidas em menos de 10 minutos devem utilizar Caffeine;
+- retorno do cache nao gera nova linha no historico;
+- nova cotacao externa bem-sucedida gera uma linha em `historico_cotacoes`.
 
 ### Endpoints
 
@@ -319,30 +444,65 @@ PUT  /api/v1/acoes/{id}/atualizar-cotacao
 GET  /api/v1/acoes/{id}/historico
 ```
 
+`POST` e `PUT` sao exclusivos de `ROLE_ADMIN`.
+
+Consultas `GET` podem ser utilizadas por usuarios autenticados.
+
 ---
 
-## 10. APIs Externas
+## 11. Cambio USD/BRL
+
+A carteira possui moeda base BRL.
+
+Para ativos `US_MARKET`, o sistema deve obter a taxa atual `USD/BRL`.
+
+### Provedores
+
+```text
+AlphaVantage
+-> primario
+
+TwelveData
+-> fallback
+```
+
+### Regras
+
+- a taxa deve possuir cache para reduzir chamadas externas;
+- a taxa usada em uma transacao deve ser persistida na propria transacao;
+- a taxa usada em uma transacao nunca deve ser recalculada retroativamente;
+- para ativos B3, `taxaCambioBrl = 1`;
+- patrimonio atual de ativos US deve utilizar a cotacao atual em USD multiplicada pela taxa USD/BRL atual.
+
+---
+
+## 12. APIs Externas
 
 | Servico | Uso |
 |---|---|
-| BrasilAPI CNPJ | Dados da Receita Federal |
-| BrasilAPI CVM | Validacao de corretoras |
-| ViaCEP | Endereco por CEP |
+| BrasilAPI CNPJ | Dados cadastrais |
+| BrasilAPI CVM | Validacao regulatoria |
+| ViaCEP | Endereco |
 | Brapi | Cotacoes B3 |
-| AlphaVantage / TwelveData | Cotacoes dos EUA |
+| AlphaVantage | Cotacoes US e USD/BRL |
+| TwelveData | Fallback US e USD/BRL |
 
 ### Regras
+
 - clientes HTTP devem utilizar OpenFeign;
-- integracoes devem ficar isoladas do dominio;
-- timeout de aproximadamente 3 a 5 segundos;
-- cotacao deve utilizar cache de 10 minutos;
-- falhas externas relevantes devem ser tratadas e convertidas em respostas padronizadas.
+- integracoes devem ser isoladas por adapters;
+- timeout entre 3 e 5 segundos;
+- cotacoes e cambio devem utilizar cache;
+- falhas externas devem ser convertidas em respostas padronizadas;
+- fallback so deve ser utilizado quando o provedor primario falhar ou estiver indisponivel.
 
 ---
 
-## 11. Carteira e Caixa
+## 13. Carteira e Caixa
 
-Cada usuario deve possuir sua propria carteira.
+Cada usuario deve possuir uma carteira principal criada no cadastro.
+
+A moeda da carteira e sempre BRL.
 
 ### Resumo
 
@@ -350,12 +510,13 @@ Cada usuario deve possuir sua propria carteira.
 GET /api/v1/carteira/resumo
 ```
 
-Deve retornar:
-- patrimonio total;
-- saldo em caixa;
-- valor aplicado;
-- lucro/prejuizo;
-- posicoes consolidadas.
+Retornar:
+- patrimonio total em BRL;
+- saldo em caixa em BRL;
+- valor aplicado em BRL;
+- lucro/prejuizo nao realizado em BRL e percentual;
+- posicoes consolidadas;
+- data da ultima atualizacao.
 
 ### Caixa
 
@@ -365,14 +526,16 @@ POST /api/v1/carteira/caixa/saque
 ```
 
 Regras:
-- saldo nao pode ficar negativo;
-- cada deposito ou saque gera auditoria.
+- valores de deposito e saque sao em BRL;
+- saldo nunca pode ficar negativo;
+- deposito cria `MovimentacaoCaixa` do tipo `DEPOSITO`;
+- saque cria `MovimentacaoCaixa` do tipo `SAQUE`;
+- cada operacao gera auditoria;
+- cada operacao atualiza o snapshot do dia.
 
 ---
 
-## 12. Compras e Vendas
-
-Endpoint:
+## 14. Compras e Vendas
 
 ```http
 POST /api/v1/carteira/transacoes
@@ -382,115 +545,196 @@ Dados principais:
 - ticker;
 - tipo `BUY` ou `SELL`;
 - quantidade;
-- preco unitario;
-- taxas;
+- preco unitario na moeda do ativo;
+- taxas na moeda do ativo;
 - data da negociacao;
-- corretora.
+- corretoraId.
+
+A corretora deve existir no catalogo global e estar valida.
+
+### Normalizacao para BRL
+
+Para B3:
+
+```text
+taxaCambioBrl = 1
+```
+
+Para US:
+
+```text
+taxaCambioBrl = cotacao USD/BRL no momento da operacao
+```
+
+O sistema deve persistir na transacao:
+- moeda original;
+- preco unitario original;
+- taxas originais;
+- taxa de cambio utilizada;
+- valor total convertido para BRL;
+- resultado realizado em BRL quando aplicavel.
 
 ### Compra
 
-So pode ocorrer quando:
-
 ```text
-Saldo em Caixa >= Valor Total da Compra
+Saldo em Caixa BRL >= Custo Total BRL
 ```
 
-Calculo:
-
 ```text
-Custo = (Quantidade × Preco Unitario) + Taxas
+Custo Origem =
+(Quantidade * Preco Unitario) + Taxas
 
-Novo PM =
-[(Quantidade Anterior × PM Anterior) + Custo]
-/
-(Quantidade Anterior + Quantidade Comprada)
+Custo BRL =
+Custo Origem * Taxa Cambio BRL
+
+Novo Custo Total BRL =
+Custo Total BRL Anterior + Custo BRL
+
+Novo Preco Medio BRL =
+Novo Custo Total BRL / Nova Quantidade
 ```
 
 Depois da compra:
-- debitar caixa;
+- debitar caixa em BRL;
 - atualizar posicao;
-- atualizar preco medio;
-- atualizar total investido;
+- atualizar custo total investido em BRL;
+- atualizar preco medio em BRL por unidade;
 - registrar transacao;
-- gerar auditoria.
+- gerar auditoria;
+- atualizar snapshot do dia.
 
 ### Venda
-
-So pode ocorrer quando:
 
 ```text
 Quantidade Vendida <= Quantidade em Custodia
 ```
 
-Nao e permitido venda a descoberto.
-
-Calculo:
+Venda a descoberto nao e permitida.
 
 ```text
-Custo Base = Quantidade Vendida × PM Atual
+Custo Base BRL =
+Quantidade Vendida * Preco Medio BRL
 
-Valor Liquido =
-(Quantidade Vendida × Preco de Venda) - Taxas
+Valor Liquido Origem =
+(Quantidade Vendida * Preco Venda) - Taxas
 
-Lucro/Prejuizo Realizado =
-Valor Liquido - Custo Base
+Valor Liquido BRL =
+Valor Liquido Origem * Taxa Cambio BRL
+
+Lucro/Prejuizo Realizado BRL =
+Valor Liquido BRL - Custo Base BRL
 ```
 
-A venda nao altera o preco medio das unidades restantes.
+A venda:
+- credita o valor liquido em BRL no caixa;
+- reduz a quantidade da posicao;
+- nao altera o preco medio BRL das unidades restantes;
+- registra resultado realizado em BRL;
+- gera auditoria;
+- atualiza snapshot do dia.
 
-Se a posicao ficar zerada:
+Se a posicao zerar:
 
 ```text
-PM = 0
-Total Investido = 0
+quantidade = 0
+precoMedioBrl = 0
+totalInvestidoBrl = 0
 ```
 
 Todos os calculos financeiros devem utilizar `BigDecimal` e `RoundingMode.HALF_EVEN`.
 
+Nao utilizar `float` ou `double` para valores financeiros.
+
 ---
 
-## 13. Indicadores da Carteira
+## 15. Posicoes e Indicadores
 
-### Patrimonio
+### Valor atual de uma posicao B3
 
 ```text
-Patrimonio =
-Saldo em Caixa +
-Σ(Quantidade × Cotacao Atual)
+Valor Atual BRL =
+Quantidade * Cotacao Atual BRL
+```
+
+### Valor atual de uma posicao US
+
+```text
+Valor Atual BRL =
+Quantidade * Cotacao Atual USD * Cambio Atual USD/BRL
+```
+
+### Patrimonio total
+
+```text
+Patrimonio BRL =
+Saldo Caixa BRL + Soma(Valor Atual BRL das Posicoes)
 ```
 
 ### Lucro nao realizado
 
 ```text
-Lucro Nao Realizado =
-Valor Atual das Posicoes - Total Investido
+Lucro Nao Realizado BRL =
+Soma(Valor Atual BRL) - Soma(Total Investido BRL)
 ```
 
 ### Rentabilidade
 
+Se total investido > 0:
+
 ```text
 Rentabilidade (%) =
-(Lucro Nao Realizado / Total Investido) × 100
+(Lucro Nao Realizado BRL / Total Investido BRL) * 100
 ```
+
+Se total investido = 0:
+- rentabilidade = `0`.
 
 ### Alocacao
 
+Se patrimonio > 0:
+
 ```text
-Alocacao do Ativo (%) =
-Valor Atual do Ativo / Patrimonio Total × 100
+Alocacao (%) =
+Valor Atual BRL do Ativo / Patrimonio BRL * 100
 ```
 
 ---
 
-## 14. Auditoria
+## 16. Evolucao Patrimonial
 
-A aplicacao deve possuir dois niveis de log:
+A evolucao patrimonial deve ser baseada em `carteira_snapshots`.
+
+Cada snapshot deve armazenar:
+- carteira;
+- data de referencia;
+- saldo de caixa em BRL;
+- valor atual das posicoes em BRL;
+- total investido em BRL;
+- patrimonio total em BRL;
+- lucro nao realizado em BRL.
+
+Regras:
+- no maximo um snapshot por carteira por dia;
+- snapshot do dia atual pode ser atualizado;
+- snapshots anteriores sao imutaveis.
+
+Endpoint:
+
+```http
+GET /api/v1/carteira/graficos/evolucao
+```
+
+---
+
+## 17. Auditoria
 
 ### Log da aplicacao
-- SLF4J;
-- preferencialmente estruturado em JSON.
 
-### Auditoria no PostgreSQL
+- SLF4J;
+- preferencialmente JSON;
+- nunca registrar senhas, tokens ou segredos.
+
+### Auditoria persistida
 
 Tabela:
 
@@ -498,15 +742,17 @@ Tabela:
 logs_auditoria
 ```
 
-Registrar eventos como:
+Eventos:
+- cadastro;
+- login;
 - compra;
 - venda;
 - deposito;
 - saque;
-- login;
 - acesso negado;
-- alteracao cadastral;
-- falha CVM.
+- alteracao administrativa;
+- falha CVM;
+- falha de integracao relevante.
 
 ### Endpoints do usuario
 
@@ -517,17 +763,29 @@ GET /api/v1/auditoria/eventos
 
 O usuario so pode visualizar seus proprios registros.
 
+### Auditoria administrativa
+
+A auditoria global deve mostrar apenas metadados operacionais, de compliance e seguranca.
+
+Nao deve revelar dados financeiros privados de outras carteiras.
+
 ---
 
-## 15. Painel Administrativo
+## 18. Painel Administrativo
 
-Rotas protegidas por:
+Rotas:
+
+```text
+/api/v1/admin/**
+```
+
+Protecao:
 
 ```java
 @PreAuthorize("hasRole('ADMIN')")
 ```
 
-### Endpoints
+Endpoints:
 
 ```http
 GET /api/v1/admin/metricas
@@ -536,36 +794,42 @@ GET /api/v1/admin/integracoes/status
 GET /api/v1/admin/auditoria/global
 ```
 
-### Metricas principais
+Metricas:
 - total de usuarios;
 - total de corretoras;
 - total de ativos;
 - total de transacoes;
-- volume financeiro;
+- volume financeiro global agregado;
 - quantidade de bloqueios CVM;
-- status das integracoes externas.
+- status das integracoes.
+
+Metricas devem ser agregadas e nao devem permitir abrir os dados privados de uma carteira individual.
 
 ---
 
-## 16. Frontend
+## 19. Frontend
 
-O frontend deve seguir como referencia visual uma plataforma de acompanhamento de investimentos no estilo Investidor10.
+Referencia visual:
+- plataforma de acompanhamento de investimentos no estilo Investidor10.
 
 ### Autenticacao
-- `/login`
-- `/register`
 
-Usuarios nao autenticados devem ser redirecionados para login.
+```text
+/login
+/register
+```
 
-Usuarios `ROLE_USER` nao podem acessar `/admin`.
+Usuarios nao autenticados devem ser redirecionados ao login.
 
-### Dashboard do investidor
+`ROLE_USER` nao pode acessar `/admin`.
 
-Deve conter cards:
-- patrimonio total;
-- valor aplicado;
-- saldo em caixa;
-- lucro/prejuizo.
+### Dashboard
+
+Cards:
+- patrimonio total BRL;
+- valor aplicado BRL;
+- saldo em caixa BRL;
+- lucro/prejuizo BRL e percentual.
 
 ### Abas
 
@@ -575,22 +839,27 @@ Deve conter cards:
 - maiores altas e baixas.
 
 #### 2. Meus Ativos
-Tabela com:
 - ticker;
 - mercado;
+- moeda;
 - quantidade;
-- preco medio;
-- cotacao;
-- total investido;
-- posicao atual;
+- preco medio BRL;
+- cotacao na moeda original;
+- valor atual BRL;
+- total investido BRL;
 - lucro/prejuizo;
 - percentual da carteira.
 
 #### 3. Compras e Vendas
-- historico de transacoes;
-- modal para nova compra/venda.
+- historico;
+- nova compra;
+- nova venda;
+- corretora utilizada;
+- moeda;
+- taxa de cambio quando aplicavel.
 
 #### 4. Graficos
+- evolucao patrimonial;
 - alocacao por ativo;
 - alocacao por mercado;
 - alocacao por setor;
@@ -599,11 +868,10 @@ Tabela com:
 #### 5. Logs e Caixa
 - depositos;
 - saques;
-- auditoria do usuario.
+- historico de movimentacoes;
+- auditoria propria.
 
 ### Admin
-
-Pagina:
 
 ```text
 /admin
@@ -612,12 +880,13 @@ Pagina:
 Deve possuir:
 - metricas globais;
 - status das APIs;
-- bloqueios da CVM;
-- auditoria global.
+- bloqueios CVM;
+- auditoria global sanitizada;
+- administracao dos catalogos de corretoras e ativos.
 
 ---
 
-## 17. Tratamento de Erros
+## 20. Tratamento de Erros
 
 Utilizar:
 
@@ -626,7 +895,7 @@ Utilizar:
 ProblemDetail
 ```
 
-Padronizar respostas para:
+Padronizar:
 
 ```text
 400 Bad Request
@@ -640,7 +909,7 @@ Padronizar respostas para:
 
 ---
 
-## 18. Banco de Dados
+## 21. Modelo de Dados
 
 PostgreSQL deve possuir:
 
@@ -652,32 +921,151 @@ historico_cotacoes
 carteiras
 posicoes
 transacoes
+movimentacoes_caixa
+carteira_snapshots
 logs_auditoria
 ```
 
-IDs devem utilizar UUID.
+### Relacionamentos
 
-### Precisao
+```text
+Usuario -> Carteira
+Carteira -> Posicoes
+Carteira -> Transacoes
+Carteira -> MovimentacoesCaixa
+Carteira -> CarteiraSnapshots
+Transacao -> Acao
+Transacao -> Corretora
+HistoricoCotacao -> Acao
+```
 
-Cotacoes e preco medio:
+Nao deve existir:
+- `corretora_id` em `acoes`;
+- relacionamento fixo `Acao -> Corretora`.
+
+IDs:
+- UUID.
+
+Cotacoes:
 
 ```sql
 NUMERIC(15,4)
 ```
 
-Valores monetarios:
+Precos medios e cambio:
+
+```sql
+NUMERIC(18,8)
+```
+
+Valores monetarios consolidados:
 
 ```sql
 NUMERIC(18,2)
 ```
 
-Quantidades podem possuir ate 8 casas decimais.
+Quantidades:
+
+```sql
+NUMERIC(18,8)
+```
 
 ---
 
-## 19. Versionamento do Banco
+## 22. Campos Minimos das Entidades Financeiras
 
-O banco deve ser versionado exclusivamente pelo **Flyway**.
+### Carteira
+
+```text
+id
+usuario_id
+nome
+saldo_caixa_brl
+data_criacao
+```
+
+### Posicao
+
+```text
+id
+carteira_id
+acao_id
+quantidade
+preco_medio_brl
+total_investido_brl
+lucro_realizado_acumulado_brl
+ultima_atualizacao
+```
+
+Unicidade:
+
+```text
+(carteira_id, acao_id)
+```
+
+### Transacao
+
+```text
+id
+carteira_id
+usuario_id
+acao_id
+corretora_id
+tipo
+quantidade
+moeda
+preco_unitario
+taxas
+taxa_cambio_brl
+valor_total_brl
+resultado_realizado_brl
+data_negociacao
+data_registro
+```
+
+### MovimentacaoCaixa
+
+```text
+id
+carteira_id
+usuario_id
+tipo
+valor_brl
+descricao
+data_hora
+```
+
+Tipos:
+
+```text
+DEPOSITO
+SAQUE
+```
+
+### CarteiraSnapshot
+
+```text
+id
+carteira_id
+data_referencia
+saldo_caixa_brl
+valor_posicoes_brl
+total_investido_brl
+patrimonio_total_brl
+lucro_nao_realizado_brl
+```
+
+Unicidade:
+
+```text
+(carteira_id, data_referencia)
+```
+
+---
+
+## 23. Versionamento do Banco
+
+O banco deve ser versionado exclusivamente por Flyway.
 
 Diretorio:
 
@@ -690,16 +1078,16 @@ Exemplo:
 ```text
 V1__create_initial_schema.sql
 V2__create_database_indexes.sql
-V3__add_sector_to_acoes.sql
+V3__add_new_field.sql
 ```
 
 Regras:
-- migrations executadas nunca devem ser alteradas;
-- cada mudanca estrutural exige nova migration;
-- Flyway deve executar automaticamente no startup;
-- Hibernate nao pode alterar o schema automaticamente.
+- migration executada nunca deve ser alterada;
+- nova alteracao estrutural exige nova migration;
+- Flyway executa automaticamente no startup;
+- Hibernate nao cria nem altera tabelas.
 
-Configuracao obrigatoria:
+Configuracao:
 
 ```yaml
 spring:
@@ -713,7 +1101,7 @@ spring:
     validate-on-migrate: true
 ```
 
-O historico sera mantido em:
+Historico:
 
 ```text
 flyway_schema_history
@@ -721,11 +1109,9 @@ flyway_schema_history
 
 ---
 
-## 20. Variaveis de Ambiente
+## 24. Variaveis de Ambiente
 
 O projeto deve possuir `.env` e `.env.example`.
-
-Variaveis minimas:
 
 ```env
 POSTGRES_DB=carteira_db
@@ -754,29 +1140,30 @@ FRONTEND_PORT=3000
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
-O `.env` academico pode conter apenas credenciais locais/de demonstracao.
+O `.env` academico pode conter valores locais e de demonstracao.
 
 Segredos reais nao devem ser versionados.
 
 ---
 
-## 21. Docker
+## 25. Docker
 
-A aplicacao completa deve executar por:
+Execucao completa:
 
 ```bash
 docker compose up --build
 ```
 
-O `docker-compose.yml` deve subir:
-1. PostgreSQL;
+Servicos:
+1. PostgreSQL 16+;
 2. backend Spring Boot;
 3. frontend Next.js.
 
-### Ordem esperada
+Ordem:
 
 ```text
 PostgreSQL
+-> healthcheck
 -> Backend
 -> Flyway
 -> Hibernate validate
@@ -784,48 +1171,96 @@ PostgreSQL
 -> Frontend
 ```
 
-### Portas
+Portas:
 
 ```text
-Frontend:   3000
-Backend:    8080
+Frontend: 3000
+Backend: 8080
 PostgreSQL: 5432
 ```
 
+A imagem PostgreSQL deve possuir versao fixa compativel com PostgreSQL 16+.
+
+Nao utilizar `postgres:latest`.
+
 ---
 
-## 22. Documentacao
+## 26. Swagger e Documentacao
 
-Swagger disponivel em:
+Swagger:
 
 ```text
 http://localhost:8080/swagger-ui.html
 ```
 
-Deve possuir suporte a autenticacao Bearer JWT.
+Deve possuir Bearer JWT.
 
 O `README.md` deve conter:
-- descricao do projeto;
-- requisitos;
-- como configurar `.env`;
-- como executar via Docker;
-- APIs externas utilizadas;
+- descricao;
+- stack;
+- configuracao `.env`;
+- execucao Docker;
+- APIs externas;
 - credenciais locais do administrador;
-- links de acesso;
-- instrucoes de testes.
+- endpoints;
+- testes.
 
 ---
 
-## 23. Entregaveis Obrigatorios
+## 27. Testes
 
-O repositorio final deve conter:
+### Seguranca
+- cadastro;
+- login;
+- JWT invalido;
+- `ROLE_USER` bloqueado em admin;
+- acesso cruzado bloqueado.
+
+### Corretoras
+- CNPJ invalido;
+- CNPJ duplicado;
+- Receita inativa;
+- CVM invalida;
+- cadastro valido.
+
+### Ativos
+- ticker invalido;
+- ticker duplicado;
+- B3;
+- US;
+- fallback;
+- cache.
+
+### Carteira
+- deposito;
+- saque;
+- saldo insuficiente.
+
+### Transacoes
+- compra valida;
+- compra sem saldo;
+- venda valida;
+- venda acima da custodia;
+- preco medio;
+- resultado realizado;
+- conversao USD/BRL.
+
+### Persistencia
+- migrations Flyway;
+- integracao PostgreSQL.
+
+Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste de integracao.
+
+---
+
+## 28. Entregaveis Obrigatorios
 
 - backend completo;
 - frontend completo;
 - OpenSpec;
 - Git versionado;
-- Dockerfile do backend;
-- Dockerfile do frontend;
+- Dockerfile backend;
+- Dockerfile frontend;
 - `docker-compose.yml`;
 - `.env`;
 - `.env.example`;
@@ -834,50 +1269,67 @@ O repositorio final deve conter:
 - colecao Postman ou Insomnia;
 - DER atualizado;
 - Swagger;
+- testes;
 - aplicacao executavel via Docker.
 
 ---
 
-## 24. Criterios de Aceite
-
-O projeto sera considerado funcional quando:
+## 29. Criterios de Aceite
 
 - [ ] usuario consegue se cadastrar;
+- [ ] carteira principal e criada no cadastro;
 - [ ] usuario consegue fazer login;
-- [ ] JWT protege os recursos privados;
-- [ ] dados de usuarios diferentes permanecem isolados;
-- [ ] administrador e criado automaticamente;
+- [ ] JWT protege recursos privados;
+- [ ] usuarios nao acessam dados uns dos outros;
+- [ ] administrador e criado de forma idempotente;
+- [ ] apenas ADMIN altera catalogos globais;
 - [ ] corretoras sao validadas na Receita e CVM;
-- [ ] ativos B3 e US podem ser cadastrados;
-- [ ] cotacoes sao obtidas por APIs externas;
-- [ ] cache evita consultas repetidas em menos de 10 minutos;
-- [ ] usuario consegue depositar e sacar saldo;
-- [ ] usuario consegue comprar acoes com saldo suficiente;
-- [ ] sistema impede venda sem quantidade disponivel;
-- [ ] preco medio e calculado corretamente;
-- [ ] lucro/prejuizo realizado e calculado corretamente;
-- [ ] dashboard apresenta posicoes e indicadores;
+- [ ] nao existe relacionamento fixo entre acao e corretora;
+- [ ] ativos B3 e US podem ser cadastrados pelo ADMIN;
+- [ ] usuarios autenticados podem consultar ativos e corretoras;
+- [ ] Brapi fornece cotacoes B3;
+- [ ] AlphaVantage e primario para US;
+- [ ] TwelveData funciona como fallback;
+- [ ] cotacoes usam cache;
+- [ ] cache nao duplica historico de cotacoes;
+- [ ] carteira utiliza BRL como moeda base;
+- [ ] operacoes US persistem a taxa USD/BRL utilizada;
+- [ ] patrimonio US e convertido para BRL;
+- [ ] usuario consegue depositar e sacar;
+- [ ] depositos e saques possuem historico proprio;
+- [ ] usuario consegue comprar com saldo suficiente;
+- [ ] venda a descoberto e bloqueada;
+- [ ] preco medio em BRL e calculado corretamente;
+- [ ] lucro/prejuizo realizado em BRL e calculado corretamente;
+- [ ] snapshots diarios suportam evolucao patrimonial;
+- [ ] dashboard apresenta indicadores consolidados;
 - [ ] operacoes importantes geram auditoria;
+- [ ] auditoria do ADMIN nao expoe dados financeiros privados;
 - [ ] painel administrativo e exclusivo de `ROLE_ADMIN`;
-- [ ] banco e criado e evoluido via Flyway;
+- [ ] banco evolui exclusivamente via Flyway;
 - [ ] Hibernate utiliza `ddl-auto: validate`;
-- [ ] aplicacao completa sobe com `docker compose up --build`;
+- [ ] aplicacao sobe com `docker compose up --build`;
 - [ ] Swagger esta acessivel;
-- [ ] frontend, backend e PostgreSQL funcionam de forma integrada.
+- [ ] frontend, backend e PostgreSQL funcionam integrados.
 
 ---
 
-## 25. Restricoes do Desenvolvimento
+## 30. Restricoes de Desenvolvimento
 
-Durante a implementacao:
-
-1. Nao implementar funcionalidades fora deste PRD sem criar ou atualizar uma especificacao no OpenSpec.
-2. Nao alterar migrations Flyway ja executadas.
-3. Nao utilizar `ddl-auto: update` ou `create`.
-4. Nao colocar segredos reais no Git.
-5. Nao permitir acesso entre dados de usuarios diferentes.
-6. Nao realizar calculos financeiros com `float` ou `double`; usar `BigDecimal`.
-7. Nao permitir venda a descoberto.
-8. Nao cadastrar corretora sem validacao ativa na CVM.
-9. Nao permitir acesso as rotas administrativas por `ROLE_USER`.
-10. Manter integracoes externas isoladas atraves de adapters.
+1. Nao implementar funcionalidades fora deste PRD sem change correspondente no OpenSpec.
+2. Nao alterar migration Flyway ja executada.
+3. Nao utilizar `ddl-auto: update`, `create` ou `create-drop`.
+4. Nao versionar segredos reais.
+5. Nao confiar em `usuario_id` enviado pelo cliente para autorizacao.
+6. Nao permitir acesso entre dados privados de usuarios.
+7. Nao utilizar `float` ou `double` para calculos financeiros.
+8. Nao permitir venda a descoberto.
+9. Nao cadastrar corretora sem validacao ativa na CVM.
+10. Nao permitir `ROLE_USER` alterar catalogos globais.
+11. Nao permitir `ROLE_USER` acessar rotas administrativas.
+12. Nao criar relacionamento fixo entre `Acao` e `Corretora`.
+13. Nao recalcular retroativamente taxa de cambio persistida em transacoes.
+14. Nao criar historico de cotacao quando a resposta vier do cache.
+15. Manter integracoes externas isoladas por Adapter, Strategy e Factory.
+16. Manter somente uma change principal ativa por vez, salvo dependencia explicitamente documentada.
+17. Changes concluidas devem ser testadas, revisadas e arquivadas antes da proxima etapa principal.
