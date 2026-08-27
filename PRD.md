@@ -119,10 +119,11 @@ Nesta versao do produto:
 
 ### Backend
 - Java 21
-- Spring Boot 3.x
+- Spring Boot 4.1.1
 - Spring Web
 - Spring Data JPA
-- Spring Security 6
+- Spring Security compativel com Spring Boot 4.1.1, preferencialmente na versao gerenciada pelo dependency management/BOM do Spring Boot
+- Spring Boot Actuator
 - JWT
 - Spring Cloud OpenFeign
 - PostgreSQL 16+
@@ -157,6 +158,8 @@ carteira-investimento/
 - backend/
 - frontend/
 - openspec/
+- package.json
+- package-lock.json
 - PRD.md
 - .env
 - .env.example
@@ -165,6 +168,17 @@ carteira-investimento/
 - README.md
 - AGENTS.md
 ```
+
+O `package.json` e o `package-lock.json` da raiz pertencem ao tooling do repositorio e ao OpenSpec e devem ser preservados.
+
+O frontend e um projeto Node independente e deve possuir:
+
+```text
+frontend/package.json
+frontend/package-lock.json
+```
+
+O `package.json` da raiz nao deve ser transformado no projeto Next.js. Diretorios `node_modules` devem permanecer ignorados pelo Git.
 
 ---
 
@@ -1163,13 +1177,23 @@ Ordem:
 
 ```text
 PostgreSQL
--> healthcheck
+-> pg_isready healthy
 -> Backend
 -> Flyway
 -> Hibernate validate
--> Seeder ADMIN
+-> GET /actuator/health retorna healthy
 -> Frontend
 ```
+
+O backend deve incluir Spring Boot Actuator e expor:
+
+```http
+GET /actuator/health
+```
+
+O Docker Compose deve usar esse endpoint como healthcheck do backend. O frontend somente pode iniciar depois que o backend estiver saudavel; processo ou container apenas iniciado nao comprova prontidao. O healthcheck do PostgreSQL com `pg_isready` permanece obrigatorio.
+
+O seeder de administrador pertence a change futura de identidade/autenticacao e nao faz parte da fundacao tecnica inicial.
 
 Portas:
 
@@ -1309,6 +1333,7 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] banco evolui exclusivamente via Flyway;
 - [ ] Hibernate utiliza `ddl-auto: validate`;
 - [ ] aplicacao sobe com `docker compose up --build`;
+- [ ] PostgreSQL e backend possuem healthchecks reais e o frontend aguarda o backend saudavel;
 - [ ] Swagger esta acessivel;
 - [ ] frontend, backend e PostgreSQL funcionam integrados.
 
