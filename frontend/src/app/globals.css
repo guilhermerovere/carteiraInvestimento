@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #07110e;
+  --surface: #0d1d18;
+  --border: #204a3d;
+  --text: #ecfdf5;
+  --muted: #9cc7b8;
+  --accent: #57e6a5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(38 105 79 / 35%), transparent 45%),
+    var(--background);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.foundation-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+}
+
+.foundation-card {
+  width: min(100%, 42rem);
+  padding: clamp(2rem, 7vw, 4rem);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: 0 2rem 6rem rgb(0 0 0 / 28%);
+}
+
+.foundation-kicker {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.foundation-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 2rem 0 1rem;
+  color: var(--accent);
+}
+
+h1 {
+  max-width: 13ch;
+  margin: 0;
+  font-size: clamp(2.25rem, 8vw, 4.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+p {
+  max-width: 55ch;
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.foundation-config {
+  display: grid;
+  gap: 0.35rem;
+  margin: 2.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.foundation-config dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.foundation-config dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
