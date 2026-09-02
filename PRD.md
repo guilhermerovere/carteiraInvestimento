@@ -207,20 +207,30 @@ O `package.json` da raiz nao deve ser transformado no projeto Next.js. Diretorio
 domain/
 - entidades
 - enums
-- excecoes
-- regras de negocio
+- excecoes e regras puras de dominio
+
+application/
+- use cases
+- servicos de aplicacao
+- orquestracao transacional
+- ports/contratos necessarios pelos casos de uso
 
 infrastructure/
+- JPA
+- implementacoes de repositories/ports
+- Spring Security
+- JWT
+- BCrypt
 - configuracoes
-- seguranca
-- clientes externos
-- adapters
+- adapters externos
 
 presentation/
 - controllers
 - DTOs
-- tratamento de erros
+- tratamento de erros HTTP
 ```
+
+Cadastro, login, consulta do principal atual e provisionamento do administrador devem ser orquestrados pela camada `application`. O dominio nao depende de JPA, Spring Security, HTTP ou adapters externos; a infraestrutura implementa os ports definidos pela application e a presentation somente traduz contratos HTTP.
 
 ### Entidades principais
 
@@ -329,11 +339,14 @@ Requisitos:
 - ao menos 1 caractere especial;
 - senha armazenada com BCrypt strength 12;
 - usuario recebe `ROLE_USER`;
-- usuario e carteira principal devem ser criados atomicamente na mesma transacao;
-- a carteira principal deve ser criada automaticamente com saldo zero;
+- usuario nasce com `ativo=true`;
+- usuario, carteira principal e auditoria de cadastro devem ser criados atomicamente na mesma transacao;
+- a carteira principal deve receber por padrao o nome `Carteira Principal` e saldo inicial zero;
 - retornar `201 Created`;
 - nao autenticar automaticamente o usuario;
-- nao retornar senha ou `senha_hash`.
+- nao gerar JWT;
+- retornar somente `id`, `nome`, `email`, `role` e `ativo`;
+- nao retornar senha, `senha_hash` ou token.
 
 ### 7.5. Login e Bearer JWT
 
@@ -341,18 +354,25 @@ Requisitos:
 POST /api/v1/auth/login
 ```
 
-Requisitos da resposta:
-- retornar `200 OK`;
-- retornar o access token JWT;
-- informar o token type `Bearer`;
-- informar a expiracao;
-- nao retornar senha ou `senha_hash`.
+Resposta de sucesso (`200 OK`):
+
+```json
+{
+  "accessToken": "...",
+  "tokenType": "Bearer",
+  "expiresIn": 86400
+}
+```
+
+`expiresIn` representa a duracao restante do access token em segundos. A resposta nao deve retornar senha, `senha_hash` ou refresh token. O evento de login bem sucedido deve ser persistido antes de considerar o login concluido e antes de retornar o token.
 
 O JWT deve utilizar:
 - algoritmo HMAC SHA-256 (`HS256`);
 - segredo com pelo menos 256 bits;
 - segredo fornecido por variavel de ambiente;
-- expiracao configurada por `JWT_EXPIRATION_HOURS`, cujo valor padrao atual e 24 horas.
+- expiracao configurada por `JWT_EXPIRATION_HOURS`, cujo valor padrao atual e 24 horas;
+- issuer fornecido por `JWT_ISSUER`, com valor `carteira-investimento-backend`;
+- audience fornecida por `JWT_AUDIENCE`, com valor `carteira-investimento-api`.
 
 Claims obrigatorias:
 - `sub`: UUID do usuario;
@@ -378,12 +398,14 @@ Requisitos:
 - nao aceitar `usuarioId` fornecido pelo cliente;
 - retornar somente `id`, `nome`, `email`, `role` e `ativo`.
 
-### 7.7. Usuario ativo e inativo
+### 7.7. Usuario persistido, ativo e role atual
 
 - usuario inativo nao pode realizar login;
 - usuario inativo nao pode continuar utilizando JWT emitido anteriormente;
-- durante a autenticacao de toda requisicao protegida, consultar o estado atual do usuario no banco;
-- token criptograficamente valido pertencente a usuario atualmente inativo deve resultar em `401 Unauthorized`;
+- durante a autenticacao de toda requisicao protegida, apos validar criptograficamente o JWT, carregar no banco o usuario indicado por `sub`;
+- validar `iss` e `aud` durante a autenticacao;
+- token criptograficamente valido cujo usuario nao exista, esteja inativo ou possua role persistida diferente da claim `role` deve resultar em `401 Unauthorized`;
+- construir as authorities exclusivamente a partir da role atualmente persistida;
 - nao criar endpoint administrativo para ativar ou desativar usuarios nesta etapa.
 
 ### 7.8. Semantica de 401 e 403
@@ -394,6 +416,7 @@ Retornar `401 Unauthorized` para:
 - token expirado;
 - usuario inexistente;
 - usuario inativo.
+- claim `role` divergente da role atualmente persistida.
 
 Retornar `403 Forbidden` quando:
 - usuario autenticado nao possui a role necessaria;
@@ -453,14 +476,17 @@ ADMIN_EMAIL=admin@carteira.com
 ADMIN_PASSWORD=Admin@2026Secure
 ```
 
+`ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` sao obrigatorios nesta versao e formam um conjunto indivisivel. O processo deve ser fail-fast: se qualquer configuracao estiver ausente, parcial ou invalida, o startup deve falhar explicitamente antes de criar administrador parcial.
+
 O processo deve ser idempotente e seguir estas regras:
 - normalizar o e-mail configurado conforme a secao 7.2;
-- se o e-mail ainda nao existir, criar usuario `ROLE_ADMIN`, ativo, com senha protegida por BCrypt;
+- validar `ADMIN_PASSWORD` pela mesma politica da secao 7.4 e armazena-la com BCrypt strength 12;
+- se o e-mail ainda nao existir, criar usuario `ROLE_ADMIN`, ativo, com senha protegida por BCrypt strength 12 e auditoria de criacao na mesma transacao;
 - `ROLE_ADMIN` nao recebe carteira;
 - se o mesmo administrador ja existir, nao duplicar;
 - nunca sobrescrever automaticamente senha ou role de usuario existente;
 - se o e-mail configurado para administrador ja existir como `ROLE_USER`, falhar explicitamente em vez de promover o usuario silenciosamente;
-- configuracao `ADMIN_*` ausente ou invalida deve produzir comportamento explicito e documentado, sem criar administrador parcial ou com credenciais invalidas.
+- configuracao `ADMIN_*` ausente, parcial ou invalida deve falhar explicitamente, sem criar administrador parcial ou com credenciais invalidas.
 
 ---
 
@@ -902,7 +928,9 @@ correlation_id
 data_hora
 ```
 
-`usuario_id` deve aceitar `NULL` para eventos sem usuario identificavel, como tentativa de login com e-mail inexistente.
+`usuario_id` deve aceitar `NULL` para eventos sem usuario identificavel, como tentativa de login com e-mail inexistente. `endpoint` tambem deve aceitar `NULL` para eventos sem origem HTTP, como a criacao do administrador inicial.
+
+`correlation_id` e obrigatorio em todo evento. Em requisicoes HTTP, usar `X-Correlation-ID` somente quando tiver UUID valido no formato canonico e comprimento limitado a esse formato; se estiver ausente ou invalido, gerar um UUID. Em eventos de sistema sem requisicao HTTP, gerar um UUID de correlacao.
 
 Eventos minimos da etapa de identidade e seguranca:
 - cadastro de usuario;
@@ -1353,6 +1381,8 @@ BACKEND_PORT=8080
 
 JWT_SECRET_KEY=chave-local-desenvolvimento-com-mais-de-256-bits-2026
 JWT_EXPIRATION_HOURS=24
+JWT_ISSUER=carteira-investimento-backend
+JWT_AUDIENCE=carteira-investimento-api
 
 ADMIN_NAME=Administrador do Sistema
 ADMIN_EMAIL=admin@carteira.com
@@ -1370,9 +1400,9 @@ O `.env` academico pode conter valores locais e de demonstracao.
 
 Segredos reais nao devem ser versionados.
 
-`JWT_SECRET_KEY` deve fornecer um segredo com pelo menos 256 bits para assinatura `HS256`. `JWT_EXPIRATION_HOURS` possui valor padrao atual de 24 horas.
+`JWT_SECRET_KEY` deve fornecer um segredo UTF-8 com pelo menos 32 bytes para assinatura `HS256`. `JWT_EXPIRATION_HOURS` possui valor padrao atual de 24 horas. `JWT_ISSUER` e `JWT_AUDIENCE` nao sao segredos e devem ser fornecidos a `application.yml`, `.env.example` e `docker-compose.yml` quando esta change for implementada.
 
-As configuracoes `ADMIN_*` devem ser validadas na inicializacao. Ausencia ou invalidade deve ter comportamento explicito e documentado conforme a secao 8.
+As configuracoes `ADMIN_*` sao obrigatorias e devem ser validadas na inicializacao. Ausencia, parcialidade ou invalidade deve causar falha explicita e documentada conforme a secao 8.
 
 ---
 
@@ -1456,6 +1486,8 @@ O `README.md` deve conter:
 - normalizacao e unicidade case-insensitive de e-mail no PostgreSQL;
 - usuario inativo bloqueado no login;
 - JWT anteriormente emitido bloqueado quando o usuario se torna inativo;
+- JWT bloqueado quando `iss` ou `aud` nao conferem;
+- JWT bloqueado quando a claim `role` diverge da role atualmente persistida;
 - JWT invalido;
 - JWT expirado;
 - claims obrigatorias do JWT;
@@ -1464,7 +1496,8 @@ O `README.md` deve conter:
 - semantica de `401` e `403`;
 - criacao idempotente do administrador sem carteira;
 - conflito entre `ADMIN_EMAIL` e `ROLE_USER` falha explicitamente;
-- auditoria minima de eventos de seguranca sem dados proibidos.
+- bootstrap falha para `ADMIN_*` ausente, parcial ou invalido, sem criar administrador parcial;
+- auditoria minima de eventos de seguranca sem dados proibidos, com `endpoint` nulo em eventos de sistema e correlation ID sempre presente.
 
 ### Corretoras
 - CNPJ invalido;
@@ -1533,17 +1566,18 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] e-mail e persistido em forma canonica e possui unicidade case-insensitive no PostgreSQL;
 - [ ] senha e armazenada exclusivamente com BCrypt e nunca e exposta;
 - [ ] usuario consegue fazer login;
-- [ ] cadastro retorna `201`, nao autentica automaticamente e nao expoe senha ou hash;
-- [ ] login retorna `200`, access token, tipo `Bearer` e expiracao, sem expor senha ou hash;
+- [ ] cadastro retorna `201`, cria usuario ativo, carteira `Carteira Principal` com saldo zero e auditoria na mesma transacao, nao autentica automaticamente e retorna somente `id`, `nome`, `email`, `role` e `ativo`;
+- [ ] login retorna `200` com `accessToken`, `tokenType=Bearer` e `expiresIn` em segundos, persiste a auditoria de sucesso antes do token e nao expoe senha, hash ou refresh token;
 - [ ] `/api/v1/auth/me` usa somente o `SecurityContext`, nao aceita `usuarioId` do cliente e retorna apenas os campos permitidos;
-- [ ] JWT `HS256` possui as claims obrigatorias e expiracao configuravel, com padrao de 24 horas;
-- [ ] usuario inativo nao faz login nem utiliza JWT anteriormente emitido;
+- [ ] JWT `HS256` possui as claims obrigatorias, `iss`/`aud` validados e expiracao configuravel, com padrao de 24 horas;
+- [ ] usuario inexistente ou inativo, ou JWT com role divergente da role persistida, recebe `401`; authorities usam a role atual do banco;
 - [ ] respostas de autenticacao e autorizacao distinguem corretamente `401` e `403`;
 - [ ] JWT protege recursos privados;
 - [ ] usuarios nao acessam dados uns dos outros;
 - [ ] administrador e criado de forma idempotente, sem carteira e sem sobrescrever senha ou role existente;
 - [ ] conflito de `ADMIN_EMAIL` com `ROLE_USER` falha explicitamente;
-- [ ] eventos minimos de seguranca geram auditoria sanitizada e correlacionavel;
+- [ ] `ADMIN_*` ausente, parcial ou invalido faz o startup falhar antes de qualquer criacao parcial;
+- [ ] eventos minimos de seguranca geram auditoria sanitizada e correlacionavel, inclusive eventos de sistema sem endpoint HTTP;
 - [ ] apenas ADMIN altera catalogos globais;
 - [ ] corretoras sao validadas na Receita e CVM;
 - [ ] nao existe relacionamento fixo entre acao e corretora;
