@@ -2,6 +2,7 @@ package com.carteira.carteiraInvestimento.presentation.error;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
+import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +15,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(IllegalArgumentException.class)
 	ProblemDetail handleInvalidArgument(IllegalArgumentException exception, HttpServletRequest request) {
 		return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+	}
+
+	@ExceptionHandler(DuplicateEmailException.class)
+	ProblemDetail handleDuplicateEmail(DuplicateEmailException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Email already registered", "An account with this email already exists.", request);
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)

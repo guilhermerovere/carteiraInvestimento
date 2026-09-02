@@ -1,28 +1,28 @@
 ## 1. Dependencias e configuracao segura
 
-- [ ] 1.1 Adicionar o suporte Spring Security OAuth2 Resource Server/Jose usando o dependency management existente e verificar com `backend\mvnw.cmd dependency:tree` que nao ha versoes manuais redundantes nem H2
-- [ ] 1.2 Modelar propriedades validadas para JWT e `ADMIN_*`, incluindo segredo UTF-8 de no minimo 32 bytes, expiracao positiva com padrao 24, `JWT_ISSUER=carteira-investimento-backend`, `JWT_AUDIENCE=carteira-investimento-api` e conjunto `ADMIN_*` obrigatorio, e verificar testes de inicializacao para valores validos, ausentes, parciais e invalidos
-- [ ] 1.3 Atualizar `application.yml`, `.env.example` e o ambiente do backend em `docker-compose.yml` com `JWT_SECRET_KEY`, `JWT_EXPIRATION_HOURS`, `JWT_ISSUER`, `JWT_AUDIENCE` e `ADMIN_*`, sem segredo real, e verificar `docker compose config`
+- [x] 1.1 Adicionar o suporte Spring Security OAuth2 Resource Server/Jose usando o dependency management existente e verificar com `backend\mvnw.cmd dependency:tree` que nao ha versoes manuais redundantes nem H2
+- [x] 1.2 Modelar propriedades validadas para JWT e `ADMIN_*`, incluindo segredo UTF-8 de no minimo 32 bytes, expiracao positiva com padrao 24, `JWT_ISSUER=carteira-investimento-backend`, `JWT_AUDIENCE=carteira-investimento-api` e conjunto `ADMIN_*` obrigatorio, e verificar testes de inicializacao para valores validos, ausentes, parciais e invalidos
+- [x] 1.3 Atualizar `application.yml`, `.env.example` e o ambiente do backend em `docker-compose.yml` com `JWT_SECRET_KEY`, `JWT_EXPIRATION_HOURS`, `JWT_ISSUER`, `JWT_AUDIENCE` e `ADMIN_*`, sem segredo real, e verificar `docker compose config`
 
 ## 2. Schema PostgreSQL governado por Flyway
 
-- [ ] 2.1 Criar migration forward-only de `usuarios` com UUID, campos obrigatorios, timestamps, check de e-mail canonico, indice unico case-insensitive e constraint das duas roles, e verificar as constraints em PostgreSQL Testcontainers
-- [ ] 2.2 Criar migration forward-only de `carteiras` com UUID, FK unica para usuario, nome, `NUMERIC(18,2)` para caixa e data de criacao, e verificar que uma segunda carteira para o mesmo usuario e rejeitada
-- [ ] 2.3 Criar migration forward-only de `logs_auditoria` com FK de usuario nullable, endpoint nullable e todos os metadados minimos, e verificar que eventos anonimos e de sistema podem ser persistidos com os campos nulos apropriados
-- [ ] 2.4 Adaptar `FlywayValidationIT` para a nova sequencia sem perder o cenario de historico incompativel e verificar o teste de integracao com PostgreSQL real
+- [x] 2.1 Criar migration forward-only de `usuarios` com UUID, campos obrigatorios, timestamps, check de e-mail canonico, indice unico case-insensitive e constraint das duas roles, e verificar as constraints em PostgreSQL Testcontainers
+- [x] 2.2 Criar migration forward-only de `carteiras` com UUID, FK unica para usuario, nome, `NUMERIC(18,2)` para caixa e data de criacao, e verificar que uma segunda carteira para o mesmo usuario e rejeitada
+- [x] 2.3 Criar migration forward-only de `logs_auditoria` com FK de usuario nullable, endpoint nullable e todos os metadados minimos, e verificar que eventos anonimos e de sistema podem ser persistidos com os campos nulos apropriados
+- [x] 2.4 Adaptar `FlywayValidationIT` para a nova sequencia sem perder o cenario de historico incompativel e verificar o teste de integracao com PostgreSQL real
 
 ## 3. Dominio, application e adapters de persistencia
 
-- [ ] 3.1 Implementar `Usuario`, `Carteira`, `Role` e regras de canonicalizacao/politica de senha no dominio, e verificar testes unitarios para trim/lowercase, roles admitidas e senha minima
-- [ ] 3.2 Definir ports de usuario, carteira e auditoria e os use cases/application services de cadastro, login, principal atual e bootstrap, incluindo suas fronteiras transacionais, e verificar testes unitarios de orquestracao sem dependencias HTTP ou JPA
-- [ ] 3.3 Implementar mappings JPA separados dos contratos HTTP e adapters/repositories que implementam os ports, e verificar que Hibernate `ddl-auto: validate` inicia contra as migrations
-- [ ] 3.4 Configurar BCrypt strength 12 e autenticacao repository-backed, remover conscientemente a exclusao de `UserDetailsServiceAutoConfiguration` e verificar que a aplicacao nao gera usuario ou senha padrao
-- [ ] 3.5 Implementar traducao da violacao concorrente de e-mail unico para `409 Conflict` e verificar em PostgreSQL que variacoes de caixa/espacos nao criam uma segunda identidade
+- [x] 3.1 Implementar `Usuario`, `Carteira`, `Role` e regras de canonicalizacao/politica de senha no dominio, e verificar testes unitarios para trim/lowercase, roles admitidas e senha minima
+- [x] 3.2 Definir ports de usuario, carteira e auditoria e os use cases/application services de cadastro, login, principal atual e bootstrap, incluindo suas fronteiras transacionais, e verificar testes unitarios de orquestracao sem dependencias HTTP ou JPA
+- [x] 3.3 Implementar mappings JPA separados dos contratos HTTP e adapters/repositories que implementam os ports, e verificar que Hibernate `ddl-auto: validate` inicia contra as migrations
+- [x] 3.4 Configurar BCrypt strength 12 e autenticacao repository-backed, remover conscientemente a exclusao de `UserDetailsServiceAutoConfiguration` e verificar que a aplicacao nao gera usuario ou senha padrao
+- [x] 3.5 Implementar traducao da violacao concorrente de e-mail unico para `409 Conflict` e verificar em PostgreSQL que variacoes de caixa/espacos nao criam uma segunda identidade
 
 ## 4. Auditoria tecnica sanitizada
 
-- [ ] 4.1 Implementar enums/modelo JPA/repository de `LogAuditoria` e um servico interno com entrada tipada, e verificar que a API interna nao aceita cabecalhos, corpos HTTP ou objetos arbitrarios
-- [ ] 4.2 Implementar filtro de correlation ID que usa `X-Correlation-ID` somente quando UUID canonico valido e limitado e gera UUID quando ausente ou invalido, e verificar que requisicoes auditadas produzem identificador correlacionavel sem copiar o corpo
+- [x] 4.1 Implementar enums/modelo JPA/repository de `LogAuditoria` e um servico interno com entrada tipada, e verificar que a API interna nao aceita cabecalhos, corpos HTTP ou objetos arbitrarios
+- [x] 4.2 Implementar filtro de correlation ID que usa `X-Correlation-ID` somente quando UUID canonico valido e limitado e gera UUID quando ausente ou invalido, e verificar que requisicoes auditadas produzem identificador correlacionavel sem copiar o corpo
 - [ ] 4.3 Implementar auditoria de cadastro e bootstrap na transacao de criacao, auditoria de login bem sucedido antes de retornar token e transacoes isoladas para login falho, usuario inativo e acesso negado, e verificar a persistencia dos seis tipos minimos de evento, inclusive endpoint nulo e UUID gerado para bootstrap
 - [ ] 4.4 Adicionar testes de sanitizacao de logs e registros persistidos cobrindo senha, hash, JWT, `Authorization`, credenciais, corpo completo e dados financeiros proibidos, e verificar que nenhum valor sentinela aparece na saida
 
