@@ -54,27 +54,43 @@ O backend SHALL possuir áreas base `domain`, `infrastructure` e `presentation` 
 - **WHEN** a árvore de fontes do backend é inspecionada
 - **THEN** as três áreas arquiteturais existem e não incluem implementações das funcionalidades explicitamente excluídas
 
-### Requirement: Segurança temporariamente permissiva
-O backend SHALL incluir Spring Security na versão compatível gerenciada pelo Spring Boot 4.1.1, com uma configuração de fundação explicitamente marcada como temporária e permissiva. Essa configuração MUST NOT criar usuários, login, JWT, autenticação ou RBAC definitivo e SHALL ser substituída pela futura change de identidade/autenticação.
+### Requirement: Seguranca temporariamente permissiva
+O backend SHALL substituir a configuracao temporariamente permissiva por autenticacao JWT Bearer e autorizacao por role. Cadastro, login, healthcheck, OpenAPI e Swagger SHALL permanecer publicos; toda rota nao explicitamente publica SHALL exigir autenticacao e MUST NOT provocar a criacao de usuario ou senha padrao do framework.
 
-#### Scenario: Acesso técnico durante a fundação
-- **WHEN** um cliente acessa Swagger ou o healthcheck antes da implementação de identidade
-- **THEN** a configuração temporária permite o acesso sem gerar usuário, senha padrão ou fluxo de login
+#### Scenario: Acesso tecnico apos identidade
+- **WHEN** um cliente sem credenciais acessa Swagger, OpenAPI ou o healthcheck
+- **THEN** a configuracao permite o acesso sem criar usuario ou senha padrao
 
-#### Scenario: Inspeção do escopo de segurança
-- **WHEN** a configuração de segurança desta change é revisada
-- **THEN** ela está identificada como temporária e não contém autenticação, JWT, usuários ou regras definitivas de autorização
+#### Scenario: Acesso anonimo fora da lista publica
+- **WHEN** um cliente sem credenciais acessa uma rota que nao esta explicitamente publica
+- **THEN** o backend rejeita a requisicao com `401 Unauthorized`
 
-### Requirement: Documentação HTTP e erros padronizados
-O backend SHALL expor a interface Swagger em `/swagger-ui.html` e a descrição OpenAPI correspondente. Erros processados pela camada HTTP SHALL usar `ProblemDetail` e preservar códigos HTTP adequados, sem incluir segredos ou detalhes internos sensíveis.
+#### Scenario: Inspecao da configuracao definitiva
+- **WHEN** a configuracao de seguranca e revisada
+- **THEN** ela aplica autenticacao JWT Bearer, validacao do usuario e da role atuais e regras de autorizacao sem preservar liberacao global de requisicoes
+
+#### Scenario: Fronteira de camadas da identidade
+- **WHEN** os fluxos de cadastro, login, principal atual e bootstrap sao revisados
+- **THEN** a orquestracao transacional ocorre na camada application, que usa ports implementados pela infrastructure, enquanto presentation somente traduz contratos HTTP
+
+### Requirement: Documentacao HTTP e erros padronizados
+O backend SHALL expor a interface Swagger em `/swagger-ui.html` e a descricao OpenAPI correspondente, ambas publicamente acessiveis e documentadas com o esquema Bearer JWT para rotas protegidas. Erros processados pela camada HTTP, inclusive falhas de autenticacao e autorizacao, SHALL usar `ProblemDetail`, preservar codigos HTTP adequados e MUST NOT incluir segredos ou detalhes internos sensiveis.
 
 #### Scenario: Consulta do Swagger
-- **WHEN** o backend está em execução e um cliente acessa `/swagger-ui.html`
-- **THEN** a interface OpenAPI é carregada sem exigir uma funcionalidade de negócio implementada
+- **WHEN** o backend esta em execucao e um cliente sem token acessa `/swagger-ui.html`
+- **THEN** a interface OpenAPI e carregada e apresenta o esquema Bearer aplicavel as rotas protegidas
 
-#### Scenario: Erro tratado pela aplicação
+#### Scenario: Erro tratado pela aplicacao
 - **WHEN** a camada HTTP processa uma falha coberta pelo tratamento global
-- **THEN** a resposta possui mídia `application/problem+json`, status coerente e um corpo `ProblemDetail` sem dados sensíveis
+- **THEN** a resposta possui media `application/problem+json`, status coerente e um corpo `ProblemDetail` sem dados sensiveis
+
+#### Scenario: Falha de autenticacao
+- **WHEN** a infraestrutura de seguranca rejeita uma requisicao por falta ou invalidade de autenticacao
+- **THEN** o `AuthenticationEntryPoint` produz `401 Unauthorized` no mesmo formato `ProblemDetail` sanitizado
+
+#### Scenario: Falha de autorizacao
+- **WHEN** a infraestrutura de seguranca rejeita um principal autenticado por falta de permissao
+- **THEN** o `AccessDeniedHandler` produz `403 Forbidden` no mesmo formato `ProblemDetail` sanitizado
 
 ### Requirement: Healthcheck técnico do backend
 O backend SHALL incluir Spring Boot Actuator e SHALL expor `GET /actuator/health` no servidor HTTP principal como prova de prontidão real da aplicação. O endpoint MUST estar acessível à infraestrutura durante a configuração de segurança temporária e MUST NOT expor detalhes sensíveis.

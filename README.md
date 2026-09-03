@@ -1,125 +1,112 @@
 # Carteira Investimento
 
-Projeto acadêmico desenvolvido no 6º semestre da UNIFEF por Guilherme França Dela Rovere, sob orientação do professor Jefferson Antonio Ribeiro Passerine.
+Projeto academico desenvolvido no 6o semestre da UNIFEF, sob orientacao do professor Jefferson Antonio Ribeiro Passerine.
 
-Esta etapa estabelece somente a fundação técnica do produto. Autenticação, JWT, RBAC definitivo, entidades e regras financeiras, integrações externas reais e telas de negócio pertencem a changes futuras.
+Esta change estabelece identidade persistida, carteira principal minima, autenticacao JWT Bearer HS256, autorizacao por role e auditoria de seguranca. O backend usa PostgreSQL, Flyway e Hibernate com `ddl-auto: validate`.
 
-## Matriz técnica aprovada
+## Configuracao local
 
-| Componente | Versão | Gerenciamento |
-| --- | --- | --- |
-| Java | 21 | Maven Compiler via Spring Boot parent |
-| Spring Boot | 4.1.1 | `spring-boot-starter-parent` |
-| Spring Framework | 7.0.9 | BOM do Spring Boot |
-| Spring Security | 7.1.1 | BOM do Spring Boot |
-| Spring Cloud / OpenFeign | 2025.1.2 / 5.0.2 | `spring-cloud-dependencies` |
-| Springdoc OpenAPI | 3.1.0 | versão explícita |
-| Testcontainers | 2.0.5 | BOM do Spring Boot |
-| Flyway | 12.4.0 | BOM do Spring Boot |
-| PostgreSQL JDBC | 42.7.13 | BOM do Spring Boot |
-
-As versões gerenciadas não possuem overrides individuais. O logging usa SLF4J por meio do starter de logging gerenciado pelo Spring Boot.
-
-## Estrutura do repositório
-
-```text
-backend/             Spring Boot e Maven Wrapper
-frontend/            Next.js e lockfile Node independente
-openspec/            especificações e changes do produto
-package.json         tooling OpenSpec da raiz
-package-lock.json    lockfile do tooling OpenSpec da raiz
-docker-compose.yml   PostgreSQL, backend e frontend
-```
-
-Os manifests Node da raiz não pertencem ao frontend. Dependências e comandos da aplicação web devem ser executados em `frontend/`.
-
-## Configuração local
-
-O contrato completo está em `.env.example`. Para preparar um ambiente local no PowerShell:
+Copie o contrato de configuracao e preencha valores locais seguros:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-O `.env` é ignorado pelo Git. Os valores incluídos no repositório são apenas exemplos acadêmicos; tokens reais não devem ser versionados. `JWT_*`, `ADMIN_*`, `BRAPI_TOKEN`, `ALPHAVANTAGE_API_KEY` e `TWELVE_DATA_API_KEY` estão reservados para changes futuras e ainda não são consumidos.
+O arquivo `.env` nao deve ser versionado. Para executar o backend diretamente no host, configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` e, opcionalmente, `BACKEND_PORT` (padrao `8080`).
 
-Ao executar o backend diretamente no host, use uma URL JDBC acessível pelo host, por exemplo:
+### JWT e administrador inicial
 
-```powershell
-$env:DB_URL = 'jdbc:postgresql://localhost:5432/carteira_db'
-$env:DB_USERNAME = 'postgres'
-$env:DB_PASSWORD = 'postgrespassword'
-$env:BACKEND_PORT = '8080'
+As variaveis abaixo sao consumidas pelo backend:
+
+| Variavel | Regra |
+| --- | --- |
+| `JWT_SECRET_KEY` | Obrigatoria; chave UTF-8 com no minimo 32 bytes (256 bits). Nunca versione uma chave real. |
+| `JWT_EXPIRATION_HOURS` | Opcional; inteiro positivo, com padrao `24`. |
+| `JWT_ISSUER` | Opcional; padrao `carteira-investimento-backend`. |
+| `JWT_AUDIENCE` | Opcional; padrao `carteira-investimento-api`. |
+| `ADMIN_NAME` | Obrigatoria para o provisionamento inicial. |
+| `ADMIN_EMAIL` | Obrigatoria para o provisionamento inicial; e canonicalizada. |
+| `ADMIN_PASSWORD` | Obrigatoria para o provisionamento inicial; segue a politica de senha. |
+
+`ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` formam um conjunto: ausencia, preenchimento parcial ou valor invalido interrompe a inicializacao antes do provisionamento. Com configuracao valida, o startup cria somente uma identidade ativa `ROLE_ADMIN`, sem carteira, e preserva senha e role se esse administrador ja existir. Um e-mail que ja pertenca a `ROLE_USER` tambem faz o startup falhar sem promover nem alterar o usuario.
+
+## API de identidade
+
+### Cadastro
+
+`POST /api/v1/auth/register` recebe somente:
+
+```json
+{
+  "nome": "Nome da Pessoa",
+  "email": "pessoa@example.test",
+  "senha": "Senha@2026"
+}
 ```
 
-No Compose, o backend usa `postgres-db` como hostname interno. `NEXT_PUBLIC_API_URL` é uma configuração pública incorporada ao build do frontend e deve conter a URL vista pelo navegador, normalmente `http://localhost:8080`; nunca armazene segredos em variáveis `NEXT_PUBLIC_*`.
+A senha deve ter ao menos oito caracteres, com letra maiuscula, minuscula, numero e caractere especial. Em sucesso, a resposta `201 Created` contem exatamente `id`, `nome`, `email`, `role` e `ativo`. O cadastro fixa `ROLE_USER`, cria a `Carteira Principal` com saldo zero e nao emite token. Entrada invalida retorna `400`; e-mail canonicalizado ja utilizado retorna `409`.
 
-## Backend
+### Login e Bearer
+
+`POST /api/v1/auth/login` recebe somente `email` e `senha`:
+
+```json
+{
+  "email": "pessoa@example.test",
+  "senha": "Senha@2026"
+}
+```
+
+Em sucesso, a resposta `200 OK` contem exatamente `accessToken`, `tokenType` (sempre `Bearer`) e `expiresIn` em segundos. Credenciais invalidas, usuario inativo e falhas de autenticacao retornam `401` com detalhe generico; a resposta nunca inclui senha, hash ou credencial adicional.
+
+Use o token em rotas protegidas:
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+O token usa HS256 e contem `sub`, `role`, `iat`, `exp`, `jti`, `iss` e `aud`. Em cada requisicao protegida, a assinatura, issuer, audience e o usuario persistido sao validados. Usuario inexistente, inativo ou com role divergente da claim recebe `401`. Um principal autenticado, mas sem permissao para uma rota, recebe `403`. Ambos usam `application/problem+json` sanitizado.
+
+`GET /api/v1/auth/me` exige Bearer valido e retorna somente `id`, `nome`, `email`, `role` e `ativo` do principal do `SecurityContext`.
+
+## Auditoria e endpoints tecnicos
+
+Os eventos de cadastro, login, tentativas rejeitadas, acesso negado e provisionamento inicial sao persistidos com metadados tipados. O `X-Correlation-ID` e aceito apenas se for UUID canonico valido; caso contrario, o backend gera um UUID. Senhas, hashes, tokens, cabecalhos de autorizacao, corpos completos e dados privados nao sao registrados.
+
+Permanecem publicos:
+
+- Healthcheck: `http://localhost:8080/actuator/health`
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
+O OpenAPI anuncia o esquema Bearer para as rotas protegidas. Todas as outras rotas exigem autenticacao, salvo allowlist explicita.
+
+## Limites desta change
+
+O escopo termina na identidade, na carteira principal de saldo zero, na seguranca e na auditoria. Nenhuma capacidade adicional e inferida a partir desses contratos.
+
+## Testes
 
 No Windows, a partir de `backend/`:
 
 ```powershell
 .\mvnw.cmd test
 .\mvnw.cmd verify
-.\mvnw.cmd package
 ```
 
-`test` executa os testes unitários. `verify` também executa os testes de integração `*IT`, que exigem Docker disponível para iniciar PostgreSQL `16.15-alpine3.24` via Testcontainers. Não existe fallback H2.
+`test` cobre testes unitarios e de integracao. `verify` tambem executa os testes `*IT`. Docker deve estar disponivel para o PostgreSQL `16.15-alpine3.24` iniciado por Testcontainers; nao ha fallback H2.
 
-Flyway é o único mecanismo de evolução do banco e Hibernate usa `ddl-auto: validate`. O diretório `backend/src/main/resources/db/migration/` está deliberadamente sem DDL de domínio nesta change.
+## Execucao com Docker
 
-Spring Security está em modo permissivo temporário, sem login, usuário gerado, JWT ou RBAC. Essa configuração deve ser substituída pela change de identidade/autenticação.
-
-Com o backend pronto:
-
-- Healthcheck: `http://localhost:8080/actuator/health`
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
-
-O Actuator expõe apenas `health`, sem detalhes sensíveis. O esquema Bearer exibido no OpenAPI é preparatório e não implementa autenticação.
-
-## Frontend
-
-No Windows, a partir de `frontend/`:
-
-```powershell
-npm.cmd ci
-npm.cmd run lint
-npm.cmd run typecheck
-npm.cmd run build
-npm.cmd run dev
-```
-
-O frontend usa Next.js 16.3.3 com App Router, TypeScript 6.0.3, Tailwind CSS 4.3.3, configuração Shadcn UI, Recharts e TanStack Query. A rota `/` é somente uma confirmação da fundação técnica e não contém login, dashboard ou tela de negócio.
-
-## Execução integrada com Docker
-
-As imagens estão fixadas em PostgreSQL `16.15-alpine3.24`, Node `24.19.0-alpine3.23` e Java 21 Temurin. Na raiz:
+Na raiz do repositorio:
 
 ```powershell
 docker compose config
 docker compose up --build
 ```
 
-O Compose persiste os dados PostgreSQL e aplica a seguinte ordem por healthchecks reais:
-
-```text
-PostgreSQL aceita conexões via pg_isready
--> backend inicia Flyway e Hibernate validate
--> /actuator/health retorna status UP
--> frontend inicia
-```
-
-Portas padrão configuráveis: PostgreSQL `5432`, backend `8080` e frontend `3000`.
-
-Para encerrar:
+A sequencia de prontidao e PostgreSQL, Flyway e Hibernate validate, seguida de `/actuator/health` com status `UP`. Para encerrar sem remover o volume:
 
 ```powershell
 docker compose down
 ```
-
-O volume não é removido por esse comando.
-
-## APIs externas
-
-BrasilAPI, ViaCEP, Brapi, AlphaVantage e TwelveData pertencem ao escopo global do PRD, mas nenhum cliente ou integração real é implementado nesta fundação.

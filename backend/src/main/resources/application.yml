@@ -31,3 +31,16 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration-hours: ${JWT_EXPIRATION_HOURS:24}
+      issuer: ${JWT_ISSUER:carteira-investimento-backend}
+      audience: ${JWT_AUDIENCE:carteira-investimento-api}
+  bootstrap:
+    admin:
+      name: ${ADMIN_NAME}
+      email: ${ADMIN_EMAIL}
+      password: ${ADMIN_PASSWORD}
+

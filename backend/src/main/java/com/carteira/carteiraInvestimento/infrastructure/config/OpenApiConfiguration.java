@@ -22,7 +22,7 @@ public class OpenApiConfiguration {
 								.type(SecurityScheme.Type.HTTP)
 								.scheme("bearer")
 								.bearerFormat("JWT")
-								.description("Esquema apenas preparatório; JWT ainda não está implementado.")));
+								.description("JWT Bearer para rotas protegidas.")));
 	}
 }
 

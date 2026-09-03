@@ -2,18 +2,53 @@ package com.carteira.carteiraInvestimento.presentation.error;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
+import com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException;
+import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+	private final ProblemDetailFactory problems;
+
+	public GlobalExceptionHandler() {
+		this(new ProblemDetailFactory());
+	}
+
+	@Autowired
+	public GlobalExceptionHandler(ProblemDetailFactory problems) {
+		this.problems = problems;
+	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	ProblemDetail handleInvalidArgument(IllegalArgumentException exception, HttpServletRequest request) {
 		return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	ProblemDetail handleValidation(MethodArgumentNotValidException exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+	}
+
+	@ExceptionHandler(DuplicateEmailException.class)
+	ProblemDetail handleDuplicateEmail(DuplicateEmailException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Email already registered", "An account with this email already exists.", request);
+	}
+
+	@ExceptionHandler(AuthenticationFailedException.class)
+	ProblemDetail handleAuthenticationFailure(AuthenticationFailedException exception, HttpServletRequest request) {
+		return problem(HttpStatus.UNAUTHORIZED, "Unauthorized", "Authentication is required.", request);
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	ProblemDetail handleAccessDenied(AccessDeniedException exception, HttpServletRequest request) {
+		return problem(HttpStatus.FORBIDDEN, "Forbidden", "Access is denied.", request);
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
@@ -28,10 +63,7 @@ public class GlobalExceptionHandler {
 	}
 
 	private ProblemDetail problem(HttpStatus status, String title, String detail, HttpServletRequest request) {
-		ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
-		problem.setTitle(title);
-		problem.setInstance(URI.create(request.getRequestURI()));
-		return problem;
+		return problems.create(status, title, detail, request);
 	}
 }
 

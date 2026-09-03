@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -24,6 +25,16 @@ class GlobalExceptionHandlerTest {
 		mockMvc = MockMvcBuilders.standaloneSetup(new FailureProbeController())
 				.setControllerAdvice(new GlobalExceptionHandler())
 				.build();
+	}
+
+	@Test
+	void returnsSanitizedConflictForDuplicateEmail() throws Exception {
+		mockMvc.perform(get("/test/duplicate-email"))
+				.andExpect(status().isConflict())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+				.andExpect(jsonPath("$.status").value(409))
+				.andExpect(jsonPath("$.detail").value("An account with this email already exists."))
+				.andExpect(content().string(not(containsString("existing-email@example.test"))));
 	}
 
 	@Test
@@ -58,6 +69,11 @@ class GlobalExceptionHandlerTest {
 		@GetMapping("/test/unexpected")
 		void unexpected() {
 			throw new IllegalStateException("database-password");
+		}
+
+		@GetMapping("/test/duplicate-email")
+		void duplicateEmail() {
+			throw new DuplicateEmailException();
 		}
 	}
 }

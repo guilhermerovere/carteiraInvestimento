@@ -2,7 +2,7 @@
 
 ## 1. Visao do Produto
 
-Desenvolver uma plataforma full-stack para gestao de investimentos em acoes nacionais e internacionais, com autenticacao, carteira individual por usuario, controle de caixa, compras e vendas, calculos financeiros, cotacoes externas, validacao regulatoria de corretoras, auditoria, painel administrativo e execucao completa via Docker.
+Desenvolver uma plataforma full-stack para gestao de investimentos em acoes nacionais e internacionais, com autenticacao, carteira individual para usuarios `ROLE_USER`, controle de caixa, compras e vendas, calculos financeiros, cotacoes externas, validacao regulatoria de corretoras, auditoria, painel administrativo e execucao completa via Docker.
 
 O sistema deve seguir **Spec-Driven Development (SDD)** com OpenSpec.
 
@@ -113,6 +113,25 @@ Retorno de cotacao pelo cache:
 Nesta versao do produto:
 - nao existe expiracao automatica do historico de cotacoes.
 
+### 2.8. Identidade, usuario e carteira principal
+
+Existem somente as roles `ROLE_USER` e `ROLE_ADMIN`. Cada usuario possui exatamente uma role, representada como enum no dominio e protegida por constraint apropriada no PostgreSQL. Nao deve existir tabela de roles nesta versao.
+
+A cardinalidade estrutural entre usuario e carteira e:
+
+```text
+Usuario 1 -> 0..1 Carteira
+```
+
+Regras:
+- `ROLE_USER` possui exatamente uma carteira principal, obrigatoria;
+- `ROLE_ADMIN` nao possui carteira;
+- o cadastro de `ROLE_USER` cria usuario e carteira principal atomicamente, na mesma transacao;
+- a carteira principal e criada com saldo inicial zero;
+- nenhum endpoint financeiro faz parte da etapa de identidade, autenticacao, autorizacao, carteira principal minima e auditoria de seguranca.
+
+As funcionalidades financeiras descritas nas demais secoes permanecem como escopo global futuro do produto e somente podem ser implementadas por changes posteriores especificas.
+
 ---
 
 ## 3. Stack Obrigatoria
@@ -188,20 +207,30 @@ O `package.json` da raiz nao deve ser transformado no projeto Next.js. Diretorio
 domain/
 - entidades
 - enums
-- excecoes
-- regras de negocio
+- excecoes e regras puras de dominio
+
+application/
+- use cases
+- servicos de aplicacao
+- orquestracao transacional
+- ports/contratos necessarios pelos casos de uso
 
 infrastructure/
+- JPA
+- implementacoes de repositories/ports
+- Spring Security
+- JWT
+- BCrypt
 - configuracoes
-- seguranca
-- clientes externos
-- adapters
+- adapters externos
 
 presentation/
 - controllers
 - DTOs
-- tratamento de erros
+- tratamento de erros HTTP
 ```
+
+Cadastro, login, consulta do principal atual e provisionamento do administrador devem ser orquestrados pela camada `application`. O dominio nao depende de JPA, Spring Security, HTTP ou adapters externos; a infraestrutura implementa os ports definidos pela application e a presentation somente traduz contratos HTTP.
 
 ### Entidades principais
 
@@ -227,6 +256,10 @@ As integracoes externas devem permanecer isoladas do dominio.
 ---
 
 ## 6. Perfis de Usuario
+
+Cada usuario possui exatamente uma das duas roles existentes: `ROLE_USER` ou `ROLE_ADMIN`.
+
+Nesta versao, a role deve ser um enum do dominio persistido em `usuarios`, com constraint de banco que aceite somente esses dois valores. Nao deve ser criada tabela de roles.
 
 ### ROLE_USER
 
@@ -257,11 +290,40 @@ Pode:
 
 O administrador nao deve acessar carteiras privadas de outros usuarios.
 
+`ROLE_ADMIN` nao possui carteira. `ROLE_USER` possui exatamente uma carteira principal.
+
 ---
 
 ## 7. Autenticacao e Seguranca
 
-### Cadastro
+### 7.1. Campos minimos de Usuario
+
+```text
+id UUID
+nome
+email
+senha_hash
+role
+ativo
+criado_em
+atualizado_em
+```
+
+### 7.2. Normalizacao e unicidade de e-mail
+
+- aplicar `trim` ao e-mail recebido;
+- converter o e-mail para lowercase antes de persistir;
+- armazenar somente a forma canonica do e-mail;
+- garantir unicidade case-insensitive tambem no PostgreSQL, por constraint ou indice apropriado;
+- nao depender apenas da validacao da aplicacao para impedir duplicidade.
+
+### 7.3. Senha
+
+- utilizar BCrypt para armazenamento de senha, com strength 12;
+- nunca armazenar senha em texto puro;
+- nunca retornar senha ou `senha_hash` em respostas.
+
+### 7.4. Cadastro
 
 ```http
 POST /api/v1/auth/register
@@ -269,7 +331,7 @@ POST /api/v1/auth/register
 
 Requisitos:
 - e-mail valido;
-- e-mail unico;
+- e-mail canonico e unico conforme a secao 7.2;
 - senha com no minimo 8 caracteres;
 - ao menos 1 letra maiuscula;
 - ao menos 1 letra minuscula;
@@ -277,28 +339,92 @@ Requisitos:
 - ao menos 1 caractere especial;
 - senha armazenada com BCrypt strength 12;
 - usuario recebe `ROLE_USER`;
-- uma carteira principal deve ser criada automaticamente com saldo zero.
+- usuario nasce com `ativo=true`;
+- usuario, carteira principal e auditoria de cadastro devem ser criados atomicamente na mesma transacao;
+- a carteira principal deve receber por padrao o nome `Carteira Principal` e saldo inicial zero;
+- retornar `201 Created`;
+- nao autenticar automaticamente o usuario;
+- nao gerar JWT;
+- retornar somente `id`, `nome`, `email`, `role` e `ativo`;
+- nao retornar senha, `senha_hash` ou token.
 
-### Login
+### 7.5. Login e Bearer JWT
 
 ```http
 POST /api/v1/auth/login
 ```
 
-O JWT deve conter:
-- `usuarioId`;
-- `email`;
-- `role`.
+Resposta de sucesso (`200 OK`):
 
-### Usuario autenticado
+```json
+{
+  "accessToken": "...",
+  "tokenType": "Bearer",
+  "expiresIn": 86400
+}
+```
+
+`expiresIn` representa a duracao restante do access token em segundos. A resposta nao deve retornar senha, `senha_hash` ou refresh token. O evento de login bem sucedido deve ser persistido antes de considerar o login concluido e antes de retornar o token.
+
+O JWT deve utilizar:
+- algoritmo HMAC SHA-256 (`HS256`);
+- segredo com pelo menos 256 bits;
+- segredo fornecido por variavel de ambiente;
+- expiracao configurada por `JWT_EXPIRATION_HOURS`, cujo valor padrao atual e 24 horas;
+- issuer fornecido por `JWT_ISSUER`, com valor `carteira-investimento-backend`;
+- audience fornecida por `JWT_AUDIENCE`, com valor `carteira-investimento-api`.
+
+Claims obrigatorias:
+- `sub`: UUID do usuario;
+- `role`;
+- `iat`;
+- `exp`;
+- `jti`;
+- `iss`;
+- `aud`.
+
+Nao implementar refresh token nesta versao. Apos a expiracao do access token, o usuario deve realizar novo login.
+
+Nao implementar blacklist de token ou logout server-side nesta etapa.
+
+### 7.6. Usuario autenticado
 
 ```http
 GET /api/v1/auth/me
 ```
 
-### Isolamento de dados
+Requisitos:
+- utilizar exclusivamente o usuario autenticado pelo `SecurityContext`;
+- nao aceitar `usuarioId` fornecido pelo cliente;
+- retornar somente `id`, `nome`, `email`, `role` e `ativo`.
 
-Toda operacao privada deve usar o `usuario_id` obtido do JWT e `SecurityContext`.
+### 7.7. Usuario persistido, ativo e role atual
+
+- usuario inativo nao pode realizar login;
+- usuario inativo nao pode continuar utilizando JWT emitido anteriormente;
+- durante a autenticacao de toda requisicao protegida, apos validar criptograficamente o JWT, carregar no banco o usuario indicado por `sub`;
+- validar `iss` e `aud` durante a autenticacao;
+- token criptograficamente valido cujo usuario nao exista, esteja inativo ou possua role persistida diferente da claim `role` deve resultar em `401 Unauthorized`;
+- construir as authorities exclusivamente a partir da role atualmente persistida;
+- nao criar endpoint administrativo para ativar ou desativar usuarios nesta etapa.
+
+### 7.8. Semantica de 401 e 403
+
+Retornar `401 Unauthorized` para:
+- token ausente quando autenticacao for obrigatoria;
+- token invalido;
+- token expirado;
+- usuario inexistente;
+- usuario inativo.
+- claim `role` divergente da role atualmente persistida.
+
+Retornar `403 Forbidden` quando:
+- usuario autenticado nao possui a role necessaria;
+- usuario autenticado tenta acessar recurso que nao possui permissao.
+
+### 7.9. Isolamento de dados
+
+Toda operacao privada deve usar a identidade autenticada, cujo UUID esta no claim `sub`, por meio do `SecurityContext`.
 
 Nunca confiar em um `usuario_id` recebido do frontend para autorizar acesso a recursos privados.
 
@@ -309,6 +435,34 @@ Tentativa de acesso cruzado:
 ```
 
 A tentativa deve gerar auditoria.
+
+### 7.10. Escopo desta etapa
+
+Esta etapa cobre somente identidade, autenticacao, autorizacao, criacao minima da carteira principal e auditoria de seguranca.
+
+Permanecem fora do escopo desta etapa:
+- frontend de login e cadastro;
+- armazenamento de token no navegador;
+- refresh token;
+- logout server-side;
+- recuperacao de senha;
+- alteracao de senha;
+- edicao de perfil;
+- endpoint de ativacao ou desativacao de usuarios;
+- depositos;
+- saques;
+- transacoes;
+- posicoes;
+- corretoras;
+- ativos;
+- cotacoes;
+- cambio;
+- snapshots;
+- dashboard;
+- consulta administrativa dos logs;
+- demais funcionalidades financeiras.
+
+Consequentemente, nenhum endpoint financeiro deve ser implementado nesta etapa. As secoes financeiras deste PRD documentam o produto completo e permanecem sujeitas a changes futuras.
 
 ---
 
@@ -322,16 +476,17 @@ ADMIN_EMAIL=admin@carteira.com
 ADMIN_PASSWORD=Admin@2026Secure
 ```
 
-Se nao existir:
-- criar usuario;
-- aplicar BCrypt;
-- atribuir `ROLE_ADMIN`;
-- marcar como ativo.
+`ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` sao obrigatorios nesta versao e formam um conjunto indivisivel. O processo deve ser fail-fast: se qualquer configuracao estiver ausente, parcial ou invalida, o startup deve falhar explicitamente antes de criar administrador parcial.
 
-Se ja existir:
-- nao alterar o registro.
-
-O processo deve ser idempotente.
+O processo deve ser idempotente e seguir estas regras:
+- normalizar o e-mail configurado conforme a secao 7.2;
+- validar `ADMIN_PASSWORD` pela mesma politica da secao 7.4 e armazena-la com BCrypt strength 12;
+- se o e-mail ainda nao existir, criar usuario `ROLE_ADMIN`, ativo, com senha protegida por BCrypt strength 12 e auditoria de criacao na mesma transacao;
+- `ROLE_ADMIN` nao recebe carteira;
+- se o mesmo administrador ja existir, nao duplicar;
+- nunca sobrescrever automaticamente senha ou role de usuario existente;
+- se o e-mail configurado para administrador ja existir como `ROLE_USER`, falhar explicitamente em vez de promover o usuario silenciosamente;
+- configuracao `ADMIN_*` ausente, parcial ou invalida deve falhar explicitamente, sem criar administrador parcial ou com credenciais invalidas.
 
 ---
 
@@ -514,9 +669,11 @@ TwelveData
 
 ## 13. Carteira e Caixa
 
-Cada usuario deve possuir uma carteira principal criada no cadastro.
+Cada `ROLE_USER` deve possuir exatamente uma carteira principal criada no cadastro. `ROLE_ADMIN` nao possui carteira.
 
 A moeda da carteira e sempre BRL.
+
+Na etapa de identidade, a carteira se limita a sua criacao transacional com saldo inicial zero. Os endpoints e comportamentos financeiros desta secao pertencem a changes futuras.
 
 ### Resumo
 
@@ -756,17 +913,54 @@ Tabela:
 logs_auditoria
 ```
 
-Eventos:
-- cadastro;
-- login;
+Deve existir uma estrutura minima de `LogAuditoria` para eventos de seguranca.
+
+Campos minimos:
+
+```text
+id UUID
+usuario_id nullable
+tipo_evento
+resultado
+severidade
+endpoint
+correlation_id
+data_hora
+```
+
+`usuario_id` deve aceitar `NULL` para eventos sem usuario identificavel, como tentativa de login com e-mail inexistente. `endpoint` tambem deve aceitar `NULL` para eventos sem origem HTTP, como a criacao do administrador inicial.
+
+`correlation_id` e obrigatorio em todo evento. Em requisicoes HTTP, usar `X-Correlation-ID` somente quando tiver UUID valido no formato canonico e comprimento limitado a esse formato; se estiver ausente ou invalido, gerar um UUID. Em eventos de sistema sem requisicao HTTP, gerar um UUID de correlacao.
+
+Eventos minimos da etapa de identidade e seguranca:
+- cadastro de usuario;
+- login bem sucedido;
+- login falho;
+- tentativa de uso por usuario inativo;
+- acesso negado;
+- criacao do administrador inicial.
+
+Eventos futuros do produto:
 - compra;
 - venda;
 - deposito;
 - saque;
-- acesso negado;
 - alteracao administrativa;
 - falha CVM;
 - falha de integracao relevante.
+
+Nunca registrar em logs da aplicacao ou auditoria persistida:
+- senha;
+- `senha_hash`;
+- JWT;
+- header `Authorization`;
+- credenciais;
+- corpo HTTP completo;
+- saldo;
+- posicoes;
+- quantidades;
+- valores de transacoes;
+- demais dados financeiros privados.
 
 ### Endpoints do usuario
 
@@ -777,11 +971,15 @@ GET /api/v1/auditoria/eventos
 
 O usuario so pode visualizar seus proprios registros.
 
+Esses endpoints de consulta nao fazem parte da etapa de identidade e seguranca atual.
+
 ### Auditoria administrativa
 
 A auditoria global deve mostrar apenas metadados operacionais, de compliance e seguranca.
 
 Nao deve revelar dados financeiros privados de outras carteiras.
+
+O endpoint administrativo de consulta dos logs nao faz parte da etapa atual.
 
 ---
 
@@ -921,6 +1119,8 @@ Padronizar:
 502 Bad Gateway
 ```
 
+Para autenticacao e autorizacao, aplicar obrigatoriamente a semantica de `401 Unauthorized` e `403 Forbidden` definida na secao 7.8.
+
 ---
 
 ## 21. Modelo de Dados
@@ -943,7 +1143,7 @@ logs_auditoria
 ### Relacionamentos
 
 ```text
-Usuario -> Carteira
+Usuario 1 -> 0..1 Carteira
 Carteira -> Posicoes
 Carteira -> Transacoes
 Carteira -> MovimentacoesCaixa
@@ -952,6 +1152,14 @@ Transacao -> Acao
 Transacao -> Corretora
 HistoricoCotacao -> Acao
 ```
+
+Regras de integridade:
+- `ROLE_USER` deve possuir exatamente uma carteira principal;
+- `ROLE_ADMIN` nao deve possuir carteira;
+- o banco deve garantir que cada usuario possua no maximo uma carteira;
+- a criacao do usuario `ROLE_USER` e de sua carteira deve ocorrer na mesma transacao;
+- a role em `usuarios` deve aceitar somente `ROLE_USER` ou `ROLE_ADMIN` por constraint apropriada;
+- o e-mail canonico deve possuir unicidade case-insensitive garantida no PostgreSQL.
 
 Nao deve existir:
 - `corretora_id` em `acoes`;
@@ -986,7 +1194,20 @@ NUMERIC(18,8)
 
 ---
 
-## 22. Campos Minimos das Entidades Financeiras
+## 22. Campos Minimos das Entidades
+
+### Usuario
+
+```text
+id UUID
+nome
+email
+senha_hash
+role
+ativo
+criado_em
+atualizado_em
+```
 
 ### Carteira
 
@@ -996,6 +1217,25 @@ usuario_id
 nome
 saldo_caixa_brl
 data_criacao
+```
+
+Regras:
+- `usuario_id` deve ser unico;
+- saldo inicial igual a zero;
+- obrigatoria para `ROLE_USER`;
+- proibida para `ROLE_ADMIN`.
+
+### LogAuditoria
+
+```text
+id UUID
+usuario_id nullable
+tipo_evento
+resultado
+severidade
+endpoint
+correlation_id
+data_hora
 ```
 
 ### Posicao
@@ -1141,6 +1381,8 @@ BACKEND_PORT=8080
 
 JWT_SECRET_KEY=chave-local-desenvolvimento-com-mais-de-256-bits-2026
 JWT_EXPIRATION_HOURS=24
+JWT_ISSUER=carteira-investimento-backend
+JWT_AUDIENCE=carteira-investimento-api
 
 ADMIN_NAME=Administrador do Sistema
 ADMIN_EMAIL=admin@carteira.com
@@ -1157,6 +1399,10 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 O `.env` academico pode conter valores locais e de demonstracao.
 
 Segredos reais nao devem ser versionados.
+
+`JWT_SECRET_KEY` deve fornecer um segredo UTF-8 com pelo menos 32 bytes para assinatura `HS256`. `JWT_EXPIRATION_HOURS` possui valor padrao atual de 24 horas. `JWT_ISSUER` e `JWT_AUDIENCE` nao sao segredos e devem ser fornecidos a `application.yml`, `.env.example` e `docker-compose.yml` quando esta change for implementada.
+
+As configuracoes `ADMIN_*` sao obrigatorias e devem ser validadas na inicializacao. Ausencia, parcialidade ou invalidade deve causar falha explicita e documentada conforme a secao 8.
 
 ---
 
@@ -1236,9 +1482,22 @@ O `README.md` deve conter:
 ### Seguranca
 - cadastro;
 - login;
+- cadastro transacional de usuario e carteira com saldo zero;
+- normalizacao e unicidade case-insensitive de e-mail no PostgreSQL;
+- usuario inativo bloqueado no login;
+- JWT anteriormente emitido bloqueado quando o usuario se torna inativo;
+- JWT bloqueado quando `iss` ou `aud` nao conferem;
+- JWT bloqueado quando a claim `role` diverge da role atualmente persistida;
 - JWT invalido;
+- JWT expirado;
+- claims obrigatorias do JWT;
 - `ROLE_USER` bloqueado em admin;
 - acesso cruzado bloqueado.
+- semantica de `401` e `403`;
+- criacao idempotente do administrador sem carteira;
+- conflito entre `ADMIN_EMAIL` e `ROLE_USER` falha explicitamente;
+- bootstrap falha para `ADMIN_*` ausente, parcial ou invalido, sem criar administrador parcial;
+- auditoria minima de eventos de seguranca sem dados proibidos, com `endpoint` nulo em eventos de sistema e correlation ID sempre presente.
 
 ### Corretoras
 - CNPJ invalido;
@@ -1301,11 +1560,24 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 ## 29. Criterios de Aceite
 
 - [ ] usuario consegue se cadastrar;
-- [ ] carteira principal e criada no cadastro;
+- [ ] cadastro de `ROLE_USER` cria usuario e exatamente uma carteira principal, com saldo zero, atomicamente;
+- [ ] `ROLE_ADMIN` nao possui carteira;
+- [ ] existem somente `ROLE_USER` e `ROLE_ADMIN`, sem tabela de roles;
+- [ ] e-mail e persistido em forma canonica e possui unicidade case-insensitive no PostgreSQL;
+- [ ] senha e armazenada exclusivamente com BCrypt e nunca e exposta;
 - [ ] usuario consegue fazer login;
+- [ ] cadastro retorna `201`, cria usuario ativo, carteira `Carteira Principal` com saldo zero e auditoria na mesma transacao, nao autentica automaticamente e retorna somente `id`, `nome`, `email`, `role` e `ativo`;
+- [ ] login retorna `200` com `accessToken`, `tokenType=Bearer` e `expiresIn` em segundos, persiste a auditoria de sucesso antes do token e nao expoe senha, hash ou refresh token;
+- [ ] `/api/v1/auth/me` usa somente o `SecurityContext`, nao aceita `usuarioId` do cliente e retorna apenas os campos permitidos;
+- [ ] JWT `HS256` possui as claims obrigatorias, `iss`/`aud` validados e expiracao configuravel, com padrao de 24 horas;
+- [ ] usuario inexistente ou inativo, ou JWT com role divergente da role persistida, recebe `401`; authorities usam a role atual do banco;
+- [ ] respostas de autenticacao e autorizacao distinguem corretamente `401` e `403`;
 - [ ] JWT protege recursos privados;
 - [ ] usuarios nao acessam dados uns dos outros;
-- [ ] administrador e criado de forma idempotente;
+- [ ] administrador e criado de forma idempotente, sem carteira e sem sobrescrever senha ou role existente;
+- [ ] conflito de `ADMIN_EMAIL` com `ROLE_USER` falha explicitamente;
+- [ ] `ADMIN_*` ausente, parcial ou invalido faz o startup falhar antes de qualquer criacao parcial;
+- [ ] eventos minimos de seguranca geram auditoria sanitizada e correlacionavel, inclusive eventos de sistema sem endpoint HTTP;
 - [ ] apenas ADMIN altera catalogos globais;
 - [ ] corretoras sao validadas na Receita e CVM;
 - [ ] nao existe relacionamento fixo entre acao e corretora;

@@ -2,9 +2,10 @@ package com.carteira.carteiraInvestimento;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
-@SpringBootApplication(exclude = UserDetailsServiceAutoConfiguration.class)
+@SpringBootApplication
+@ConfigurationPropertiesScan
 public class CarteiraInvestimentoApplication {
 
 	public static void main(String[] args) {
