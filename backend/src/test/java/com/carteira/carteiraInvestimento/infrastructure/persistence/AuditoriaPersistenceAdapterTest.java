@@ -13,6 +13,8 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 class AuditoriaPersistenceAdapterTest {
 
@@ -39,5 +41,15 @@ class AuditoriaPersistenceAdapterTest {
 		assertThat(captured.getValue().getCorrelationId()).isEqualTo(correlationId);
 		assertThat(captured.getValue().getEndpoint()).isEqualTo("/api/v1/auth/login");
 		assertThat(captured.getValue().getDataHora()).isNotNull();
+	}
+
+	@Test
+	void declaresRejectedEventsInANewTransaction() throws Exception {
+		Transactional transaction = AuditoriaPersistenceAdapter.class
+				.getMethod("recordIsoladamente", AuditoriaCommand.class)
+				.getAnnotation(Transactional.class);
+
+		assertThat(transaction).isNotNull();
+		assertThat(transaction.propagation()).isEqualTo(Propagation.REQUIRES_NEW);
 	}
 }

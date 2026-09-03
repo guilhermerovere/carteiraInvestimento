@@ -3,7 +3,9 @@ import com.carteira.carteiraInvestimento.application.port.*;
 import com.carteira.carteiraInvestimento.domain.identity.*;
 import com.carteira.carteiraInvestimento.domain.wallet.Carteira;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+@Service
 public class RegistrationService {
  private final UsuarioPort usuarios; private final CarteiraPort carteiras; private final AuditoriaPort auditoria; private final PasswordHasher passwordHasher;
  public RegistrationService(UsuarioPort u, CarteiraPort c, AuditoriaPort a, PasswordHasher p) { usuarios=u; carteiras=c; auditoria=a; passwordHasher=p; }
