@@ -16,9 +16,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityProblemDetailHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 	private final ProblemDetailFactory problems;
+	private final AccessDeniedAuditingService accessDeniedAuditing;
 
-	public SecurityProblemDetailHandler(ProblemDetailFactory problems) {
+	public SecurityProblemDetailHandler(ProblemDetailFactory problems, AccessDeniedAuditingService accessDeniedAuditing) {
 		this.problems = problems;
+		this.accessDeniedAuditing = accessDeniedAuditing;
 	}
 
 	@Override
@@ -30,6 +32,7 @@ public class SecurityProblemDetailHandler implements AuthenticationEntryPoint, A
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException exception) throws IOException {
+		accessDeniedAuditing.record(request);
 		write(response, problems.create(HttpStatus.FORBIDDEN, "Forbidden", "Access is denied.", request));
 	}
 

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException;
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
+import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	private final ProblemDetailFactory problems;
-
-	public GlobalExceptionHandler() {
-		this(new ProblemDetailFactory());
-	}
+	private final AccessDeniedAuditingService accessDeniedAuditing;
 
 	@Autowired
-	public GlobalExceptionHandler(ProblemDetailFactory problems) {
+	public GlobalExceptionHandler(ProblemDetailFactory problems, AccessDeniedAuditingService accessDeniedAuditing) {
 		this.problems = problems;
+		this.accessDeniedAuditing = accessDeniedAuditing;
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
@@ -48,6 +47,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(AccessDeniedException.class)
 	ProblemDetail handleAccessDenied(AccessDeniedException exception, HttpServletRequest request) {
+		accessDeniedAuditing.record(request);
 		return problem(HttpStatus.FORBIDDEN, "Forbidden", "Access is denied.", request);
 	}
 

@@ -8,9 +8,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
+import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
+import com.carteira.carteiraInvestimento.infrastructure.web.CorrelationIdFilter;
+import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +30,8 @@ class GlobalExceptionHandlerTest {
 	@BeforeEach
 	void setUp() {
 		mockMvc = MockMvcBuilders.standaloneSetup(new FailureProbeController())
-				.setControllerAdvice(new GlobalExceptionHandler())
+				.setControllerAdvice(new GlobalExceptionHandler(new ProblemDetailFactory(),
+						new AccessDeniedAuditingService(event -> { throw new IllegalStateException("database PASSWORD_SENTINEL"); })))
 				.build();
 	}
 
@@ -58,6 +66,24 @@ class GlobalExceptionHandlerTest {
 				.andExpect(content().string(not(containsString("database-password"))));
 	}
 
+	@AfterEach
+	void clearSecurityContext() {
+		SecurityContextHolder.clearContext();
+	}
+
+	@Test
+	void preservesForbiddenProblemDetailWhenAccessDeniedAuditFails() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken(UUID.randomUUID().toString(), null, "ROLE_USER"));
+		mockMvc.perform(get("/test/access-denied")
+				.requestAttr(CorrelationIdFilter.ATTRIBUTE, UUID.randomUUID()))
+				.andExpect(status().isForbidden())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+				.andExpect(jsonPath("$.status").value(403))
+				.andExpect(jsonPath("$.detail").value("Access is denied."))
+				.andExpect(content().string(not(containsString("PASSWORD_SENTINEL"))));
+	}
+
 	@RestController
 	private static class FailureProbeController {
 
@@ -74,6 +100,11 @@ class GlobalExceptionHandlerTest {
 		@GetMapping("/test/duplicate-email")
 		void duplicateEmail() {
 			throw new DuplicateEmailException();
+		}
+
+		@GetMapping("/test/access-denied")
+		void accessDenied() {
+			throw new AccessDeniedException("secret");
 		}
 	}
 }

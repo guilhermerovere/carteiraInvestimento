@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.carteira.carteiraInvestimento.application.port.AuditoriaIsoladaPort;
 import com.carteira.carteiraInvestimento.application.port.UsuarioPort;
 import com.carteira.carteiraInvestimento.domain.identity.Role;
 import com.carteira.carteiraInvestimento.domain.identity.Usuario;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @WebMvcTest(controllers = PersistedUserJwtAuthenticationConverterTest.ProtectedProbeController.class)
 @Import({JwtConfiguration.class, ProblemDetailFactory.class, PersistedUserJwtAuthenticationConverter.class,
+		AccessDeniedAuditingService.class,
 		PersistedUserJwtAuthenticationConverterTest.ProtectedProbeController.class,
 		PersistedUserJwtAuthenticationConverterTest.AdminProbeController.class,
 		PersistedUserJwtAuthenticationConverterTest.SecurityTestConfiguration.class})
@@ -144,6 +146,11 @@ class PersistedUserJwtAuthenticationConverterTest {
 		@Bean
 		TestUsuarios usuarioPort() {
 			return new TestUsuarios();
+		}
+
+		@Bean
+		AuditoriaIsoladaPort auditoriaIsoladaPort() {
+			return event -> { };
 		}
 
 		@Bean

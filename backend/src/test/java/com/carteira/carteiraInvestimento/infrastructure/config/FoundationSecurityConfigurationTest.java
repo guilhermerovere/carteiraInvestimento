@@ -4,10 +4,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 import com.carteira.carteiraInvestimento.application.port.UsuarioPort;
+import com.carteira.carteiraInvestimento.application.port.AuditoriaIsoladaPort;
 import com.carteira.carteiraInvestimento.domain.identity.Usuario;
 import com.carteira.carteiraInvestimento.infrastructure.security.PersistedUserJwtAuthenticationConverter;
+import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import com.carteira.carteiraInvestimento.infrastructure.security.SecurityProblemDetailHandler;
 import com.carteira.carteiraInvestimento.presentation.error.ProblemDetailFactory;
 import java.util.Optional;
@@ -31,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @WebMvcTest(controllers = FoundationSecurityConfigurationTest.SecurityProbeController.class)
 @Import({FoundationSecurityConfiguration.class, JwtConfiguration.class, PersistedUserJwtAuthenticationConverter.class,
-		ProblemDetailFactory.class, SecurityProblemDetailHandler.class,
+		ProblemDetailFactory.class, AccessDeniedAuditingService.class, SecurityProblemDetailHandler.class,
 		FoundationSecurityConfigurationTest.SecurityProbeController.class,
 		FoundationSecurityConfigurationTest.SecurityTestConfiguration.class})
 @TestPropertySource(properties = {
@@ -44,14 +47,18 @@ class FoundationSecurityConfigurationTest {
 
 	@Test
 	void permitsOnlyTheExplicitPublicRoutesForAnonymousRequests() throws Exception {
-		mockMvc.perform(post("/api/v1/auth/register")).andExpect(status().isOk());
-		mockMvc.perform(post("/api/v1/auth/login")).andExpect(status().isOk());
-		mockMvc.perform(get("/actuator/health")).andExpect(status().isOk());
+		mockMvc.perform(post("/api/v1/auth/register"))
+				.andExpect(status().isOk()).andExpect(header().exists("X-Correlation-ID"));
+		mockMvc.perform(post("/api/v1/auth/login"))
+				.andExpect(status().isOk()).andExpect(header().exists("X-Correlation-ID"));
+		mockMvc.perform(get("/actuator/health"))
+				.andExpect(status().isOk()).andExpect(header().exists("X-Correlation-ID"));
 		mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk());
 		mockMvc.perform(get("/swagger-ui.html")).andExpect(status().isOk());
 		mockMvc.perform(get("/protected"))
 				.andExpect(status().isUnauthorized())
-				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON));
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+				.andExpect(header().exists("X-Correlation-ID"));
 	}
 
 	@RestController
@@ -80,6 +87,11 @@ class FoundationSecurityConfigurationTest {
 		@Bean
 		UserDetailsService userDetailsService() {
 			return email -> { throw new UsernameNotFoundException("not found"); };
+		}
+
+		@Bean
+		AuditoriaIsoladaPort auditoriaIsoladaPort() {
+			return event -> { };
 		}
 	}
 }
