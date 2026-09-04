@@ -14,7 +14,9 @@ import com.carteira.carteiraInvestimento.application.service.RegistrationService
 import com.carteira.carteiraInvestimento.domain.identity.Role;
 import com.carteira.carteiraInvestimento.domain.identity.Usuario;
 import com.carteira.carteiraInvestimento.infrastructure.web.CorrelationIdFilter;
+import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import com.carteira.carteiraInvestimento.presentation.error.GlobalExceptionHandler;
+import com.carteira.carteiraInvestimento.presentation.error.ProblemDetailFactory;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +35,8 @@ class RegistrationControllerTest {
 	void setUp() {
 		registration = Mockito.mock(RegistrationService.class);
 		mockMvc = MockMvcBuilders.standaloneSetup(new RegistrationController(registration))
-				.setControllerAdvice(new GlobalExceptionHandler())
+				.setControllerAdvice(new GlobalExceptionHandler(new ProblemDetailFactory(),
+						new AccessDeniedAuditingService(event -> { })))
 				.build();
 	}
 

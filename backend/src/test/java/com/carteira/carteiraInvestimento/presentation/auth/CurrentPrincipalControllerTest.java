@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.carteira.carteiraInvestimento.application.port.AuditoriaIsoladaPort;
 import com.carteira.carteiraInvestimento.application.port.UsuarioPort;
 import com.carteira.carteiraInvestimento.application.service.CurrentPrincipalService;
 import com.carteira.carteiraInvestimento.domain.identity.Role;
@@ -11,6 +12,7 @@ import com.carteira.carteiraInvestimento.domain.identity.Usuario;
 import com.carteira.carteiraInvestimento.infrastructure.config.JwtConfiguration;
 import com.carteira.carteiraInvestimento.infrastructure.config.JwtProperties;
 import com.carteira.carteiraInvestimento.infrastructure.security.PersistedUserJwtAuthenticationConverter;
+import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import com.carteira.carteiraInvestimento.presentation.error.ProblemDetailFactory;
 import java.time.Instant;
 import java.util.Optional;
@@ -38,6 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = CurrentPrincipalController.class)
 @Import({JwtConfiguration.class, ProblemDetailFactory.class, PersistedUserJwtAuthenticationConverter.class, CurrentPrincipalController.class,
+		AccessDeniedAuditingService.class,
 		CurrentPrincipalControllerTest.SecurityTestConfiguration.class})
 @TestPropertySource(properties = {
 		"application.security.jwt.secret-key=01234567890123456789012345678901",
@@ -95,6 +98,11 @@ class CurrentPrincipalControllerTest {
 		@Bean
 		TestUsuarios usuarioPort() {
 			return new TestUsuarios();
+		}
+
+		@Bean
+		AuditoriaIsoladaPort auditoriaIsoladaPort() {
+			return event -> { };
 		}
 
 		@Bean

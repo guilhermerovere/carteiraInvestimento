@@ -13,7 +13,9 @@ import com.carteira.carteiraInvestimento.application.port.AccessTokenIssuer.Issu
 import com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException;
 import com.carteira.carteiraInvestimento.application.service.LoginService;
 import com.carteira.carteiraInvestimento.infrastructure.web.CorrelationIdFilter;
+import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import com.carteira.carteiraInvestimento.presentation.error.GlobalExceptionHandler;
+import com.carteira.carteiraInvestimento.presentation.error.ProblemDetailFactory;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +32,8 @@ class LoginControllerTest {
 	void setUp() {
 		login = Mockito.mock(LoginService.class);
 		mockMvc = MockMvcBuilders.standaloneSetup(new LoginController(login))
-				.setControllerAdvice(new GlobalExceptionHandler())
+				.setControllerAdvice(new GlobalExceptionHandler(new ProblemDetailFactory(),
+						new AccessDeniedAuditingService(event -> { })))
 				.build();
 	}
 
