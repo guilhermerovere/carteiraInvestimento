@@ -1,5 +1,4 @@
 import { CircleCheck } from "lucide-react";
-import { publicEnv } from "@/config/public-env";
 
 export default function Home() {
   return (
@@ -12,10 +11,6 @@ export default function Home() {
           Next.js, TypeScript, Tailwind CSS, Shadcn UI, TanStack Query e Recharts
           estão preparados para as próximas changes.
         </p>
-        <dl className="foundation-config">
-          <dt>Backend público</dt>
-          <dd data-testid="api-url">{publicEnv.apiUrl || "Não configurado"}</dd>
-        </dl>
       </section>
     </main>
   );

@@ -1,0 +1,2 @@
+import { test, expect } from "@playwright/test";
+test("rota protegida redireciona anonimamente sem expor token", async ({ page }) => { await page.goto("/inicio"); await expect(page).toHaveURL(/\/login\?returnTo=%2Finicio/); const response = await page.request.post("/api/auth/login", { data: { email: "a@b.test", senha: "invalid" }, headers: { Origin: "http://127.0.0.1:3000" } }); expect(await response.text()).not.toContain("accessToken"); });
