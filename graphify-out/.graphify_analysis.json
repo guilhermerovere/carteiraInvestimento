@@ -1,6 +1,102 @@
 {
   "communities": {
     "0": [
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer_accesstokenissuer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer_accesstokenissuer_issue",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer_issuedaccesstoken",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaport_auditoriaport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaport_auditoriaport_record",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_carteiraport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_carteiraport_carteiraport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_carteiraport_carteiraport_save",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher_passwordhasher",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher_passwordhasher_hash",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher_passwordhasher_matches",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport_findbyemail",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport_findbyid",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice_currentprincipalservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice_currentprincipalservice_current",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice_currentprincipalservice_currentprincipalservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice_initialadminbootstrapservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice_initialadminbootstrapservice_initialadminbootstrapservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice_initialadminbootstrapservice_provision",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice_loginservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice_loginservice_login",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice_loginservice_loginservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice_registrationservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice_registrationservice_register",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice_registrationservice_registrationservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer_emailcanonicalizer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer_emailcanonicalizer_canonicalize",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer_emailcanonicalizer_emailcanonicalizer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy_passwordpolicy",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy_passwordpolicy_passwordpolicy",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy_passwordpolicy_validate",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_usuario_usuario",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_wallet_carteira",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_wallet_carteira_carteira",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_wallet_carteira_carteira_principal",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_currentprincipalservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_initialadminbootstrapservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_initialadminrunner",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_loginservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_registrationservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller_currentprincipalcontroller_currentprincipalcontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller_logincontroller_login",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginrequest",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginrequest_loginrequest",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginresponse",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginresponse_loginresponse",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginresponse_loginresponse_from",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registereduserresponse",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registereduserresponse_registereduserresponse",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registereduserresponse_registereduserresponse_from",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registerrequest",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registerrequest_registerrequest",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller_registrationcontroller_register",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_findbyemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_findbyid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_hash",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_matches",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_record",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_recordisoladamente",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_save",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_bootstrapisidempotentcreatesadminwithoutwalletandrejectsuserconflict",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_currentprincipalusesonlytheuserport",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_logincanonicalizesauditsbeforeissuingandrejectsinactive",
+      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_registrationorchestratesuserwalletandauditwithoutframeworks",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_java_override",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios_findbyemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios_findbyid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios_save",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest_setup",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_java_override",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios_findbyemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios_findbyid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios_save",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_logincontrollertest_logincontrollertest_returnsonlythebeareraccesstokencontract",
+      "org_springframework_boot_commandlinerunner",
+      "org_springframework_transaction_annotation_transactional"
+    ],
+    "1": [
       "frontend_src_app_api_auth_login_route",
       "frontend_src_app_api_auth_login_route_post",
       "frontend_src_app_api_auth_login_route_test",
@@ -22,12 +118,13 @@
       "frontend_src_app_api_auth_register_route_test_request",
       "frontend_src_app_protected_admin_layout",
       "frontend_src_app_protected_admin_layout_adminlayout",
-      "frontend_src_app_protected_admin_page",
-      "frontend_src_app_protected_admin_page_adminpage",
       "frontend_src_app_protected_inicio_layout",
       "frontend_src_app_protected_inicio_layout_iniciolayout",
-      "frontend_src_app_protected_inicio_page",
-      "frontend_src_app_protected_inicio_page_iniciopage",
+      "frontend_src_lib_auth_contracts",
+      "frontend_src_lib_auth_contracts_currentuser",
+      "frontend_src_lib_auth_contracts_logininput",
+      "frontend_src_lib_auth_contracts_registerinput",
+      "frontend_src_lib_auth_contracts_role",
       "frontend_src_server_auth_backend_client",
       "frontend_src_server_auth_backend_client_backendclient",
       "frontend_src_server_auth_backend_client_request",
@@ -68,30 +165,105 @@
       "frontend_src_server_auth_types_backendhttperror_constructor",
       "frontend_src_server_auth_types_backendnetworkerror",
       "frontend_src_server_auth_types_backendnetworkerror_constructor",
-      "frontend_src_server_auth_types_currentuser",
-      "frontend_src_server_auth_types_logininput",
       "frontend_src_server_auth_types_logininputfrom",
       "frontend_src_server_auth_types_loginresult",
       "frontend_src_server_auth_types_parsebackenderror",
       "frontend_src_server_auth_types_parseloginresult",
       "frontend_src_server_auth_types_problemdetail",
       "frontend_src_server_auth_types_registereduser",
-      "frontend_src_server_auth_types_registerinput",
       "frontend_src_server_auth_types_registerinputfrom",
       "frontend_src_server_auth_types_requiredstring",
-      "frontend_src_server_auth_types_role",
       "frontend_src_server_auth_types_safeproblem",
       "frontend_src_server_auth_types_safetext",
       "frontend_src_server_auth_types_test",
       "frontend_src_server_auth_types_test_sensitivepayload"
     ],
-    "1": [
+    "2": [
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaisoladaport_auditoriaisoladaport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_usuario",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration_authenticationmanager",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration_foundationsecurityfilterchain",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration_passwordencoder",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher_bcryptpasswordhasher",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher_hash",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher_matches",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_java_override",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_convert",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_invalidtoken",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_subject",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_foundationsecurityconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration_auditoriaisoladaport",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration_userdetailsservice",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration_usuarioport",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration_auditoriaisoladaport",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration_securityfilterchain",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration_usuarioport",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration_accessdeniedprobecontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration_filteraccessdeniedsecurityfilterchain",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest_returnsonlythepersistedprincipalandignoresclientsupplieduserid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest_token",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_auditoriaisoladaport",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_currentprincipalservice",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_securityfilterchain",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_usuarioport",
+      "ch_qos_logback_classic_logger",
+      "currentprincipalcontrollertest_securitytestconfiguration",
+      "foundationsecurityconfigurationtest_securityprobecontroller",
+      "foundationsecurityconfigurationtest_securitytestconfiguration",
+      "invalidbearertokenexception",
+      "javax_sql_datasource",
+      "org_springframework_beans_factory_annotation_autowired",
+      "org_springframework_boot_context_properties_enableconfigurationproperties",
+      "org_springframework_boot_test_context_springboottest",
+      "org_springframework_boot_test_context_testconfiguration",
+      "org_springframework_boot_webmvc_test_autoconfigure_webmvctest",
+      "org_springframework_context_annotation_bean",
+      "org_springframework_context_annotation_import",
+      "org_springframework_core_convert_converter_converter",
+      "org_springframework_security_access_prepost_preauthorize",
+      "org_springframework_security_authentication_abstractauthenticationtoken",
+      "org_springframework_security_authentication_authenticationmanager",
+      "org_springframework_security_config_annotation_method_configuration_enablemethodsecurity",
+      "org_springframework_security_config_annotation_web_builders_httpsecurity",
+      "org_springframework_security_config_annotation_web_configuration_enablewebsecurity",
+      "org_springframework_security_core_userdetails_userdetailsservice",
+      "org_springframework_security_crypto_password_passwordencoder",
+      "org_springframework_security_oauth2_jwt_jwt",
+      "org_springframework_security_oauth2_server_resource_invalidbearertokenexception",
+      "org_springframework_security_web_securityfilterchain",
+      "org_springframework_test_context_testpropertysource",
+      "org_springframework_test_web_servlet_mockmvc"
+    ],
+    "3": [
       "backend_src_main_java_com_carteira_carteirainvestimento_application_service_authenticationfailedexception",
       "backend_src_main_java_com_carteira_carteirainvestimento_application_service_authenticationfailedexception_authenticationfailedexception",
       "backend_src_main_java_com_carteira_carteirainvestimento_application_service_authenticationfailedexception_authenticationfailedexception_authenticationfailedexception",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_duplicateemailexception",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_duplicateemailexception_duplicateemailexception",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_duplicateemailexception_duplicateemailexception_duplicateemailexception",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice_accessdeniedauditingservice",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice_accessdeniedauditingservice_accessdeniedauditingservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice_accessdeniedauditingservice_record",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandler",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandler_java_override",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandler_securityproblemdetailhandler",
@@ -120,12 +292,6 @@
       "backend_src_main_java_com_carteira_carteirainvestimento_presentation_error_problemdetailfactory",
       "backend_src_main_java_com_carteira_carteirainvestimento_presentation_error_problemdetailfactory_problemdetailfactory",
       "backend_src_main_java_com_carteira_carteirainvestimento_presentation_error_problemdetailfactory_problemdetailfactory_create",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_containsauditfailure",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_ignoresmissingandanonymousprincipals",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_recordsauthenticatedprincipalwithrequestmetadata",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_request",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_java_mockhttpservletrequest",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandlertest_java_mockhttpservletrequest",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandlertest_securityproblemdetailhandlertest",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandlertest_securityproblemdetailhandlertest_keepsthesanitizedforbiddenresponsewhenauditpersistencefails",
@@ -142,9 +308,14 @@
       "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_logincontrollertest_logincontrollertest_returnssanitizedunauthorizedforinvalidcredentials",
       "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_logincontrollertest_logincontrollertest_setup",
       "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_setup",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_setup",
       "jakarta_servlet_filterchain",
       "jakarta_servlet_http_httpservletrequest",
       "jakarta_servlet_http_httpservletresponse",
+      "org_junit_jupiter_api_beforeeach",
+      "org_slf4j_logger",
       "org_springframework_core_annotation_order",
       "org_springframework_http_httpstatus",
       "org_springframework_http_problemdetail",
@@ -159,76 +330,135 @@
       "org_springframework_web_filter_onceperrequestfilter",
       "org_springframework_web_servlet_resource_noresourcefoundexception"
     ],
-    "2": [
-      "authentication",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller_currentprincipalcontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller_currentprincipalcontroller_me",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentuserresponse",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentuserresponse_currentuserresponse",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentuserresponse_currentuserresponse_from",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller_logincontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller_logincontroller_login",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller_logincontroller_logincontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginrequest",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginrequest_loginrequest",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginresponse",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginresponse_loginresponse",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_loginresponse_loginresponse_from",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registereduserresponse",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registereduserresponse_registereduserresponse",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registereduserresponse_registereduserresponse_from",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registerrequest",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registerrequest_registerrequest",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller_registrationcontroller",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller_registrationcontroller_register",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller_registrationcontroller_registrationcontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_health",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_login",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_openapi",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_protectedendpoint",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_register",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_swagger",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfigurationtest_openapiconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfigurationtest_openapiconfigurationtest_publishesbearerforprotectedroutes",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_adminprobecontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_adminprobecontroller_adminonly",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_assertunauthorized",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_bearer",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_buildsauthoritiesfromthecurrentpersistedrole",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_resetuser",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsforbiddenforanauthenticatedprincipalwithouttherequiredrole",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsunauthorizedwhenthepersistedroledivergesfromthetokenclaim",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsunauthorizedwhenthepersisteduserisinactive",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsunauthorizedwhenthepersisteduserwasremoved",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_token",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_usuario",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_protectedprobecontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_protectedprobecontroller_protectedendpoint",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobecontroller_adminonly",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_accessdenied",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_invalid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_unexpected",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_setup",
-      "io_swagger_v3_oas_annotations_security_securityrequirement",
-      "org_springframework_http_responseentity",
-      "org_springframework_security_access_prepost_preauthorize",
-      "org_springframework_web_bind_annotation_getmapping",
-      "org_springframework_web_bind_annotation_postmapping",
-      "org_springframework_web_bind_annotation_requestmapping",
-      "org_springframework_web_bind_annotation_restcontroller",
-      "persisteduserjwtauthenticationconvertertest_adminprobecontroller",
-      "persisteduserjwtauthenticationconvertertest_protectedprobecontroller",
-      "persisteduserjwtauthenticationconvertertest_securitytestconfiguration"
+    "4": [
+      "frontend_src_app_acesso_negado_page",
+      "frontend_src_app_acesso_negado_page_accessdeniedpage",
+      "frontend_src_app_auth_forms_test",
+      "frontend_src_app_auth_forms_test_fetchmock",
+      "frontend_src_app_auth_forms_test_filllogin",
+      "frontend_src_app_auth_forms_test_render",
+      "frontend_src_app_auth_forms_test_replacemock_searchmock",
+      "frontend_src_app_auth_pages_test",
+      "frontend_src_app_login_login_form",
+      "frontend_src_app_login_login_form_loginform",
+      "frontend_src_app_login_login_form_messagefor",
+      "frontend_src_app_login_page",
+      "frontend_src_app_login_page_loginpage",
+      "frontend_src_app_protected_admin_page",
+      "frontend_src_app_protected_admin_page_adminpage",
+      "frontend_src_app_protected_inicio_page",
+      "frontend_src_app_protected_inicio_page_iniciopage",
+      "frontend_src_app_register_page",
+      "frontend_src_app_register_page_registerpage",
+      "frontend_src_app_register_register_form",
+      "frontend_src_app_register_register_form_messagefor",
+      "frontend_src_app_register_register_form_registerform",
+      "frontend_src_auth_routes",
+      "frontend_src_auth_routes_auth_session_cookie",
+      "frontend_src_auth_routes_protectedroutes",
+      "frontend_src_client_auth",
+      "frontend_src_client_auth_authmekey",
+      "frontend_src_client_auth_clearauthstate",
+      "frontend_src_client_auth_confirmcurrentuser",
+      "frontend_src_client_auth_form_api",
+      "frontend_src_client_auth_form_api_asproblem",
+      "frontend_src_client_auth_form_api_authformerror",
+      "frontend_src_client_auth_form_api_authformerror_constructor",
+      "frontend_src_client_auth_form_api_authproblem",
+      "frontend_src_client_auth_form_api_getcurrentuser",
+      "frontend_src_client_auth_form_api_isunauthorized",
+      "frontend_src_client_auth_form_api_login",
+      "frontend_src_client_auth_form_api_loginandconfirm",
+      "frontend_src_client_auth_form_api_logout",
+      "frontend_src_client_auth_form_api_problemfrom",
+      "frontend_src_client_auth_form_api_register",
+      "frontend_src_client_auth_form_api_request",
+      "frontend_src_client_auth_form_api_test",
+      "frontend_src_client_auth_form_api_test_fetchmock",
+      "frontend_src_client_auth_test",
+      "frontend_src_client_auth_test_client",
+      "frontend_src_client_auth_test_fetchmock",
+      "frontend_src_client_auth_test_user",
+      "frontend_src_client_auth_test_wrapper",
+      "frontend_src_client_auth_test_wrapper_testqueryprovider",
+      "frontend_src_client_auth_usecurrentuser",
+      "frontend_src_client_auth_uselogin",
+      "frontend_src_client_auth_uselogout",
+      "frontend_src_client_auth_useregister",
+      "frontend_src_lib_return_to",
+      "frontend_src_lib_return_to_default_return_to",
+      "frontend_src_lib_return_to_issafeinternalpath",
+      "frontend_src_lib_return_to_safereturnto",
+      "frontend_src_lib_return_to_test",
+      "frontend_src_proxy",
+      "frontend_src_proxy_config",
+      "frontend_src_proxy_proxy",
+      "frontend_src_proxy_test",
+      "frontend_src_proxy_test_request"
     ],
-    "3": [
+    "5": [
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role_role",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role_role_role_admin",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role_role_role_user",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_carteirajpaentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getdatacriacao",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getid",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getnome",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getsaldocaixabrl",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getusuarioid",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_java_entity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_java_table",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajparepository",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajparepository_carteirajparepository",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_findbyemail",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_findbyid",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_identitypersistenceadapter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_iscanonicalemailuniqueviolation",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_save",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_todomain",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_toentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_java_override",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_java_override",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_repositoryuserdetailsservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_repositoryuserdetailsservice_loaduserbyusername",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_repositoryuserdetailsservice_repositoryuserdetailsservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_java_entity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_java_table",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getatualizadoem",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getcriadoem",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getemail",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getid",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getnome",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getrole",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getsenhahash",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_isativo",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_usuariojpaentity",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojparepository",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojparepository_usuariojparepository",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojparepository_usuariojparepository_findbyemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_concurrentcanonicalemailvariationscreateonlyoneidentity",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_countusersbyemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_resultof",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_saveafterbarrier",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_translatesdatabaseuniqueviolationandpersistsonlyonecanonicalidentity",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_java_datasource",
+      "org_springframework_data_jpa_repository_jparepository",
+      "org_springframework_stereotype_repository",
+      "org_springframework_stereotype_service",
+      "userdetails",
+      "userdetailsservice"
+    ],
+    "6": [
       "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaisoladaport",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaisoladaport_auditoriaisoladaport_recordisoladamente",
       "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaport",
       "backend_src_main_java_com_carteira_carteirainvestimento_application_service_auditoriacommand",
       "backend_src_main_java_com_carteira_carteirainvestimento_application_service_auditoriacommand_auditoriacommand",
@@ -262,70 +492,117 @@
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_logauditoriajpaentity_logauditoriajpaentity_getusuarioid",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_logauditoriajpaentity_logauditoriajpaentity_logauditoriajpaentity",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice_accessdeniedauditingservice_record",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_clearsecuritycontext",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_containsauditfailure",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_ignoresmissingandanonymousprincipals",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_recordsauthenticatedprincipalwithrequestmetadata",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_request",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_java_mockhttpservletrequest",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandlertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandlertest_securityproblemdetailhandlertest_clearsecuritycontext",
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_acceptsonlyacanonicalboundeduuidfromtheheader",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_assertgeneratedcorrelationid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_generatesauuidwhentheheaderismissingorinvalid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_makesthegeneratedcorrelationidavailabletoanauditedrequest",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditpersistenceintegrationtest",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_event",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_eventexists",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistsrejectedauditinitsowntransactionwhentheoriginatingtransactionrollsback",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_clearsecuritycontext",
       "jakarta_persistence_entity",
       "jakarta_persistence_table",
-      "org_slf4j_logger",
-      "org_springframework_mock_web_mockhttpservletrequest",
-      "org_springframework_test_web_servlet_mvcresult"
+      "org_junit_jupiter_api_aftereach",
+      "org_springframework_mock_web_mockhttpservletrequest"
     ],
-    "4": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role_role",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role_role_role_admin",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role_role_role_user",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter_auditoriapersistenceadapter_auditoriapersistenceadapter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_carteirajpaentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getdatacriacao",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getid",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getnome",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getsaldocaixabrl",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_carteirajpaentity_getusuarioid",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_java_entity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajpaentity_java_table",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajparepository",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_carteirajparepository_carteirajparepository",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_identitypersistenceadapter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_todomain",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_logauditoriajparepository",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_logauditoriajparepository_logauditoriajparepository",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_java_override",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_repositoryuserdetailsservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_repositoryuserdetailsservice_loaduserbyusername",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_repositoryuserdetailsservice_repositoryuserdetailsservice_repositoryuserdetailsservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_java_entity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_java_table",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getatualizadoem",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getcriadoem",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getemail",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getid",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getnome",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getrole",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_getsenhahash",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_isativo",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojpaentity_usuariojpaentity_usuariojpaentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojparepository",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojparepository_usuariojparepository",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_usuariojparepository_usuariojparepository_findbyemail",
-      "org_springframework_data_jpa_repository_jparepository",
-      "userdetails",
-      "userdetailsservice"
+    "7": [
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_adminproperties",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_adminproperties_adminproperties",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_audiencevalidator",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_invalidtoken",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_isrole",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_isuuid",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_jwtclock",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_jwtdecoder",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_jwtencoder",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_requiredclaimsvalidator",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_secretkey",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtproperties",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtproperties_jwtproperties",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtproperties_jwtproperties_hasminimumsecretlength",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfiguration_openapiconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfiguration_openapiconfiguration_foundationopenapi",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_java_override",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_jwtaccesstokenissuer",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_jwtaccesstokenissuer_issue",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_jwtaccesstokenissuer_jwtaccesstokenissuer",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfigurationtest_openapiconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfigurationtest_openapiconfigurationtest_publishesbearerforprotectedroutes",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_propertiesconfiguration",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_propertiesconfiguration_configurationpropertiesvalidator",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_issueshs256tokenwithallrequiredclaims",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_rejectstokenswithinvalidsignatureissueraudiencemalformedorexpiredclaims",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_token",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_usuario",
+      "io_swagger_v3_oas_models_openapi",
+      "jakarta_validation_constraints_asserttrue",
+      "javax_crypto_spec_secretkeyspec",
+      "localvalidatorfactorybean",
+      "openapi",
+      "org_springframework_boot_context_properties_configurationproperties",
+      "org_springframework_context_annotation_configuration",
+      "org_springframework_security_oauth2_core_oauth2tokenvalidator",
+      "org_springframework_security_oauth2_core_oauth2tokenvalidatorresult",
+      "org_springframework_security_oauth2_jwt_jwtdecoder",
+      "org_springframework_security_oauth2_jwt_jwtencoder",
+      "org_springframework_validation_annotation_validated",
+      "secretkeyspec"
     ],
-    "5": [
+    "8": [
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller_currentprincipalcontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller_currentprincipalcontroller_me",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentuserresponse",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentuserresponse_currentuserresponse",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentuserresponse_currentuserresponse_from",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller_logincontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_logincontroller_logincontroller_logincontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller_registrationcontroller",
+      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontroller_registrationcontroller_registrationcontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_health",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_login",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_openapi",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_protectedendpoint",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_register",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securityprobecontroller_swagger",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_adminprobecontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_adminprobecontroller_adminonly",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobecontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobecontroller_adminonly",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobecontroller_filteradminonly",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_accessdenied",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_duplicateemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_invalid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_unexpected",
+      "io_swagger_v3_oas_annotations_security_securityrequirement",
+      "org_springframework_http_responseentity",
+      "org_springframework_web_bind_annotation_getmapping",
+      "org_springframework_web_bind_annotation_postmapping",
+      "org_springframework_web_bind_annotation_requestmapping",
+      "org_springframework_web_bind_annotation_restcontroller"
+    ],
+    "9": [
       "openspec_specs_bearer_authentication_and_authorization_spec",
       "openspec_specs_bearer_authentication_and_authorization_spec_bearer_authentication_and_authorization_specification",
       "openspec_specs_bearer_authentication_and_authorization_spec_purpose",
@@ -358,7 +635,7 @@
       "openspec_specs_bearer_authentication_and_authorization_spec_scenario_usuario_desativado_depois_da_emissao",
       "openspec_specs_bearer_authentication_and_authorization_spec_scenario_usuario_removido_depois_da_emissao"
     ],
-    "6": [
+    "10": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_bearer_authentication_and_authorization_spec",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_bearer_authentication_and_authorization_spec_added_requirements",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_bearer_authentication_and_authorization_spec_purpose",
@@ -390,7 +667,7 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_bearer_authentication_and_authorization_spec_scenario_usuario_desativado_depois_da_emissao",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_bearer_authentication_and_authorization_spec_scenario_usuario_removido_depois_da_emissao"
     ],
-    "7": [
+    "11": [
       "openspec_specs_identity_and_primary_wallet_spec",
       "openspec_specs_identity_and_primary_wallet_spec_purpose",
       "openspec_specs_identity_and_primary_wallet_spec_requirement_cadastro_publico_transacional",
@@ -422,38 +699,7 @@
       "openspec_specs_identity_and_primary_wallet_spec_scenario_unicidade_estrutural_da_carteira",
       "openspec_specs_identity_primary_wallet"
     ],
-    "8": [
-      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest_identitydomaintest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest_identitydomaintest_canonicalizestrimmedlowercaseemailandkeepsonlysupportedroles",
-      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest_identitydomaintest_enforcesthepasswordpolicy",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_passwordsecurityconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_passwordsecurityconfigurationtest_passwordsecurityconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_passwordsecurityconfigurationtest_passwordsecurityconfigurationtest_usesbcryptwithstrengthtwelve",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest_declaresrejectedeventsinanewtransaction",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest_exposesonlythetypedauditcommandatitsinternalboundary",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest_persistsonlyfixedauditmetadata",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservicetest_accessdeniedauditingservicetest_clearsecuritycontext",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_securityproblemdetailhandlertest_securityproblemdetailhandlertest_clearsecuritycontext",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit_flywayvalidationit",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit_flywayvalidationit_rejectsanincompatiblemigrationhistory",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit_flywayvalidationit_validatestheidentitymigrationsequenceagainstpostgresql",
-      "backend_src_test_java_com_carteira_carteirainvestimento_missingdatabaseconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_missingdatabaseconfigurationtest_missingdatabaseconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_missingdatabaseconfigurationtest_missingdatabaseconfigurationtest_missingrequireddatabaseurlfailsinsteadofusinganembeddeddatabase",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_clearsecuritycontext",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_preservesforbiddenproblemdetailwhenaccessdeniedauditfails",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_returnssanitizedconflictforduplicateemail",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_returnssanitizedproblemdetailforinvalidarguments",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_returnssanitizedproblemdetailforunexpectedfailures",
-      "org_junit_jupiter_api_aftereach",
-      "org_junit_jupiter_api_test"
-    ],
-    "9": [
+    "12": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_identity_and_primary_wallet_spec",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_identity_and_primary_wallet_spec_added_requirements",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_identity_and_primary_wallet_spec_purpose",
@@ -483,96 +729,6 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_identity_and_primary_wallet_spec_scenario_role_invalida_no_banco",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_identity_and_primary_wallet_spec_scenario_senha_fora_da_politica",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_identity_and_primary_wallet_spec_scenario_unicidade_estrutural_da_carteira"
-    ],
-    "10": [
-      "auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaisoladaport_auditoriaisoladaport_recordisoladamente",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport_save",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_usuario_usuario_novousuario",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration_accessdeniedprobecontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobecontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobecontroller_filteradminonly",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_accessdeniedevents",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_accessdeniedeventsfor",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_assertdoesnotcontainsensitivevalues",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_bearer",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_counteventsfor",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_eventexists",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_neverpersistsorlogscredentialpayloadorfinancialsentinels",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_nooppasswordhasher",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistedauditmetadata",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistsaccessdeniedfrommethodsecurityauthorizationflow",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistsaccessdeniedfromsecurityfilterchainauthorizationflow",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistseachminimumsecurityeventwithexpectedhttpandsystemmetadata",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistsrejectedauditinitsowntransactionwhentheoriginatingtransactionrollsback",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_returnscorrelationidwithoutauditingunauthenticatedsecurityrejection",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_systemeventhasgeneratedcorrelation",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_token",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_uniqueemail",
-      "org_springframework_boot_webmvc_test_autoconfigure_autoconfiguremockmvc",
-      "org_springframework_transaction_support_transactiontemplate"
-    ],
-    "11": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration_authenticationmanager",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration_foundationsecurityfilterchain",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfiguration_foundationsecurityconfiguration_passwordencoder",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_jwtclock",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher_bcryptpasswordhasher",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher_hash",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_bcryptpasswordhasher_bcryptpasswordhasher_matches",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration_auditoriaisoladaport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration_userdetailsservice",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration_usuarioport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration_auditoriaisoladaport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration_securityfilterchain",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_securitytestconfiguration_usuarioport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration_filteraccessdeniedsecurityfilterchain",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_auditoriaisoladaport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_securityfilterchain",
-      "org_springframework_context_annotation_bean",
-      "org_springframework_security_authentication_authenticationmanager",
-      "org_springframework_security_config_annotation_method_configuration_enablemethodsecurity",
-      "org_springframework_security_config_annotation_web_builders_httpsecurity",
-      "org_springframework_security_core_userdetails_userdetailsservice",
-      "org_springframework_security_crypto_password_passwordencoder",
-      "org_springframework_security_web_securityfilterchain"
-    ],
-    "12": [
-      "frontend_src_app_login_login_form",
-      "frontend_src_app_login_login_form_loginform",
-      "frontend_src_app_login_page",
-      "frontend_src_app_login_page_loginpage",
-      "frontend_src_app_register_page",
-      "frontend_src_app_register_page_registerpage",
-      "frontend_src_app_register_register_form",
-      "frontend_src_app_register_register_form_registerform",
-      "frontend_src_auth_routes",
-      "frontend_src_auth_routes_auth_session_cookie",
-      "frontend_src_auth_routes_protectedroutes",
-      "frontend_src_client_auth",
-      "frontend_src_client_auth_authmekey",
-      "frontend_src_client_auth_request",
-      "frontend_src_client_auth_usecurrentuser",
-      "frontend_src_client_auth_uselogin",
-      "frontend_src_client_auth_uselogout",
-      "frontend_src_client_auth_useregister",
-      "frontend_src_lib_return_to",
-      "frontend_src_lib_return_to_default_return_to",
-      "frontend_src_lib_return_to_issafeinternalpath",
-      "frontend_src_lib_return_to_safereturnto",
-      "frontend_src_lib_return_to_test",
-      "frontend_src_proxy",
-      "frontend_src_proxy_config",
-      "frontend_src_proxy_proxy",
-      "frontend_src_proxy_test",
-      "frontend_src_proxy_test_request"
     ],
     "13": [
       "frontend_tsconfig",
@@ -605,126 +761,80 @@
       "ref_tsx"
     ],
     "14": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer_accesstokenissuer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaisoladaport_auditoriaisoladaport",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaport_auditoriaport",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_carteiraport_carteiraport",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher_passwordhasher",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher_passwordhasher_hash",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice_initialadminbootstrapservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice_initialadminbootstrapservice_initialadminbootstrapservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice_loginservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice_loginservice_loginservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice_registrationservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice_registrationservice_registrationservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_usuario",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_initialadminbootstrapservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_initialadminrunner",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_loginservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_registrationservice",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest",
-      "ch_qos_logback_classic_logger",
-      "org_springframework_boot_commandlinerunner"
-    ],
-    "15": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport_findbyid",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice_currentprincipalservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice_currentprincipalservice_current",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_currentprincipalservice_currentprincipalservice_currentprincipalservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_usuario_usuario",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_identityapplicationconfiguration_identityapplicationconfiguration_currentprincipalservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontroller_currentprincipalcontroller_currentprincipalcontroller",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_java_override",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios_findbyemail",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios_findbyid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_testusuarios_save",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_java_override",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_currentprincipalservice",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration_usuarioport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios_findbyemail",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios_findbyid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_testusuarios_save"
-    ],
-    "16": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_adminproperties",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_adminproperties_adminproperties",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_jwtencoder",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtproperties",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtproperties_jwtproperties",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtproperties_jwtproperties_hasminimumsecretlength",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_java_override",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_jwtaccesstokenissuer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_jwtaccesstokenissuer_issue",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuer_jwtaccesstokenissuer_jwtaccesstokenissuer",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_issueshs256tokenwithallrequiredclaims",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_rejectstokenswithinvalidsignatureissueraudiencemalformedorexpiredclaims",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_token",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_jwtaccesstokenissuertest_jwtaccesstokenissuertest_usuario",
-      "jakarta_validation_constraints_asserttrue",
-      "org_springframework_boot_context_properties_configurationproperties",
-      "org_springframework_security_oauth2_jwt_jwtdecoder",
-      "org_springframework_security_oauth2_jwt_jwtencoder",
-      "org_springframework_validation_annotation_validated"
-    ],
-    "17": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_carteirainvestimentoapplication",
+      "backend_src_main_java_com_carteira_carteirainvestimento_carteirainvestimentoapplication_carteirainvestimentoapplication",
+      "backend_src_main_java_com_carteira_carteirainvestimento_carteirainvestimentoapplication_carteirainvestimentoapplication_main",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter_auditoriapersistenceadapter",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter_auditoriapersistenceadapter_auditoriapersistenceadapter",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter_auditoriapersistenceadapter_record",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter_auditoriapersistenceadapter_recordisoladamente",
       "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadapter_java_override",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_findbyemail",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_findbyid",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_iscanonicalemailuniqueviolation",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_save",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_identitypersistenceadapter_toentity",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_identitypersistenceadapter_java_override",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_logauditoriajparepository",
+      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_persistence_logauditoriajparepository_logauditoriajparepository",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_faultinjectionconfiguration",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_faultinjectionconfiguration_failingauditoriaport",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_faultinjectionconfiguration_failingcarteiraport",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_faultinjectionconfiguration_faultswitches",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_faultswitches",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_assertnoregistrationartifacts",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_count",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_resetfailures",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_rollsbackuserwalletandauditwhenauditpersistencefails",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_rollsbackuserwalletandauditwhenwalletpersistencefails",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_uniqueemail",
+      "org_springframework_boot_autoconfigure_springbootapplication",
+      "org_springframework_boot_context_properties_configurationpropertiesscan",
       "org_springframework_context_annotation_primary",
-      "org_springframework_stereotype_repository",
-      "org_springframework_transaction_annotation_transactional"
+      "registrationtransactionintegrationtest_faultinjectionconfiguration"
     ],
-    "18": [
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_foundationsecurityconfigurationtest",
+    "15": [
+      "auditsecurityeventsintegrationtest_accessdeniedprobeconfiguration",
+      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport_save",
+      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_usuario_usuario_novousuario",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_accessdeniedevents",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_accessdeniedeventsfor",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_assertdoesnotcontainsensitivevalues",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_bearer",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_counteventsfor",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_neverpersistsorlogscredentialpayloadorfinancialsentinels",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_nooppasswordhasher",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistedauditmetadata",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistsaccessdeniedfrommethodsecurityauthorizationflow",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistsaccessdeniedfromsecurityfilterchainauthorizationflow",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_persistseachminimumsecurityeventwithexpectedhttpandsystemmetadata",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_returnscorrelationidwithoutauditingunauthenticatedsecurityrejection",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_systemeventhasgeneratedcorrelation",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_token",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditsecurityeventsintegrationtest_auditsecurityeventsintegrationtest_uniqueemail",
+      "org_springframework_boot_webmvc_test_autoconfigure_autoconfiguremockmvc",
+      "org_springframework_transaction_support_transactiontemplate"
+    ],
+    "16": [
       "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_foundationsecurityconfigurationtest_permitsonlytheexplicitpublicroutesforanonymousrequests",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_foundationsecurityconfigurationtest_securitytestconfiguration",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest_returnsonlythepersistedprincipalandignoresclientsupplieduserid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest_token",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_securitytestconfiguration",
-      "currentprincipalcontrollertest_securitytestconfiguration",
-      "foundationsecurityconfigurationtest_securityprobecontroller",
-      "foundationsecurityconfigurationtest_securitytestconfiguration",
-      "org_springframework_boot_context_properties_enableconfigurationproperties",
-      "org_springframework_boot_test_context_testconfiguration",
-      "org_springframework_boot_webmvc_test_autoconfigure_webmvctest",
-      "org_springframework_context_annotation_import",
-      "org_springframework_security_config_annotation_web_configuration_enablewebsecurity",
-      "org_springframework_test_context_testpropertysource",
-      "org_springframework_test_web_servlet_mockmvc"
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_passwordsecurityconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_passwordsecurityconfigurationtest_passwordsecurityconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_passwordsecurityconfigurationtest_passwordsecurityconfigurationtest_usesbcryptwithstrengthtwelve",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest_declaresrejectedeventsinanewtransaction",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest_exposesonlythetypedauditcommandatitsinternalboundary",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_persistence_auditoriapersistenceadaptertest_auditoriapersistenceadaptertest_persistsonlyfixedauditmetadata",
+      "backend_src_test_java_com_carteira_carteirainvestimento_missingdatabaseconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_missingdatabaseconfigurationtest_missingdatabaseconfigurationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_missingdatabaseconfigurationtest_missingdatabaseconfigurationtest_missingrequireddatabaseurlfailsinsteadofusinganembeddeddatabase",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_createsauserresponsewithoutpasswordhashortoken",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_rejectsduplicatecanonicalemailwithconflict",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_rejectsinvalidregistrationinputwithbadrequest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_preservesforbiddenproblemdetailwhenaccessdeniedauditfails",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_returnssanitizedconflictforduplicateemail",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_returnssanitizedproblemdetailforinvalidarguments",
+      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_globalexceptionhandlertest_returnssanitizedproblemdetailforunexpectedfailures",
+      "org_junit_jupiter_api_test"
     ],
-    "19": [
+    "17": [
       "fission_ai_openspec",
       "package",
       "package_author",
@@ -746,28 +856,7 @@
       "package_type",
       "package_version"
     ],
-    "20": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_carteiraport",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_wallet_carteira",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_wallet_carteira_carteira",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_findbyemail",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_findbyid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_hash",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_matches",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_record",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_recordisoladamente",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_fakes_save",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_bootstrapisidempotentcreatesadminwithoutwalletandrejectsuserconflict",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_currentprincipalusesonlytheuserport",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_logincanonicalizesauditsbeforeissuingandrejectsinactive",
-      "backend_src_test_java_com_carteira_carteirainvestimento_application_service_identityapplicationservicetest_identityapplicationservicetest_registrationorchestratesuserwalletandauditwithoutframeworks",
-      "org_springframework_stereotype_service"
-    ],
-    "21": [
+    "18": [
       "class_variance_authority",
       "clsx",
       "frontend_package_dependencies",
@@ -788,7 +877,7 @@
       "tailwind_merge",
       "tanstack_react_query"
     ],
-    "22": [
+    "19": [
       "eslint",
       "frontend_package_devdependencies",
       "frontend_package_devdependencies_eslint",
@@ -809,7 +898,7 @@
       "typescript",
       "vitest"
     ],
-    "23": [
+    "20": [
       "openspec_specs_security_event_auditing_spec",
       "openspec_specs_security_event_auditing_spec_purpose",
       "openspec_specs_security_event_auditing_spec_requirement_ausencia_de_consulta_de_auditoria_nesta_etapa",
@@ -830,7 +919,7 @@
       "openspec_specs_security_event_auditing_spec_scenario_login_falho",
       "openspec_specs_security_event_auditing_spec_security_event_auditing_specification"
     ],
-    "24": [
+    "21": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_security_event_auditing_spec",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_security_event_auditing_spec_added_requirements",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_security_event_auditing_spec_purpose",
@@ -850,26 +939,26 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_security_event_auditing_spec_scenario_login_concluido_ou_rejeitado",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_security_event_auditing_spec_scenario_login_falho"
     ],
-    "25": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfiguration_openapiconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_openapiconfiguration_openapiconfiguration_foundationopenapi",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_propertiesconfiguration",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_propertiesconfiguration_configurationpropertiesvalidator",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_failsfornonpositiveexpiration",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_failsforshortjwtsecret",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_failswhenadminconfigurationispartialorinvalid",
-      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_startswithvalidjwtandadminproperties",
-      "io_swagger_v3_oas_models_openapi",
-      "localvalidatorfactorybean",
-      "openapi",
-      "org_springframework_boot_test_context_runner_applicationcontextrunner",
-      "org_springframework_context_annotation_configuration",
-      "org_springframework_validation_beanvalidation_localvalidatorfactorybean"
+    "22": [
+      "authentication",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_assertunauthorized",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_bearer",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_buildsauthoritiesfromthecurrentpersistedrole",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_resetuser",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsforbiddenforanauthenticatedprincipalwithouttherequiredrole",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsunauthorizedwhenthepersistedroledivergesfromthetokenclaim",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsunauthorizedwhenthepersisteduserisinactive",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_returnsunauthorizedwhenthepersisteduserwasremoved",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_token",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_persisteduserjwtauthenticationconvertertest_usuario",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_protectedprobecontroller",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconvertertest_protectedprobecontroller_protectedendpoint",
+      "persisteduserjwtauthenticationconvertertest_adminprobecontroller",
+      "persisteduserjwtauthenticationconvertertest_protectedprobecontroller",
+      "persisteduserjwtauthenticationconvertertest_securitytestconfiguration"
     ],
-    "26": [
+    "23": [
       "frontend_components",
       "frontend_components_aliases",
       "frontend_components_aliases_components",
@@ -888,7 +977,7 @@
       "frontend_components_tailwind_prefix",
       "frontend_components_tsx"
     ],
-    "27": [
+    "24": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_design",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_design_10_make_audit_writes_typed_correlated_and_sanitized",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_design_11_preserve_and_extend_the_foundation_verification_strategy",
@@ -907,70 +996,7 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_design_migration_plan",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_design_risks_trade_offs"
     ],
-    "28": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_duplicateemailexception",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_duplicateemailexception_duplicateemailexception",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_duplicateemailexception_duplicateemailexception_duplicateemailexception",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest_asecondbootstrappreservesthesingleadminroleandoriginalhash",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest_provisionsanactiveadminwithoutwalletandwithauditonstartup",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest_rejectsanadminemailthatalreadybelongstoauserwithoutpromotingit",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_error_globalexceptionhandlertest_failureprobecontroller_duplicateemail",
-      "javax_sql_datasource",
-      "org_springframework_beans_factory_annotation_autowired",
-      "org_springframework_boot_test_context_springboottest",
-      "org_springframework_jdbc_core_jdbctemplate"
-    ],
-    "29": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_role",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_audiencevalidator",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_invalidtoken",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_isrole",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_isuuid",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_jwtdecoder",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_requiredclaimsvalidator",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_config_jwtconfiguration_jwtconfiguration_secretkey",
-      "javax_crypto_spec_secretkeyspec",
-      "org_springframework_security_oauth2_core_oauth2tokenvalidator",
-      "org_springframework_security_oauth2_core_oauth2tokenvalidatorresult",
-      "secretkeyspec"
-    ],
-    "30": [
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_exposesonlysanitizedhealthdetailswithoutcredentials",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_exposesopenapiandswaggerwithoutcredentials",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_setupmockmvc",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_startswithpostgresqlflywayandhibernatevalidation",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_usesrepositorybackedauthenticationwithoutagenerateddefaultuser",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_resetfailures",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_currentprincipalcontrollertest_currentprincipalcontrollertest_setup",
-      "org_flywaydb_core_flyway",
-      "org_junit_jupiter_api_beforeeach",
-      "org_springframework_web_context_webapplicationcontext"
-    ],
-    "31": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_java_override",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_convert",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_invalidtoken",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter",
-      "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter_subject",
-      "invalidbearertokenexception",
-      "org_springframework_core_convert_converter_converter",
-      "org_springframework_security_authentication_abstractauthenticationtoken",
-      "org_springframework_security_oauth2_jwt_jwt",
-      "org_springframework_security_oauth2_server_resource_invalidbearertokenexception"
-    ],
-    "32": [
+    "25": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_backend_foundation_spec",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_backend_foundation_spec_modified_requirements",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_backend_foundation_spec_requirement_documentacao_http_e_erros_padronizados",
@@ -984,20 +1010,7 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_backend_foundation_spec_scenario_fronteira_de_camadas_da_identidade",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_specs_backend_foundation_spec_scenario_inspecao_da_configuracao_definitiva"
     ],
-    "33": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer_accesstokenissuer_issue",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_accesstokenissuer_issuedaccesstoken",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_auditoriaport_auditoriaport_record",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_carteiraport_carteiraport_save",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_passwordhasher_passwordhasher_matches",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_port_usuarioport_usuarioport_findbyemail",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice_initialadminbootstrapservice_provision",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_loginservice_loginservice_login",
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_registrationservice_registrationservice_register",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_wallet_carteira_carteira_principal",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_logincontrollertest_logincontrollertest_returnsonlythebeareraccesstokencontract"
-    ],
-    "34": [
+    "26": [
       "backend_mvnw",
       "backend_mvnw__entry",
       "backend_mvnw_clean",
@@ -1009,7 +1022,7 @@
       "backend_mvnw_trim",
       "backend_mvnw_verbose"
     ],
-    "35": [
+    "27": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_tasks",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_tasks_1_dependencias_e_configuracao_segura",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_tasks_2_schema_postgresql_governado_por_flyway",
@@ -1021,7 +1034,7 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_tasks_8_administrador_inicial",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_tasks_9_regressao_documentacao_e_validacao_final"
     ],
-    "36": [
+    "28": [
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditpersistenceintegrationtest_auditpersistenceintegrationtest",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditpersistenceintegrationtest_auditpersistenceintegrationtest_persiststypedanonymousauditmetadatawithouthttppayload",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_auditpersistenceintegrationtest_java_datasource",
@@ -1032,7 +1045,7 @@
       "org_springframework_test_context_dynamicpropertysource",
       "org_testcontainers_containers_postgresqlcontainer"
     ],
-    "37": [
+    "29": [
       "frontend_package_scripts",
       "frontend_package_scripts_build",
       "frontend_package_scripts_dev",
@@ -1043,27 +1056,17 @@
       "frontend_package_scripts_test_watch",
       "frontend_package_scripts_typecheck"
     ],
-    "38": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_application_service_initialadminbootstrapservice",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer_emailcanonicalizer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer_emailcanonicalizer_emailcanonicalizer",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy_passwordpolicy",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy_passwordpolicy_passwordpolicy",
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_passwordpolicy_passwordpolicy_validate"
+    "30": [
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_failsfornonpositiveexpiration",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_failsforshortjwtsecret",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_failswhenadminconfigurationispartialorinvalid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_config_securityconfigurationpropertiestest_securityconfigurationpropertiestest_startswithvalidjwtandadminproperties",
+      "org_springframework_boot_test_context_runner_applicationcontextrunner",
+      "org_springframework_validation_beanvalidation_localvalidatorfactorybean"
     ],
-    "39": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_domain_identity_emailcanonicalizer_emailcanonicalizer_canonicalize",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_concurrentcanonicalemailvariationscreateonlyoneidentity",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_countusersbyemail",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_resultof",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_saveafterbarrier",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_duplicateemailpersistenceintegrationtest_translatesdatabaseuniqueviolationandpersistsonlyonecanonicalidentity",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_duplicateemailpersistenceintegrationtest_java_datasource"
-    ],
-    "40": [
+    "31": [
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest_identityschemaintegrationtest",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest_identityschemaintegrationtest_insertauditevent",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest_identityschemaintegrationtest_insertuser",
@@ -1073,7 +1076,7 @@
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest_identityschemaintegrationtest_rejectsasecondwalletforthesameuser",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest_identityschemaintegrationtest_rejectsnoncanonicalemailinvalidroleandduplicatecanonicalemail"
     ],
-    "41": [
+    "32": [
       "openspec_changes_archive_2026_08_31_establish_project_foundation_design_project_foundation_design",
       "openspec_changes_archive_2026_08_31_establish_project_foundation_proposal_project_foundation_proposal",
       "openspec_changes_archive_2026_08_31_establish_project_foundation_specs_backend_foundation_spec_backend_foundation_delta",
@@ -1083,16 +1086,16 @@
       "openspec_specs_containerized_local_environment_spec_containerized_local_environment",
       "openspec_specs_frontend_foundation_spec_frontend_foundation"
     ],
-    "42": [
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_assertnoregistrationartifacts",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_count",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_rollsbackuserwalletandauditwhenauditpersistencefails",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_rollsbackuserwalletandauditwhenwalletpersistencefails",
-      "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationtransactionintegrationtest_registrationtransactionintegrationtest_uniqueemail",
-      "registrationtransactionintegrationtest_faultinjectionconfiguration"
+    "33": [
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_exposesonlysanitizedhealthdetailswithoutcredentials",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_exposesopenapiandswaggerwithoutcredentials",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_setupmockmvc",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_startswithpostgresqlflywayandhibernatevalidation",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_applicationfoundationit_applicationfoundationit_usesrepositorybackedauthenticationwithoutagenerateddefaultuser",
+      "org_springframework_web_context_webapplicationcontext"
     ],
-    "43": [
+    "34": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_proposal",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_proposal_capabilities",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_proposal_impact",
@@ -1101,7 +1104,7 @@
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_proposal_what_changes",
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_proposal_why"
     ],
-    "44": [
+    "35": [
       "_agents_skills_openspec_apply_change_skill_openspec_apply_change",
       "_agents_skills_openspec_archive_change_skill_openspec_archive_change",
       "_agents_skills_openspec_explore_skill_openspec_explore",
@@ -1109,7 +1112,7 @@
       "_agents_skills_openspec_sync_specs_skill_openspec_sync_specs",
       "_agents_skills_openspec_update_change_skill_openspec_update_change"
     ],
-    "45": [
+    "36": [
       "backend_src_main_resources_db_migration_v1_create_usuarios",
       "backend_src_main_resources_db_migration_v1_create_usuarios_usuarios",
       "backend_src_main_resources_db_migration_v2_create_carteiras",
@@ -1117,253 +1120,265 @@
       "backend_src_main_resources_db_migration_v3_create_logs_auditoria",
       "backend_src_main_resources_db_migration_v3_create_logs_auditoria_logs_auditoria"
     ],
-    "46": [
-      "backend_src_main_java_com_carteira_carteirainvestimento_carteirainvestimentoapplication",
-      "backend_src_main_java_com_carteira_carteirainvestimento_carteirainvestimentoapplication_carteirainvestimentoapplication",
-      "backend_src_main_java_com_carteira_carteirainvestimento_carteirainvestimentoapplication_carteirainvestimentoapplication_main",
-      "org_springframework_boot_autoconfigure_springbootapplication",
-      "org_springframework_boot_context_properties_configurationpropertiesscan"
+    "37": [
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_acceptsonlyacanonicalboundeduuidfromtheheader",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_assertgeneratedcorrelationid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_generatesauuidwhentheheaderismissingorinvalid",
+      "backend_src_test_java_com_carteira_carteirainvestimento_infrastructure_web_correlationidfiltertest_correlationidfiltertest_makesthegeneratedcorrelationidavailabletoanauditedrequest",
+      "org_springframework_test_web_servlet_mvcresult"
     ],
-    "47": [
+    "38": [
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit_flywayvalidationit",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit_flywayvalidationit_rejectsanincompatiblemigrationhistory",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_flywayvalidationit_flywayvalidationit_validatestheidentitymigrationsequenceagainstpostgresql",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_identityschemaintegrationtest",
+      "org_flywaydb_core_flyway"
+    ],
+    "39": [
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest_asecondbootstrappreservesthesingleadminroleandoriginalhash",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest_provisionsanactiveadminwithoutwalletandwithauditonstartup",
+      "backend_src_test_java_com_carteira_carteirainvestimento_integration_initialadminbootstrapintegrationtest_initialadminbootstrapintegrationtest_rejectsanadminemailthatalreadybelongstoauserwithoutpromotingit",
+      "org_springframework_jdbc_core_jdbctemplate"
+    ],
+    "40": [
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest_registrationconcurrencyintegrationtest",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest_registrationconcurrencyintegrationtest_concurrentregistrationcreatesoneuserandonezerobalanceprimarywallet",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest_registrationconcurrencyintegrationtest_count",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest_registrationconcurrencyintegrationtest_registerconcurrently",
       "backend_src_test_java_com_carteira_carteirainvestimento_integration_registrationconcurrencyintegrationtest_registrationconcurrencyintegrationtest_walletbalance"
     ],
-    "48": [
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_createsauserresponsewithoutpasswordhashortoken",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_rejectsduplicatecanonicalemailwithconflict",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_rejectsinvalidregistrationinputwithbadrequest",
-      "backend_src_test_java_com_carteira_carteirainvestimento_presentation_auth_registrationcontrollertest_registrationcontrollertest_setup"
-    ],
-    "49": [
+    "41": [
       "frontend_src_app_layout",
       "frontend_src_app_layout_metadata",
       "frontend_src_app_layout_rootlayout",
       "frontend_src_providers_query_provider",
       "frontend_src_providers_query_provider_queryprovider"
     ],
-    "50": [
+    "42": [
       "graphify_out_memory_query_20260901_234130_localizar_impactos_existentes_para_estabelecer_ide",
       "graphify_out_memory_query_20260901_234130_localizar_impactos_existentes_para_estabelecer_ide_answer",
       "graphify_out_memory_query_20260901_234130_localizar_impactos_existentes_para_estabelecer_ide_outcome",
       "graphify_out_memory_query_20260901_234130_localizar_impactos_existentes_para_estabelecer_ide_q_localizar_impactos_existentes_para_estabelecer_identidade_e_controle_de_acesso",
       "graphify_out_memory_query_20260901_234130_localizar_impactos_existentes_para_estabelecer_ide_source_nodes"
     ],
-    "51": [
+    "43": [
       "agents_codex_project_instructions",
       "agents_spec_driven_development_policy",
       "openspec_changes_archive_2026_08_31_establish_project_foundation__openspec_archived_change_metadata",
       "openspec_config_spec_driven_schema"
     ],
-    "52": [
+    "44": [
+      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest_identitydomaintest",
+      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest_identitydomaintest_canonicalizestrimmedlowercaseemailandkeepsonlysupportedroles",
+      "backend_src_test_java_com_carteira_carteirainvestimento_domain_identity_identitydomaintest_identitydomaintest_enforcesthepasswordpolicy"
+    ],
+    "45": [
       "frontend_package",
       "frontend_package_name",
       "frontend_package_private",
       "frontend_package_version"
     ],
-    "53": [
+    "46": [
       "frontend_src_app_page",
       "frontend_src_app_page_home",
       "frontend_src_app_page_test"
     ],
-    "54": [
+    "47": [
       "backend_src_main_resources_application_jwt_configuration",
       "openspec_specs_bearer_authentication"
     ],
-    "55": [
+    "48": [
       "backend_src_test_resources_db_negative_incompatible_v1_foundation_probe",
       "backend_src_test_resources_db_negative_incompatible_v1_foundation_probe_foundation_probe"
     ],
-    "56": [
+    "49": [
       "backend_src_test_resources_db_negative_initial_v1_foundation_probe",
       "backend_src_test_resources_db_negative_initial_v1_foundation_probe_foundation_probe"
     ],
-    "57": [
+    "50": [
       "eslint_config_next",
       "frontend_package_devdependencies_eslint_config_next"
     ],
-    "58": [
+    "51": [
       "frontend_next_config",
       "frontend_next_config_nextconfig"
     ],
-    "59": [
+    "52": [
       "frontend_next_env_d",
       "frontend_next_env_d_rationale_6"
     ],
-    "60": [
+    "53": [
       "frontend_package_devdependencies_tailwindcss",
       "tailwindcss"
     ],
-    "61": [
+    "54": [
       "frontend_package_devdependencies_testing_library_jest_dom",
       "testing_library_jest_dom"
     ],
-    "62": [
+    "55": [
       "frontend_package_devdependencies_testing_library_user_event",
       "testing_library_user_event"
     ],
-    "63": [
+    "56": [
       "frontend_package_devdependencies_types_react",
       "types_react"
     ],
-    "64": [
+    "57": [
       "frontend_package_devdependencies_types_react_dom",
       "types_react_dom"
     ],
-    "65": [
+    "58": [
       "frontend_postcss_config",
       "frontend_postcss_config_postcssconfig"
     ],
-    "66": [
-      "frontend_src_app_acesso_negado_page",
-      "frontend_src_app_acesso_negado_page_accessdeniedpage"
-    ],
-    "67": [
+    "59": [
       "frontend_src_app_protected_layout",
       "frontend_src_app_protected_layout_protectedlayout"
     ],
-    "68": [
+    "60": [
       "frontend_src_lib_utils",
       "frontend_src_lib_utils_cn"
     ],
-    "69": [
+    "61": [
       "openspec_changes_archive_20260903_establish_identity_and_access_control_design",
       "openspec_changes_archive_20260903_establish_identity_and_access_control_proposal"
     ],
-    "70": [
+    "62": [
       "openspec_changes_archive_20260904_access_denied_design",
       "openspec_changes_archive_20260904_access_denied_proposal"
     ],
-    "71": [
+    "63": [
       "backend_src_main_java_com_carteira_carteirainvestimento_domain_package_info"
     ],
-    "72": [
+    "64": [
       "docker_compose_application_stack"
     ],
-    "73": [
+    "65": [
       "frontend_e2e_auth_spec"
     ],
-    "74": [
+    "66": [
       "frontend_eslint_config"
     ],
-    "75": [
+    "67": [
       "frontend_playwright_config"
     ],
-    "76": [
+    "68": [
       "frontend_src_app_api_url_test"
     ],
-    "77": [
+    "69": [
       "frontend_src_test_server_only"
     ],
-    "78": [
+    "70": [
       "frontend_src_test_setup"
     ],
-    "79": [
+    "71": [
       "frontend_vitest_config"
     ],
-    "80": [
+    "72": [
       "graphify_out_memory_query_20260901_234130_localizar_impactos_existing_impact_analysis"
     ],
-    "81": [
+    "73": [
       "openspec_changes_archive_20260903_backend_foundation_spec"
     ],
-    "82": [
+    "74": [
       "openspec_changes_archive_20260903_bearer_authentication_spec"
     ],
-    "83": [
+    "75": [
       "openspec_changes_archive_20260903_identity_primary_wallet_spec"
     ],
-    "84": [
+    "76": [
       "openspec_changes_archive_20260903_security_auditing_spec"
     ],
-    "85": [
+    "77": [
       "openspec_changes_archive_20260903_tasks"
     ],
-    "86": [
+    "78": [
       "openspec_changes_archive_20260904_security_auditing_spec"
     ],
-    "87": [
+    "79": [
       "openspec_changes_archive_20260904_tasks"
     ],
-    "88": [
+    "80": [
       "openspec_changes_archive_2026_08_31_establish_project_foundation_design_healthcheck_readiness_chain"
     ],
-    "89": [
+    "81": [
       "openspec_changes_archive_2026_09_03_establish_identity_and_access_control_openspec_changes_archive_20260903_establish_identity_and_access_control_change"
     ],
-    "90": [
+    "82": [
       "openspec_changes_archive_2026_09_04_complete_access_denied_security_auditing_openspec_changes_archive_20260904_access_denied_change"
     ],
-    "91": [
+    "83": [
       "openspec_specs_backend_foundation"
     ],
-    "92": [
+    "84": [
       "pkg_com_carteira_backend"
     ],
-    "93": [
+    "85": [
       "prd_investment_management_platform"
     ],
-    "94": [
+    "86": [
       "readme_project_documentation"
     ]
   },
   "cohesion": {
-    "0": 0.06376726417866588,
-    "1": 0.07472613458528951,
-    "2": 0.052214452214452214,
-    "3": 0.08816326530612245,
-    "4": 0.06976744186046512,
-    "5": 0.06451612903225806,
-    "6": 0.06666666666666667,
-    "7": 0.06666666666666667,
-    "8": 0.10098522167487685,
-    "9": 0.06896551724137931,
-    "10": 0.12698412698412698,
-    "11": 0.12962962962962962,
-    "12": 0.12698412698412698,
+    "0": 0.05078929306794784,
+    "1": 0.06772151898734177,
+    "2": 0.06954954954954955,
+    "3": 0.07267884322678843,
+    "4": 0.06349206349206349,
+    "5": 0.05747126436781609,
+    "6": 0.07894736842105263,
+    "7": 0.0851063829787234,
+    "8": 0.10158730158730159,
+    "9": 0.06451612903225806,
+    "10": 0.06666666666666667,
+    "11": 0.06666666666666667,
+    "12": 0.06896551724137931,
     "13": 0.07142857142857142,
-    "14": 0.23550724637681159,
-    "15": 0.16600790513833993,
-    "16": 0.18614718614718614,
-    "17": 0.16666666666666666,
-    "18": 0.24210526315789474,
-    "19": 0.1,
-    "20": 0.15204678362573099,
-    "21": 0.10526315789473684,
-    "22": 0.10526315789473684,
-    "23": 0.10526315789473684,
-    "24": 0.1111111111111111,
-    "25": 0.15441176470588236,
-    "26": 0.11764705882352941,
-    "27": 0.11764705882352941,
-    "28": 0.18333333333333332,
-    "29": 0.26373626373626374,
-    "30": 0.20512820512820512,
-    "31": 0.3181818181818182,
-    "32": 0.16666666666666666,
-    "33": 0.2545454545454545,
-    "34": 0.37777777777777777,
-    "35": 0.2,
-    "36": 0.3055555555555556,
-    "37": 0.2222222222222222,
-    "38": 0.32142857142857145,
-    "39": 0.42857142857142855,
-    "40": 0.39285714285714285,
-    "41": 0.35714285714285715,
-    "42": 0.5238095238095238,
-    "43": 0.2857142857142857,
-    "44": 0.4,
-    "45": 0.3333333333333333,
-    "46": 0.6,
-    "47": 0.7,
-    "48": 0.4,
-    "49": 0.5,
-    "50": 0.4,
-    "51": 0.5,
-    "52": 0.5,
+    "14": 0.12307692307692308,
+    "15": 0.18571428571428572,
+    "16": 0.1380952380952381,
+    "17": 0.1,
+    "18": 0.10526315789473684,
+    "19": 0.10526315789473684,
+    "20": 0.10526315789473684,
+    "21": 0.1111111111111111,
+    "22": 0.20588235294117646,
+    "23": 0.11764705882352941,
+    "24": 0.11764705882352941,
+    "25": 0.16666666666666666,
+    "26": 0.37777777777777777,
+    "27": 0.2,
+    "28": 0.3055555555555556,
+    "29": 0.2222222222222222,
+    "30": 0.2857142857142857,
+    "31": 0.39285714285714285,
+    "32": 0.35714285714285715,
+    "33": 0.2857142857142857,
+    "34": 0.2857142857142857,
+    "35": 0.4,
+    "36": 0.3333333333333333,
+    "37": 0.4,
+    "38": 0.3333333333333333,
+    "39": 0.4,
+    "40": 0.7,
+    "41": 0.5,
+    "42": 0.4,
+    "43": 0.5,
+    "44": 0.5,
+    "45": 0.5,
+    "46": 1.0,
+    "47": 1.0,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
+    "52": 1.0,
     "53": 1.0,
     "54": 1.0,
     "55": 1.0,
@@ -1397,15 +1412,7 @@
     "83": 1.0,
     "84": 1.0,
     "85": 1.0,
-    "86": 1.0,
-    "87": 1.0,
-    "88": 1.0,
-    "89": 1.0,
-    "90": 1.0,
-    "91": 1.0,
-    "92": 1.0,
-    "93": 1.0,
-    "94": 1.0
+    "86": 1.0
   },
   "gods": [
     {
@@ -1449,13 +1456,13 @@
       "degree": 22
     },
     {
-      "id": "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice_accessdeniedauditingservice",
-      "label": "AccessDeniedAuditingService",
+      "id": "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_persisteduserjwtauthenticationconverter_persisteduserjwtauthenticationconverter",
+      "label": "PersistedUserJwtAuthenticationConverter",
       "degree": 21
     },
     {
-      "id": "backend_src_main_java_com_carteira_carteirainvestimento_presentation_error_problemdetailfactory_problemdetailfactory",
-      "label": "ProblemDetailFactory",
+      "id": "backend_src_main_java_com_carteira_carteirainvestimento_infrastructure_security_accessdeniedauditingservice_accessdeniedauditingservice",
+      "label": "AccessDeniedAuditingService",
       "degree": 21
     }
   ],
@@ -1505,19 +1512,52 @@
       "why": "inferred connection - not explicitly stated in source; semantically similar concepts with no structural link"
     },
     {
-      "source": "AccessDeniedAuditingService",
-      "target": "AuditoriaIsoladaPort",
+      "source": "IdentityPersistenceAdapter",
+      "target": "CarteiraPort",
       "source_files": [
-        "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/security/AccessDeniedAuditingService.java",
-        "backend/src/main/java/com/carteira/carteiraInvestimento/application/port/AuditoriaIsoladaPort.java"
+        "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/IdentityPersistenceAdapter.java",
+        "backend/src/main/java/com/carteira/carteiraInvestimento/application/port/CarteiraPort.java"
       ],
       "confidence": "EXTRACTED",
-      "relation": "references",
+      "relation": "implements",
       "why": "bridges separate communities"
     }
   ],
-  "tokens": {
-    "input": 0,
-    "output": 0
-  }
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Usuario` connect `Usuario` to `org.springframework.context.annotation.Bean`, `jakarta.servlet.http.HttpServletRequest`, `Role`, `JwtProperties`, `org.springframework.web.bind.annotation.GetMapping`, `AuditSecurityEventsIntegrationTest`, `org.junit.jupiter.api.Test`, `PersistedUserJwtAuthenticationConverterTest`?",
+      "why": "High betweenness centrality (0.029) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `AuditSecurityEventsIntegrationTest` connect `AuditSecurityEventsIntegrationTest` to `Usuario`, `org.springframework.context.annotation.Bean`, `jakarta.servlet.http.HttpServletRequest`, `AuditoriaCommand`, `JwtProperties`, `org.springframework.web.bind.annotation.GetMapping`, `PostgreSqlContainerSupport`?",
+      "why": "High betweenness centrality (0.022) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `AuditoriaCommand` connect `AuditoriaCommand` to `Usuario`, `org.springframework.context.annotation.Bean`, `jakarta.servlet.http.HttpServletRequest`, `RegistrationTransactionIntegrationTest`, `AuditSecurityEventsIntegrationTest`, `org.junit.jupiter.api.Test`, `PostgreSqlContainerSupport`?",
+      "why": "High betweenness centrality (0.017) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 7 inferred relationships involving `AuditoriaCommand` (e.g. with `.provision()` and `.login()`) actually correct?",
+      "why": "`AuditoriaCommand` has 7 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `AuthConfig`, `AuthEnv`, `BackendErrorKind` to the rest of the system?",
+      "why": "296 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Usuario` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05078929306794784 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `types.ts` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.06772151898734177 - nodes in this community are weakly interconnected."
+    }
+  ]
 }
