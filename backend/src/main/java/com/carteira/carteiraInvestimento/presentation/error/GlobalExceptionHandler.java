@@ -6,6 +6,9 @@ import com.carteira.carteiraInvestimento.application.service.AuthenticationFaile
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
 import com.carteira.carteiraInvestimento.application.service.DuplicateTickerException;
 import com.carteira.carteiraInvestimento.application.service.AtivoNotFoundException;
+import com.carteira.carteiraInvestimento.application.service.InactiveAssetRefreshException;
+import com.carteira.carteiraInvestimento.application.service.QuoteIntegrationException;
+import com.carteira.carteiraInvestimento.application.service.QuoteNotFoundException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -60,6 +63,22 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(AtivoNotFoundException.class)
 	ProblemDetail handleAtivoNotFound(AtivoNotFoundException exception, HttpServletRequest request) {
 		return problem(HttpStatus.NOT_FOUND, "Asset not found", "The requested asset was not found.", request);
+	}
+
+	@ExceptionHandler(QuoteNotFoundException.class)
+	ProblemDetail handleQuoteNotFound(QuoteNotFoundException exception, HttpServletRequest request) {
+		return problem(HttpStatus.NOT_FOUND, "Quote not found", "A quote is unavailable for the requested asset.", request);
+	}
+
+	@ExceptionHandler(InactiveAssetRefreshException.class)
+	ProblemDetail handleInactiveRefresh(InactiveAssetRefreshException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Inactive asset", "An inactive asset cannot be refreshed.", request);
+	}
+
+	@ExceptionHandler(QuoteIntegrationException.class)
+	ProblemDetail handleQuoteIntegration(QuoteIntegrationException exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_GATEWAY, "Quote provider unavailable",
+				"The market quote service is temporarily unavailable.", request);
 	}
 
 	@ExceptionHandler(AuthenticationFailedException.class)
