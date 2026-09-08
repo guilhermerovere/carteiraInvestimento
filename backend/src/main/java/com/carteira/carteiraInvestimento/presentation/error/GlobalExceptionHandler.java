@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException;
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
+import com.carteira.carteiraInvestimento.application.service.DuplicateTickerException;
+import com.carteira.carteiraInvestimento.application.service.AtivoNotFoundException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -13,6 +15,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -35,9 +40,26 @@ public class GlobalExceptionHandler {
 		return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
 	}
 
+	@ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
+			HandlerMethodValidationException.class})
+	ProblemDetail handleMalformedRequest(Exception exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+	}
+
 	@ExceptionHandler(DuplicateEmailException.class)
 	ProblemDetail handleDuplicateEmail(DuplicateEmailException exception, HttpServletRequest request) {
 		return problem(HttpStatus.CONFLICT, "Email already registered", "An account with this email already exists.", request);
+	}
+
+	@ExceptionHandler(DuplicateTickerException.class)
+	ProblemDetail handleDuplicateTicker(DuplicateTickerException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Ticker already registered",
+				"An asset with this ticker already exists.", request);
+	}
+
+	@ExceptionHandler(AtivoNotFoundException.class)
+	ProblemDetail handleAtivoNotFound(AtivoNotFoundException exception, HttpServletRequest request) {
+		return problem(HttpStatus.NOT_FOUND, "Asset not found", "The requested asset was not found.", request);
 	}
 
 	@ExceptionHandler(AuthenticationFailedException.class)
