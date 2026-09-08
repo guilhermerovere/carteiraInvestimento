@@ -24,5 +24,11 @@ abstract class PostgreSqlContainerSupport {
 		registry.add("application.bootstrap.admin.name", () -> "Administrador de Teste");
 		registry.add("application.bootstrap.admin.email", () -> "admin-test@example.test");
 		registry.add("application.bootstrap.admin.password", () -> "Admin@2026Secure");
+		registry.add("application.market-quotes.brapi.url", () -> "http://127.0.0.1:1");
+		registry.add("application.market-quotes.brapi.credential", () -> "");
+		registry.add("application.market-quotes.alpha-vantage.url", () -> "http://127.0.0.1:1");
+		registry.add("application.market-quotes.alpha-vantage.credential", () -> "");
+		registry.add("application.market-quotes.twelve-data.url", () -> "http://127.0.0.1:1");
+		registry.add("application.market-quotes.twelve-data.credential", () -> "");
 	}
 }

@@ -45,8 +45,9 @@ class AssetCatalogSecurityIT extends PostgreSqlContainerSupport {
 
 	@BeforeEach
 	void cleanCatalog() throws Exception {
-		try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM acoes")) {
-			statement.executeUpdate();
+		try (Connection connection = dataSource.getConnection()) {
+			try (PreparedStatement history = connection.prepareStatement("DELETE FROM historico_cotacoes")) { history.executeUpdate(); }
+			try (PreparedStatement statement = connection.prepareStatement("DELETE FROM acoes")) { statement.executeUpdate(); }
 		}
 	}
 
