@@ -13,6 +13,9 @@ import com.carteira.carteiraInvestimento.application.port.AccessTokenIssuer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.CommandLineRunner;
+import com.carteira.carteiraInvestimento.application.port.AtivoPort;
+import com.carteira.carteiraInvestimento.application.service.AtivoApplicationService;
+import com.carteira.carteiraInvestimento.application.service.AtivoUseCase;
 
 @Configuration(proxyBeanMethods = false)
 public class IdentityApplicationConfiguration {
@@ -43,5 +46,10 @@ public class IdentityApplicationConfiguration {
 	@Bean
 	CommandLineRunner initialAdminRunner(InitialAdminBootstrapService bootstrap, AdminProperties admin) {
 		return arguments -> bootstrap.provision(admin.name(), admin.email(), admin.password());
+	}
+
+	@Bean
+	AtivoUseCase ativoUseCase(AtivoPort ativos) {
+		return new AtivoApplicationService(ativos);
 	}
 }
