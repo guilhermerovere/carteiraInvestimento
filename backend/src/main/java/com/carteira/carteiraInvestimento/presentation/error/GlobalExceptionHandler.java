@@ -9,6 +9,8 @@ import com.carteira.carteiraInvestimento.application.service.AtivoNotFoundExcept
 import com.carteira.carteiraInvestimento.application.service.InactiveAssetRefreshException;
 import com.carteira.carteiraInvestimento.application.service.QuoteIntegrationException;
 import com.carteira.carteiraInvestimento.application.service.QuoteNotFoundException;
+import com.carteira.carteiraInvestimento.application.service.CashConflictException;
+import com.carteira.carteiraInvestimento.application.service.PrimaryWalletMissingException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -84,6 +86,17 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(AuthenticationFailedException.class)
 	ProblemDetail handleAuthenticationFailure(AuthenticationFailedException exception, HttpServletRequest request) {
 		return problem(HttpStatus.UNAUTHORIZED, "Unauthorized", "Authentication is required.", request);
+	}
+
+	@ExceptionHandler(CashConflictException.class)
+	ProblemDetail handleCashConflict(CashConflictException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Financial conflict", "The financial operation cannot be completed.", request);
+	}
+
+	@ExceptionHandler(PrimaryWalletMissingException.class)
+	ProblemDetail handleMissingWallet(PrimaryWalletMissingException exception, HttpServletRequest request) {
+		return problem(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error",
+				"An unexpected error occurred.", request);
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
