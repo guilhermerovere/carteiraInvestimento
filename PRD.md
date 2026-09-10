@@ -20,12 +20,13 @@ Estas decisoes eliminam ambiguidades que nao devem ser redefinidas durante a imp
 - O saldo em caixa e sempre armazenado em BRL.
 - Ativos B3 possuem cotacao em BRL.
 - Ativos dos EUA possuem cotacao em USD.
-- Para ativos em USD, o sistema deve obter a taxa `USD/BRL`.
+- BUY e SELL devem suportar ativos `B3` com moeda `BRL` e ativos `US_MARKET` com moeda `USD`; a moeda da `Transacao` deve ser coerente com o mercado e a moeda definidos no ativo.
+- Para ativos em USD, o sistema deve obter a taxa real atual `USD/BRL` antes da confirmacao da transacao.
 - AlphaVantage e o provedor primario para cotacoes dos EUA e cambio `USD/BRL`.
 - TwelveData e o fallback quando o provedor primario estiver indisponivel.
-- Para ativos B3, a taxa de cambio considerada e `1`.
+- Para ativos B3, nao existe conversao externa de moeda e a taxa de cambio considerada e `1.00000000`.
 - O patrimonio consolidado, valor investido e lucro/prejuizo do dashboard devem ser apresentados em BRL.
-- A primeira capability de compras e vendas deve negociar somente ativos `B3` em `BRL`. Ativos `US_MARKET` em `USD` permanecem no catalogo e em market quotes, mas sua negociacao so sera habilitada apos a capability de cambio `USD/BRL`; nunca deve ser usada conversao `1:1` ou taxa inventada.
+- A capability completa de compras e vendas depende da capability de cambio `USD/BRL` e deve habilitar negociacao efetiva de ativos B3/BRL e US/USD. Ativos US nao ficam limitados ao catalogo ou a market quotes.
 
 ### 2.2. Corretoras e ativos sao catalogos globais
 
@@ -677,7 +678,7 @@ Consultas `GET` podem ser utilizadas por usuarios autenticados.
 
 A carteira possui moeda base BRL.
 
-Para ativos `US_MARKET`, o sistema deve obter a taxa atual `USD/BRL`.
+`exchange-rates`, ou capability equivalente, e pre-requisito da capability completa de transacoes. Para ativos `US_MARKET`, ela deve fornecer taxa real atual `USD/BRL`, instante da cotacao, fonte/provider, historico necessario para rastreabilidade, precisao financeira e tratamento de indisponibilidade.
 
 ### Provedores
 
@@ -692,11 +693,14 @@ TwelveData
 ### Regras
 
 - a taxa deve possuir cache para reduzir chamadas externas;
-- a taxa usada em uma transacao deve ser persistida na propria transacao;
+- a taxa real usada em uma transacao US deve ser persistida na propria transacao como `taxaCambioBrl`, com `NUMERIC(18,8)`;
 - a taxa usada em uma transacao nunca deve ser recalculada retroativamente;
-- para ativos B3, `taxaCambioBrl = 1`;
-- patrimonio atual de ativos US deve utilizar a cotacao atual em USD multiplicada pela taxa USD/BRL atual.
-- a negociacao de ativos US so deve ser habilitada depois que esta capability estiver disponivel; ate la, ativos US nao podem ser comprados nem vendidos.
+- `taxaCambioBrl` nao e editavel pelo usuario e o backend nao deve aceitar taxa arbitraria enviada pelo browser como autoridade financeira; o vinculo seguro entre a taxa real e a transacao sera definido na capability de FX/transacoes.
+- para ativos B3, `taxaCambioBrl = 1.00000000`, sem chamada a provider FX;
+- se uma taxa USD/BRL valida nao puder ser fornecida, uma nova BUY ou SELL US nao pode ser confirmada. Nao usar conversao `1:1`, taxa manual, taxa antiga sem contrato, zero ou fallback inventado;
+- patrimonio atual de ativos US deve utilizar a cotacao atual em USD multiplicada pela taxa USD/BRL atual apropriada, e nao a taxa historica da compra.
+
+Uma alteracao posterior do dolar nao modifica uma `Transacao` historica. A estrategia detalhada de cache, stale e fallback permanece para futura change de `exchange-rates`.
 
 ---
 
@@ -720,6 +724,19 @@ TwelveData
 - falhas externas devem ser convertidas em respostas padronizadas;
 - fallback so deve ser utilizado quando o provedor primario falhar ou estiver indisponivel.
 
+### Dependencias de capabilities
+
+```text
+broker-catalog
+-> exchange-rates
+-> investment-transactions-and-positions
+-> valuation/patrimonio
+-> frontend financeiro
+-> dashboard/E2E
+```
+
+`exchange-rates` deve estar concluida antes de habilitar BUY e SELL US. A capability de transacoes deve preservar o suporte B3/BRL e suportar US/USD; valuation/patrimonio compoe cotacao atual do ativo US com cambio atual, sem reutilizar cambio historico de compra.
+
 ---
 
 ## 13. Carteira e Caixa
@@ -727,6 +744,8 @@ TwelveData
 Cada `ROLE_USER` deve possuir exatamente uma carteira principal criada no cadastro. `ROLE_ADMIN` nao possui carteira.
 
 A moeda da carteira e sempre BRL.
+
+`saldoCaixaBrl` permanece como caixa base: BUY B3 debita e SELL B3 credita valor em BRL; BUY US debita e SELL US credita o valor consolidado em BRL pela taxa real da operacao. Nao existe caixa USD nesta etapa.
 
 Na etapa de identidade, a carteira se limita a sua criacao transacional com saldo inicial zero. Os endpoints e comportamentos financeiros desta secao pertencem a changes futuras.
 
@@ -772,7 +791,7 @@ Dados principais:
 - tipo `BUY` ou `SELL`;
 - quantidade;
 - preco unitario confirmado na moeda do ativo;
-- taxas na moeda do ativo;
+- taxas consolidadas em BRL;
 - data da negociacao;
 - corretoraId.
 
@@ -780,11 +799,11 @@ A transacao exige `corretora_id`, recebido pelo identificador permitido no contr
 
 BUY e SELL devem resolver localmente uma Corretora existente, ativa e previamente admitida pelo catalogo. A transacao financeira nao deve chamar Receita, CVM ou CEP para confirmar uma operacao. Revalidacao regulatoria periodica, se necessaria no futuro, pertence a evolucao propria do catalogo; o lifecycle local da Corretora controla sua selecao em novas Transacoes.
 
-Nesta primeira capability, compra e venda aceitam somente ativo com `mercado = B3` e `moeda = BRL`. Ativo inexistente ou fora do catalogo e invalido. Ativos US/USD continuam cadastrados e cotados, mas nao podem ser negociados ate a capability de cambio USD/BRL estar disponivel. Nao usar conversao `USD = BRL`, conversao `1:1` ou taxa de cambio inventada.
+BUY e SELL aceitam ativo `B3` com `moeda = BRL` e ativo `US_MARKET` com `moeda = USD`. Ativo inexistente, fora do catalogo ou com moeda divergente e invalido: nao permitir ativo US com preco em BRL nem ativo B3 com preco em USD. Ativo US depende de taxa real USD/BRL valida da capability de exchange-rates; sem ela, a nova operacao US e bloqueada. Operacoes B3/BRL nao dependem de FX.
 
 Ativo inativo nao pode receber nova compra nem aumento de posicao. Uma posicao existente em ativo inativo pode ser vendida para reduzir ou encerrar a custodia. A desativacao do ativo nao altera transacoes, posicoes ou historicos ja registrados.
 
-Ao iniciar uma compra ou venda, o sistema deve obter a cotacao real mais recente pela capability de market quotes e apresenta-la como preco unitario inicial sugerido, na moeda original do ativo.
+Ao iniciar uma compra ou venda, o sistema deve obter a cotacao real mais recente pela capability de market quotes e apresenta-la como preco unitario inicial sugerido, na moeda original do ativo. Para ativo US, antes da confirmacao, tambem deve apresentar a taxa real atual USD/BRL e permitir visualizar quantidade, preco unitario confirmado em USD, valor da operacao em USD e valor convertido em BRL.
 
 O usuario pode editar o preco unitario antes de confirmar a transacao. Essa edicao altera somente o preco unitario da transacao em preparacao e nao deve alterar a cotacao recebida do provider, `HistoricoCotacao` ou o historico de mercado.
 
@@ -797,18 +816,18 @@ GET cotacao real
 -> POST registra preco unitario confirmado
 ```
 
-O POST financeiro nao altera `HistoricoCotacao` nem dados recebidos do provider. Ao confirmar a transacao, o sistema deve registrar o preco unitario efetivamente confirmado pelo usuario. Esse preco e a autoridade para o valor da transacao, debito ou credito do caixa, atualizacao da posicao e, nas compras, preco medio ponderado; ele nao precisa ser igual a cotacao de mercado.
+O POST financeiro nao altera `HistoricoCotacao` nem dados recebidos do provider. Ao confirmar a transacao, o sistema deve registrar o preco unitario efetivamente confirmado pelo usuario. Esse preco e a autoridade para o valor da transacao, debito ou credito do caixa, atualizacao da posicao e, nas compras, preco medio ponderado; ele nao precisa ser igual a cotacao de mercado. Assim, cotacao real do provider, preco unitario confirmado e `taxaCambioBrl` real sao valores distintos: por exemplo, AAPL pode ter cotacao provider USD 220, preco confirmado USD 215 e cambio USD/BRL 5.40.
 
 `Transacao` confirmada e fato financeiro imutavel. Preco editavel significa editavel somente antes da confirmacao; depois do POST concluido, o preco confirmado pertence ao historico da transacao. Nao devem existir `PUT`, `PATCH` ou `DELETE` para alterar historico confirmado.
 
-Taxas sao obrigatorias, denominadas em BRL nesta primeira etapa B3, devem ser maiores ou iguais a zero e devem utilizar `BigDecimal`. Nao utilizar `double` ou `float`; taxas nao devem ser arredondadas prematuramente para duas casas antes dos calculos.
+Taxas sao obrigatorias, denominadas e consolidadas em BRL, devem ser maiores ou iguais a zero e devem utilizar `BigDecimal`. Para US, o valor bruto do ativo em USD e convertido separadamente para BRL e as taxas BRL sao incorporadas ao valor financeiro final conforme BUY ou SELL. Nao utilizar `double` ou `float`; taxas nao devem ser arredondadas prematuramente para duas casas antes dos calculos.
 
 ### Normalizacao para BRL
 
 Para B3:
 
 ```text
-taxaCambioBrl = 1
+taxaCambioBrl = 1.00000000
 ```
 
 Para US:
@@ -817,12 +836,21 @@ Para US:
 taxaCambioBrl = cotacao USD/BRL no momento da operacao
 ```
 
-Esta regra para US se aplica somente depois da capability de cambio USD/BRL. Antes dela, a operacao US deve ser bloqueada.
+Para US, `valorOrigem` e o valor derivavel na moeda original: `quantidade * precoUnitarioConfirmado`, antes da conversao e conforme a semantica de taxas. O contrato deve permitir apresentar valor em USD e valor convertido em BRL, sem exigir campo persistente duplicado quando esses valores puderem ser derivados com seguranca. `precoUnitario` e editavel somente antes da confirmacao; `taxaCambioBrl` deve vir de exchange-rates, nao e editavel e deve ser real e rastreavel.
+
+Para US:
+
+```text
+Valor Bruto USD = Quantidade * Preco Unitario Confirmado USD
+Valor Bruto BRL = Valor Bruto USD * Taxa Cambio BRL
+```
+
+Aplicar `BigDecimal` e `RoundingMode.HALF_EVEN`; nao arredondar preco unitario ou taxa de cambio para duas casas antes da conversao. O valor consolidado final em BRL permanece `NUMERIC(18,2)`.
 
 O sistema deve persistir na transacao:
 - moeda original;
 - preco unitario original;
-- taxas originais;
+- `taxas`: taxas consolidadas em BRL;
 - taxa de cambio utilizada;
 - valor total convertido para BRL;
 - resultado realizado em BRL quando aplicavel.
@@ -835,10 +863,10 @@ Saldo em Caixa BRL >= Custo Total BRL
 
 ```text
 Custo Origem =
-(Quantidade * Preco Unitario Confirmado) + Taxas
+Quantidade * Preco Unitario Confirmado
 
 Custo BRL =
-Custo Origem * Taxa Cambio BRL
+(Custo Origem * Taxa Cambio BRL) + Taxas BRL
 
 Novo Custo Total BRL =
 Custo Total BRL Anterior + Custo BRL
@@ -862,6 +890,19 @@ Preco medio: BRL 23.33
 
 O valor exibido do exemplo deve respeitar a politica de precisao e arredondamento definida neste PRD.
 
+Exemplo conceitual US, sem taxas:
+
+```text
+Compra 1: 1 AAPL a USD 200.00, USD/BRL 5.00000000 -> BRL 1000.00
+Compra 2: 1 AAPL a USD 200.00, USD/BRL 5.50000000 -> BRL 1100.00
+
+Total investido BRL: 2100.00
+Quantidade: 2
+Preco medio BRL: 1050.00000000
+```
+
+Portanto, para ativo US, `precoMedioBrl` considera o custo convertido em BRL com a taxa efetivamente utilizada em cada compra.
+
 Depois da compra:
 - debitar caixa em BRL;
 - atualizar posicao;
@@ -883,11 +924,11 @@ Venda a descoberto nao e permitida.
 Custo Base BRL =
 Quantidade Vendida * Preco Medio BRL
 
-Valor Liquido Origem =
-(Quantidade Vendida * Preco Unitario Confirmado) - Taxas
+Valor Bruto Origem =
+Quantidade Vendida * Preco Unitario Confirmado
 
 Valor Liquido BRL =
-Valor Liquido Origem * Taxa Cambio BRL
+(Valor Bruto Origem * Taxa Cambio BRL) - Taxas BRL
 
 Lucro/Prejuizo Realizado BRL =
 Valor Liquido BRL - Custo Base BRL
@@ -901,6 +942,8 @@ A venda:
 - preserva o preco unitario de venda confirmado na transacao para futuros calculos de resultado realizado;
 - gera auditoria;
 - atualiza snapshot do dia.
+
+Venda US registra preco de venda em USD, usa e preserva a taxa USD/BRL real da operacao, calcula e credita o valor liquido convertido em BRL. Venda parcial nao recalcula o preco medio; venda total aplica a regra de zeramento abaixo. `Transacao` permanece imutavel.
 
 Se a posicao zerar:
 
@@ -1293,7 +1336,7 @@ Precos unitarios, precos medios, cambio e taxas:
 NUMERIC(18,8)
 ```
 
-`quantidade`, `preco_unitario` e `preco_medio_brl` utilizam `NUMERIC(18,8)`. `taxas` tambem utiliza `NUMERIC(18,8)`, deve ser maior ou igual a zero e nao deve sofrer arredondamento prematuro. A implementacao deve preservar `BigDecimal` e aplicar `RoundingMode.HALF_EVEN` somente na materializacao monetaria final em BRL.
+`quantidade`, `preco_unitario`, `preco_medio_brl` e `taxa_cambio_brl` utilizam `NUMERIC(18,8)`. `taxas` tambem utiliza `NUMERIC(18,8)`, deve ser maior ou igual a zero e nao deve sofrer arredondamento prematuro. A implementacao deve preservar `BigDecimal` e aplicar `RoundingMode.HALF_EVEN` somente na materializacao monetaria final em BRL.
 
 Valores monetarios consolidados:
 
@@ -1665,19 +1708,25 @@ O `README.md` deve conter:
 - saldo insuficiente.
 
 ### Transacoes
-- compra valida;
+- BUY B3 valida;
+- SELL B3 valida;
+- BUY US valida;
+- SELL US valida;
 - compra sem saldo;
 - venda valida;
 - venda acima da custodia;
 - compra de ativo inativo bloqueada e venda de posicao existente em ativo inativo permitida;
-- negociacao B3/BRL permitida na primeira capability e negociacao US/USD bloqueada ate cambio USD/BRL;
-- cotacao real mais recente sugerida ao iniciar compra ou venda;
+- cotacao real mais recente B3 e US sugerida ao iniciar compra ou venda;
+- taxa USD/BRL real, com instante e provider, disponivel para transacao US;
+- exibicao de valor US em USD e valor convertido em BRL antes da confirmacao;
 - edicao do preco unitario sem alterar cotacao do provider ou historico de mercado;
+- taxa de cambio nao editavel e taxa arbitraria do browser nao aceita como autoridade financeira;
 - registro e uso do preco unitario confirmado;
-- preco medio ponderado em novas compras;
+- taxa historica preservada na transacao US;
+- preco medio ponderado em BRL em novas compras, inclusive compras US com taxas de cambio diferentes;
 - venda sem recalculo do preco medio remanescente;
 - resultado realizado;
-- conversao USD/BRL quando a capability de cambio estiver disponivel;
+- indisponibilidade de FX bloqueia somente nova BUY/SELL US; B3/BRL continua funcionando sem FX;
 - taxas com escala, precisao e arredondamento financeiro definidos.
 
 ### Persistencia
@@ -1750,20 +1799,28 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] cotacoes usam cache;
 - [ ] cache nao duplica historico de cotacoes;
 - [ ] carteira utiliza BRL como moeda base;
-- [ ] operacoes US, quando a capability de cambio estiver disponivel, persistem a taxa USD/BRL utilizada;
+- [ ] exchange-rates fornece USD/BRL real, com instante, provider, rastreabilidade, precisao financeira e tratamento de indisponibilidade;
+- [ ] operacoes US persistem a taxa USD/BRL real utilizada, imutavel historicamente, em `NUMERIC(18,8)`;
 - [ ] patrimonio US e convertido para BRL;
 - [ ] usuario consegue depositar e sacar;
 - [ ] depositos e saques possuem historico proprio;
 - [ ] usuario consegue comprar com saldo suficiente;
 - [ ] venda a descoberto e bloqueada;
 - [ ] compra de ativo inativo e bloqueada, enquanto venda de posicao existente em ativo inativo permanece permitida;
-- [ ] primeira capability de compra e venda negocia somente ativos B3/BRL, sem conversao USD/BRL inventada;
+- [ ] BUY e SELL negociam B3/BRL e US/USD, com moeda coerente ao ativo e sem conversao USD/BRL inventada;
+- [ ] cotacao real de ativo US e USD/BRL real sao exibidas antes da confirmacao;
+- [ ] operacao US apresenta quantidade, preco confirmado e valor em USD, mais valor convertido em BRL;
 - [ ] BUY e SELL usam corretora previamente admitida e ativa sem chamar Receita, CVM ou CEP dentro da transacao financeira;
 - [ ] cotacao real mais recente do market quotes e sugerida ao iniciar compra ou venda;
 - [ ] usuario pode editar o preco unitario antes da confirmacao sem alterar a cotacao do provider ou o historico de mercado;
+- [ ] para US, preco unitario permanece em USD e taxaCambioBrl nao e editavel nem aceita do browser como autoridade financeira;
 - [ ] transacao registra e utiliza o preco unitario efetivamente confirmado pelo usuario;
-- [ ] preco medio ponderado em BRL e recalculado corretamente em novas compras;
+- [ ] preco medio ponderado em BRL e recalculado corretamente em novas compras, inclusive US com taxas de cambio diferentes;
 - [ ] venda reduz a quantidade sem recalcular o preco medio das unidades remanescentes;
+- [ ] SELL US preserva taxa real historica, credita caixa BRL e aplica a regra de zeramento da posicao quando total;
+- [ ] indisponibilidade de FX bloqueia somente nova BUY/SELL US; B3/BRL funciona sem FX;
+- [ ] HistoricoCotacao e dados do provider nao sao alterados pelo preco manual da transacao;
+- [ ] taxas em BRL sao incorporadas corretamente ao valor financeiro final de BUY/SELL B3 e US;
 - [ ] lucro/prejuizo realizado em BRL e calculado corretamente;
 - [ ] snapshots diarios suportam evolucao patrimonial;
 - [ ] deposito ou saque posterior a uma posicao nao sobrescreve campos de investimento do snapshot com zero;
