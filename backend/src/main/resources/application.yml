@@ -62,4 +62,11 @@ application:
     twelve-data:
       url: ${TWELVE_DATA_URL:https://api.twelvedata.com}
       credential: ${TWELVE_DATA_API_KEY:}
+  broker-catalog:
+    brasil-api-cnpj:
+      url: ${BRASIL_API_CNPJ_URL:https://brasilapi.com.br}
+    brasil-api-cvm:
+      url: ${BRASIL_API_CVM_URL:https://brasilapi.com.br}
+    via-cep:
+      url: ${VIA_CEP_URL:https://viacep.com.br}
 
