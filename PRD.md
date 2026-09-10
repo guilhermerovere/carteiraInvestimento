@@ -25,6 +25,7 @@ Estas decisoes eliminam ambiguidades que nao devem ser redefinidas durante a imp
 - TwelveData e o fallback quando o provedor primario estiver indisponivel.
 - Para ativos B3, a taxa de cambio considerada e `1`.
 - O patrimonio consolidado, valor investido e lucro/prejuizo do dashboard devem ser apresentados em BRL.
+- A primeira capability de compras e vendas deve negociar somente ativos `B3` em `BRL`. Ativos `US_MARKET` em `USD` permanecem no catalogo e em market quotes, mas sua negociacao so sera habilitada apos a capability de cambio `USD/BRL`; nunca deve ser usada conversao `1:1` ou taxa inventada.
 
 ### 2.2. Corretoras e ativos sao catalogos globais
 
@@ -32,7 +33,7 @@ Estas decisoes eliminam ambiguidades que nao devem ser redefinidas durante a imp
 
 Nao existe relacionamento direto permanente entre uma corretora e uma acao.
 
-A corretora utilizada deve ser registrada na `Transacao`.
+A corretora utilizada deve ser registrada na `Transacao`. Toda transacao deve referenciar uma corretora valida do catalogo global; compra e venda nao aceitam corretora textual livre. O catalogo de corretoras e pre-requisito da capability de compras e vendas e `corretora_id` nao deve ser removido da transacao antes de sua implementacao.
 
 ```text
 Usuario
@@ -647,6 +648,7 @@ TwelveData
 - a taxa usada em uma transacao nunca deve ser recalculada retroativamente;
 - para ativos B3, `taxaCambioBrl = 1`;
 - patrimonio atual de ativos US deve utilizar a cotacao atual em USD multiplicada pela taxa USD/BRL atual.
+- a negociacao de ativos US so deve ser habilitada depois que esta capability estiver disponivel; ate la, ativos US nao podem ser comprados nem vendidos.
 
 ---
 
@@ -728,11 +730,28 @@ Dados principais:
 
 A corretora deve existir no catalogo global e estar valida.
 
+Nesta primeira capability, compra e venda aceitam somente ativo com `mercado = B3` e `moeda = BRL`. Ativo inexistente ou fora do catalogo e invalido. Ativos US/USD continuam cadastrados e cotados, mas nao podem ser negociados ate a capability de cambio USD/BRL estar disponivel. Nao usar conversao `USD = BRL`, conversao `1:1` ou taxa de cambio inventada.
+
+Ativo inativo nao pode receber nova compra nem aumento de posicao. Uma posicao existente em ativo inativo pode ser vendida para reduzir ou encerrar a custodia. A desativacao do ativo nao altera transacoes, posicoes ou historicos ja registrados.
+
 Ao iniciar uma compra ou venda, o sistema deve obter a cotacao real mais recente pela capability de market quotes e apresenta-la como preco unitario inicial sugerido, na moeda original do ativo.
 
 O usuario pode editar o preco unitario antes de confirmar a transacao. Essa edicao altera somente o preco unitario da transacao em preparacao e nao deve alterar a cotacao recebida do provider, `HistoricoCotacao` ou o historico de mercado.
 
-Ao confirmar a transacao, o sistema deve registrar o preco unitario efetivamente confirmado pelo usuario. Esse preco deve ser utilizado nos calculos da transacao, inclusive do valor total, da movimentacao de caixa, da atualizacao da posicao e, nas compras, do preco medio ponderado.
+O fluxo e:
+
+```text
+GET cotacao real
+-> frontend apresenta preco unitario sugerido
+-> usuario pode editar antes da confirmacao
+-> POST registra preco unitario confirmado
+```
+
+O POST financeiro nao altera `HistoricoCotacao` nem dados recebidos do provider. Ao confirmar a transacao, o sistema deve registrar o preco unitario efetivamente confirmado pelo usuario. Esse preco e a autoridade para o valor da transacao, debito ou credito do caixa, atualizacao da posicao e, nas compras, preco medio ponderado; ele nao precisa ser igual a cotacao de mercado.
+
+`Transacao` confirmada e fato financeiro imutavel. Preco editavel significa editavel somente antes da confirmacao; depois do POST concluido, o preco confirmado pertence ao historico da transacao. Nao devem existir `PUT`, `PATCH` ou `DELETE` para alterar historico confirmado.
+
+Taxas sao obrigatorias, denominadas em BRL nesta primeira etapa B3, devem ser maiores ou iguais a zero e devem utilizar `BigDecimal`. Nao utilizar `double` ou `float`; taxas nao devem ser arredondadas prematuramente para duas casas antes dos calculos.
 
 ### Normalizacao para BRL
 
@@ -747,6 +766,8 @@ Para US:
 ```text
 taxaCambioBrl = cotacao USD/BRL no momento da operacao
 ```
+
+Esta regra para US se aplica somente depois da capability de cambio USD/BRL. Antes dela, a operacao US deve ser bloqueada.
 
 O sistema deve persistir na transacao:
 - moeda original;
@@ -843,7 +864,7 @@ Todos os calculos financeiros devem utilizar `BigDecimal` e `RoundingMode.HALF_E
 
 Nao utilizar `float` ou `double` para valores financeiros.
 
-A precisao de `preco_unitario` e `preco_medio_brl` nao deve ser limitada automaticamente a duas casas decimais. Deve ser preservada a politica financeira de precisao e arredondamento deste PRD; o detalhamento definitivo dessas escalas pertence a futura change de transacoes e posicoes.
+`quantidade`, `preco_unitario` e `preco_medio_brl` devem preservar a precisao definida na secao 21. O arredondamento `HALF_EVEN` para `NUMERIC(18,2)` ocorre somente na materializacao monetaria final em BRL.
 
 ---
 
@@ -876,6 +897,8 @@ Saldo Caixa BRL + Soma(Valor Atual BRL das Posicoes)
 Lucro Nao Realizado BRL =
 Soma(Valor Atual BRL) - Soma(Total Investido BRL)
 ```
+
+`total_investido_brl` pode ser calculado localmente a partir do custo da posicao. `valor_atual_posicoes_brl`, `lucro_nao_realizado_brl` e patrimonio baseado em mercado dependem de valuation com cotacao atual apropriada. Preco da ultima compra, preco medio ou preco confirmado em transacao nao podem ser tratados como cotacao atual de mercado.
 
 ### Rentabilidade
 
@@ -917,6 +940,10 @@ Regras:
 - no maximo um snapshot por carteira por dia;
 - snapshot do dia atual pode ser atualizado;
 - snapshots anteriores sao imutaveis.
+- a introducao de Posicao deve evoluir a composicao do snapshot para que deposito ou saque posterior nao sobrescreva campos de investimento com zero;
+- `total_investido_brl` pode ser atualizado pelo estado local de custo;
+- valuation completo, patrimonio baseado em mercado e lucro nao realizado real pertencem a capability posterior de valuation;
+- compra e venda nao devem chamar providers externos apenas para preencher snapshot.
 
 Endpoint:
 
@@ -1203,13 +1230,13 @@ Cotacoes:
 NUMERIC(15,4)
 ```
 
-Precos unitarios, precos medios e cambio:
+Precos unitarios, precos medios, cambio e taxas:
 
 ```sql
 NUMERIC(18,8)
 ```
 
-As escalas definitivas de `preco_unitario` e `preco_medio_brl` devem ser confirmadas na futura change de transacoes e posicoes. Ate la, a implementacao nao deve reduzir esses valores automaticamente a duas casas decimais e deve preservar `BigDecimal` e a politica de arredondamento financeiro deste PRD.
+`quantidade`, `preco_unitario` e `preco_medio_brl` utilizam `NUMERIC(18,8)`. `taxas` tambem utiliza `NUMERIC(18,8)`, deve ser maior ou igual a zero e nao deve sofrer arredondamento prematuro. A implementacao deve preservar `BigDecimal` e aplicar `RoundingMode.HALF_EVEN` somente na materializacao monetaria final em BRL.
 
 Valores monetarios consolidados:
 
@@ -1555,13 +1582,16 @@ O `README.md` deve conter:
 - compra sem saldo;
 - venda valida;
 - venda acima da custodia;
+- compra de ativo inativo bloqueada e venda de posicao existente em ativo inativo permitida;
+- negociacao B3/BRL permitida na primeira capability e negociacao US/USD bloqueada ate cambio USD/BRL;
 - cotacao real mais recente sugerida ao iniciar compra ou venda;
 - edicao do preco unitario sem alterar cotacao do provider ou historico de mercado;
 - registro e uso do preco unitario confirmado;
 - preco medio ponderado em novas compras;
 - venda sem recalculo do preco medio remanescente;
 - resultado realizado;
-- conversao USD/BRL.
+- conversao USD/BRL quando a capability de cambio estiver disponivel;
+- taxas com escala, precisao e arredondamento financeiro definidos.
 
 ### Persistencia
 - migrations Flyway;
@@ -1624,12 +1654,14 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] cotacoes usam cache;
 - [ ] cache nao duplica historico de cotacoes;
 - [ ] carteira utiliza BRL como moeda base;
-- [ ] operacoes US persistem a taxa USD/BRL utilizada;
+- [ ] operacoes US, quando a capability de cambio estiver disponivel, persistem a taxa USD/BRL utilizada;
 - [ ] patrimonio US e convertido para BRL;
 - [ ] usuario consegue depositar e sacar;
 - [ ] depositos e saques possuem historico proprio;
 - [ ] usuario consegue comprar com saldo suficiente;
 - [ ] venda a descoberto e bloqueada;
+- [ ] compra de ativo inativo e bloqueada, enquanto venda de posicao existente em ativo inativo permanece permitida;
+- [ ] primeira capability de compra e venda negocia somente ativos B3/BRL, sem conversao USD/BRL inventada;
 - [ ] cotacao real mais recente do market quotes e sugerida ao iniciar compra ou venda;
 - [ ] usuario pode editar o preco unitario antes da confirmacao sem alterar a cotacao do provider ou o historico de mercado;
 - [ ] transacao registra e utiliza o preco unitario efetivamente confirmado pelo usuario;
@@ -1637,6 +1669,7 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] venda reduz a quantidade sem recalcular o preco medio das unidades remanescentes;
 - [ ] lucro/prejuizo realizado em BRL e calculado corretamente;
 - [ ] snapshots diarios suportam evolucao patrimonial;
+- [ ] deposito ou saque posterior a uma posicao nao sobrescreve campos de investimento do snapshot com zero;
 - [ ] dashboard apresenta indicadores consolidados;
 - [ ] operacoes importantes geram auditoria;
 - [ ] auditoria do ADMIN nao expoe dados financeiros privados;
