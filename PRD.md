@@ -47,7 +47,7 @@ Usuario
 
 `ROLE_ADMIN` pode:
 - cadastrar corretoras;
-- consultar, editar os dados permitidos, ativar e desativar corretoras;
+- consultar, editar somente numero e complemento, ativar e desativar corretoras;
 - cadastrar ativos;
 - atualizar cotacoes manualmente;
 - administrar os catalogos globais.
@@ -106,6 +106,8 @@ Eventos administrativos podem conter:
 - resultado;
 - provedor externo;
 - dados de compliance de corretoras quando aplicavel.
+
+Eventos de corretoras devem permanecer sanitizados: nao podem conter payload bruto de provider, credenciais ou tokens.
 
 ### 2.7. Historico de cotacoes
 
@@ -504,6 +506,27 @@ Corretoras formam um catalogo global administrado por `ROLE_ADMIN`.
 
 Corretora nao pertence a usuario individual. Nao deve existir `usuario_id` em Corretora para ownership; todos os usuarios consultam o mesmo catalogo global de corretoras ativas.
 
+### Modelo conceitual
+
+```text
+id UUID
+cnpj
+razaoSocial
+nomeFantasia opcional
+cep
+logradouro
+bairro
+cidade
+uf
+numero opcional
+complemento opcional
+ativo
+criadoEm
+atualizadoEm
+```
+
+Nao adicionar `usuarioId`, mercado, ativo financeiro, saldo, dados de carteira ou campos financeiros em Corretora.
+
 ### Cadastro
 
 ```http
@@ -514,7 +537,7 @@ Acesso:
 - somente `ROLE_ADMIN`.
 
 Entrada:
-- CNPJ;
+- CNPJ obrigatorio;
 - numero opcional;
 - complemento opcional.
 
@@ -522,27 +545,35 @@ Fluxo:
 
 ```text
 CNPJ
--> sanitizar
--> validar
--> Receita Federal
--> CVM
--> CEP
+-> remover formatacao e validar localmente
+-> Receita Federal e verificacao de situacao cadastral exigida
+-> CVM e verificacao de registro ativo
+-> CEP e enriquecimento do endereco
 -> persistir
 ```
 
 ### Regras
 
-- CNPJ duplicado nao e permitido.
-- CNPJ deve ser validado localmente antes de chamadas externas.
+- CNPJ pode ser recebido formatado, mas a aplicacao deve remover a formatacao, validar formalmente os digitos verificadores e persistir exatamente 14 digitos.
+- CNPJ e obrigatorio, globalmente unico, imutavel depois da criacao e persistido como `CHAR(14)` ou equivalente que preserve exatamente o contrato canonico.
+- PATCH de Corretora nao pode alterar CNPJ. Instituicao com outro CNPJ e outro registro.
 - Corretora deve estar `ATIVA` na Receita Federal.
 - Corretora deve possuir registro ativo na CVM.
+- `razaoSocial` deve ser obtida da Receita, e obrigatoria para concluir o cadastro. `nomeFantasia`, quando fornecido pela Receita, deve ser persistido como opcional.
+- `razaoSocial` e `nomeFantasia` nao sao editaveis manualmente. Dados manuais nao podem substituir a identidade oficial obtida da fonte externa.
+- O endereco cadastral persistido deve conter `cep`, `logradouro`, `bairro`, `cidade` e `uf`, obtidos no fluxo Receita/CEP. CEP deve possuir exatamente 8 digitos canonicos e UF exatamente 2 caracteres canonicos em maiusculo.
+- `numero` e texto manual opcional: aplicar trim, converter blank em `null` e limitar a 20 caracteres. Nao obter numero automaticamente do CEP.
+- `complemento` e texto manual opcional: aplicar trim, converter blank em `null` e limitar a 160 caracteres.
+- Depois do cadastro, `ROLE_ADMIN` pode editar manualmente somente `numero` e `complemento`. CNPJ, razaoSocial, nomeFantasia, cep, logradouro, bairro, cidade, uf e informacoes de compliance da Receita/CVM nao aceitam PATCH manual.
 - Falha de validacao CVM deve retornar `422 Unprocessable Entity`.
-- Em falha regulatoria nenhuma corretora deve ser persistida.
-- Falhas de compliance devem gerar auditoria.
+- Reprovacao regulatoria, inclusive situacao cadastral da Receita nao aceita ou registro CVM inativo, nao persiste Corretora e retorna `422 Unprocessable Entity`.
+- Falha tecnica de Receita, CVM ou CEP nao persiste cadastro parcial e retorna `502 Bad Gateway` sanitizado.
+- Nao persistir payload bruto completo recebido de provider, nem retornar esse payload em contrato publico.
+- Falhas de compliance devem gerar auditoria sanitizada.
 - Corretora ativa pode ser usada em nova Transacao.
 - Corretora inativa nao pode ser usada em nova Transacao, permanece existente e pode continuar referenciada por Transacoes historicas sem altera-las.
 - O lifecycle deve ser administrado por ativacao e desativacao; `DELETE` fisico nao e fluxo normal.
-- Campos, validacoes, unicidade e contrato detalhado da API de Corretora serao definidos na capability especifica.
+- Criacao, edicao administrativa, ativacao e desativacao devem gerar auditoria sanitizada.
 
 ### Endpoints
 
@@ -551,6 +582,8 @@ POST /api/v1/corretoras
 GET  /api/v1/corretoras
 GET  /api/v1/corretoras/{id}
 GET  /api/v1/corretoras/cnpj/{cnpj}
+PATCH /api/v1/corretoras/{id}
+PATCH /api/v1/corretoras/{id}/ativo
 ```
 
 Nao deve existir endpoint de vinculacao permanente entre corretora e acao.
@@ -558,6 +591,10 @@ Nao deve existir endpoint de vinculacao permanente entre corretora e acao.
 Listagens devem possuir paginacao.
 
 `ROLE_USER` pode somente consultar corretoras ativas. `ROLE_ADMIN` pode listar e consultar corretoras, inclusive conforme necessario para sua administracao.
+
+### Respostas
+
+`ROLE_USER` recebe somente os dados necessarios para identificar e selecionar Corretora ativa: no minimo `id`, `razaoSocial`, `nomeFantasia` quando existir e `cnpj`. Detalhes de endereco e compliance pertencem ao contrato administrativo quando necessarios e nao devem expor payload bruto de provider.
 
 ---
 
@@ -740,6 +777,8 @@ Dados principais:
 - corretoraId.
 
 A transacao exige `corretora_id`, recebido pelo identificador permitido no contrato. A corretora deve existir no catalogo global, estar valida e ativa no momento de nova transacao. `ROLE_USER` nao deve enviar nome livre ou corretora textual arbitraria.
+
+BUY e SELL devem resolver localmente uma Corretora existente, ativa e previamente admitida pelo catalogo. A transacao financeira nao deve chamar Receita, CVM ou CEP para confirmar uma operacao. Revalidacao regulatoria periodica, se necessaria no futuro, pertence a evolucao propria do catalogo; o lifecycle local da Corretora controla sua selecao em novas Transacoes.
 
 Nesta primeira capability, compra e venda aceitam somente ativo com `mercado = B3` e `moeda = BRL`. Ativo inexistente ou fora do catalogo e invalido. Ativos US/USD continuam cadastrados e cotados, mas nao podem ser negociados ate a capability de cambio USD/BRL estar disponivel. Nao usar conversao `USD = BRL`, conversao `1:1` ou taxa de cambio inventada.
 
@@ -1016,6 +1055,8 @@ Eventos futuros do produto:
 - falha CVM;
 - falha de integracao relevante.
 
+Criacao de Corretora, edicao administrativa de numero ou complemento, ativacao, desativacao e falhas de compliance devem gerar auditoria sanitizada.
+
 Nunca registrar em logs da aplicacao ou auditoria persistida:
 - senha;
 - `senha_hash`;
@@ -1023,6 +1064,8 @@ Nunca registrar em logs da aplicacao ou auditoria persistida:
 - header `Authorization`;
 - credenciais;
 - corpo HTTP completo;
+- payload bruto de provider;
+- credenciais ou tokens de provider;
 - saldo;
 - posicoes;
 - quantidades;
@@ -1228,6 +1271,7 @@ Regras de integridade:
 - a role em `usuarios` deve aceitar somente `ROLE_USER` ou `ROLE_ADMIN` por constraint apropriada;
 - o e-mail canonico deve possuir unicidade case-insensitive garantida no PostgreSQL.
 - Corretora e catalogo global, sem `usuario_id` para ownership.
+- Corretora deve possuir CNPJ canonico de 14 digitos, globalmente unico e imutavel, com `razaoSocial` oficial obrigatoria, endereco cadastral e lifecycle local.
 - a futura referencia `transacoes.corretora_id` deve apontar para `corretoras.id` e preservar o historico financeiro; conceitualmente, utilizar `ON DELETE RESTRICT`, sem criar migration nesta etapa.
 
 Nao deve existir:
@@ -1308,6 +1352,27 @@ endpoint
 correlation_id
 data_hora
 ```
+
+### Corretora
+
+```text
+id UUID
+cnpj CHAR(14)
+razao_social
+nome_fantasia nullable
+cep
+logradouro
+bairro
+cidade
+uf
+numero nullable
+complemento nullable
+ativo
+criado_em
+atualizado_em
+```
+
+`cnpj` deve conter exatamente 14 digitos canonicos, ter unicidade global e nao ser alterado depois da criacao. `cep` deve conter 8 digitos canonicos; `uf` deve possuir 2 caracteres em maiusculo.
 
 ### Posicao
 
@@ -1573,11 +1638,16 @@ O `README.md` deve conter:
 ### Corretoras
 - CNPJ invalido;
 - CNPJ duplicado;
+- CNPJ formatado e canonico de 14 digitos;
 - Receita inativa;
 - CVM invalida;
+- falha tecnica de Receita, CVM ou CEP sem cadastro parcial;
 - cadastro valido.
+- razao social obrigatoria obtida da Receita e dados externos nao editaveis manualmente;
+- CEP/endereco canonicos e numero/complemento opcionais normalizados;
 - `ROLE_USER` consulta somente corretoras ativas e nao altera o catalogo;
 - `ROLE_ADMIN` cadastra, edita, ativa e desativa corretoras;
+- PATCH administrativo altera somente numero e complemento;
 - corretora inativa bloqueada em nova transacao e preservada em transacoes historicas;
 - exclusao fisica bloqueada quando houver referencia por historico financeiro.
 
@@ -1663,6 +1733,10 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] apenas ADMIN altera catalogos globais;
 - [ ] corretoras sao validadas na Receita e CVM;
 - [ ] corretoras formam catalogo global, sem `usuario_id` para ownership;
+- [ ] CNPJ obrigatorio e imutavel e persistido com exatamente 14 digitos canonicos e unicidade global;
+- [ ] razaoSocial obrigatoria e nomeFantasia opcional sao obtidos da Receita sem substituicao manual;
+- [ ] cep, logradouro, bairro, cidade e uf sao persistidos pelo fluxo Receita/CEP sem payload bruto de provider;
+- [ ] somente numero e complemento podem ser editados manualmente pelo ADMIN;
 - [ ] `ROLE_USER` consulta somente corretoras ativas e seleciona corretora ativa pelo identificador permitido em nova transacao, sem nome livre;
 - [ ] `ROLE_ADMIN` lista, consulta, cadastra, edita, ativa e desativa corretoras;
 - [ ] corretora inativa nao pode ser usada em nova transacao, permanece em transacoes historicas e nao e excluida fisicamente como fluxo normal;
@@ -1684,6 +1758,7 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] venda a descoberto e bloqueada;
 - [ ] compra de ativo inativo e bloqueada, enquanto venda de posicao existente em ativo inativo permanece permitida;
 - [ ] primeira capability de compra e venda negocia somente ativos B3/BRL, sem conversao USD/BRL inventada;
+- [ ] BUY e SELL usam corretora previamente admitida e ativa sem chamar Receita, CVM ou CEP dentro da transacao financeira;
 - [ ] cotacao real mais recente do market quotes e sugerida ao iniciar compra ou venda;
 - [ ] usuario pode editar o preco unitario antes da confirmacao sem alterar a cotacao do provider ou o historico de mercado;
 - [ ] transacao registra e utiliza o preco unitario efetivamente confirmado pelo usuario;
