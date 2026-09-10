@@ -39,6 +39,8 @@ springdoc:
     path: /swagger-ui.html
 
 application:
+  cash-movements:
+    snapshot-zone: ${CASH_MOVEMENTS_SNAPSHOT_ZONE:America/Sao_Paulo}
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
