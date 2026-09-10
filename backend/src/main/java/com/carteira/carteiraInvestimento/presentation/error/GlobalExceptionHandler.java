@@ -11,6 +11,11 @@ import com.carteira.carteiraInvestimento.application.service.QuoteIntegrationExc
 import com.carteira.carteiraInvestimento.application.service.QuoteNotFoundException;
 import com.carteira.carteiraInvestimento.application.service.CashConflictException;
 import com.carteira.carteiraInvestimento.application.service.PrimaryWalletMissingException;
+import com.carteira.carteiraInvestimento.application.service.BrokerNotFoundException;
+import com.carteira.carteiraInvestimento.application.service.DuplicateBrokerException;
+import com.carteira.carteiraInvestimento.application.service.BrokerComplianceException;
+import com.carteira.carteiraInvestimento.application.service.BrokerUpstreamException;
+import com.carteira.carteiraInvestimento.application.service.BrokerAuditException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -99,6 +104,31 @@ public class GlobalExceptionHandler {
 				"An unexpected error occurred.", request);
 	}
 
+	@ExceptionHandler(BrokerNotFoundException.class)
+	ProblemDetail handleBrokerNotFound(BrokerNotFoundException exception, HttpServletRequest request) {
+		return problem(HttpStatus.NOT_FOUND, "Broker not found", "The requested broker was not found.", request);
+	}
+
+	@ExceptionHandler(DuplicateBrokerException.class)
+	ProblemDetail handleDuplicateBroker(DuplicateBrokerException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "CNPJ already registered", "A broker with this CNPJ already exists.", request);
+	}
+
+	@ExceptionHandler(BrokerComplianceException.class)
+	ProblemDetail handleBrokerCompliance(BrokerComplianceException exception, HttpServletRequest request) {
+		return problem(HttpStatus.UNPROCESSABLE_CONTENT, "Broker rejected", "The broker did not pass regulatory validation.", request);
+	}
+
+	@ExceptionHandler(BrokerUpstreamException.class)
+	ProblemDetail handleBrokerUpstream(BrokerUpstreamException exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_GATEWAY, "Broker provider unavailable", "An upstream broker service returned an unusable response.", request);
+	}
+
+	@ExceptionHandler(BrokerAuditException.class)
+	ProblemDetail handleBrokerAudit(BrokerAuditException exception, HttpServletRequest request) {
+		return problem(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred.", request);
+	}
+
 	@ExceptionHandler(AccessDeniedException.class)
 	ProblemDetail handleAccessDenied(AccessDeniedException exception, HttpServletRequest request) {
 		accessDeniedAuditing.record(request);
@@ -107,6 +137,9 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(NoResourceFoundException.class)
 	ProblemDetail handleNotFound(NoResourceFoundException exception, HttpServletRequest request) {
+		if (request.getRequestURI().startsWith("/api/v1/corretoras/cnpj/")) {
+			return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+		}
 		return problem(HttpStatus.NOT_FOUND, "Resource not found", "The requested resource was not found.", request);
 	}
 
