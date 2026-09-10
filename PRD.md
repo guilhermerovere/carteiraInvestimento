@@ -33,7 +33,7 @@ Estas decisoes eliminam ambiguidades que nao devem ser redefinidas durante a imp
 
 Nao existe relacionamento direto permanente entre uma corretora e uma acao.
 
-A corretora utilizada deve ser registrada na `Transacao`. Toda transacao deve referenciar uma corretora valida do catalogo global; compra e venda nao aceitam corretora textual livre. O catalogo de corretoras e pre-requisito da capability de compras e vendas e `corretora_id` nao deve ser removido da transacao antes de sua implementacao.
+A corretora utilizada deve ser registrada na `Transacao`. Toda transacao deve referenciar uma corretora ativa e valida do catalogo global pelo identificador permitido no contrato; compra e venda nao aceitam corretora textual livre. O catalogo de corretoras e pre-requisito da capability de compras e vendas e `corretora_id` nao deve ser removido da transacao antes de sua implementacao. Corretora inativa permanece referenciavel apenas por transacoes historicas, sem alterar o historico existente.
 
 ```text
 Usuario
@@ -47,16 +47,19 @@ Usuario
 
 `ROLE_ADMIN` pode:
 - cadastrar corretoras;
-- atualizar corretoras quando necessario;
+- consultar, editar os dados permitidos, ativar e desativar corretoras;
 - cadastrar ativos;
 - atualizar cotacoes manualmente;
 - administrar os catalogos globais.
 
+`ROLE_ADMIN` nao deve excluir fisicamente corretora que possa ser referenciada por historico financeiro.
+
 `ROLE_USER` pode:
-- consultar corretoras;
+- consultar corretoras ativas;
 - consultar ativos;
+- selecionar corretora ativa pelo identificador permitido ao registrar futura transacao;
 - usar esses catalogos em suas proprias operacoes;
-- nunca alterar os catalogos globais.
+- nunca cadastrar, editar, ativar, desativar ou excluir itens dos catalogos globais.
 
 ### 2.4. Evolucao patrimonial
 
@@ -272,7 +275,7 @@ Pode:
 - criar conta;
 - fazer login;
 - consultar o proprio perfil;
-- consultar catalogo de corretoras;
+- consultar catalogo de corretoras ativas;
 - consultar catalogo de ativos;
 - visualizar somente sua propria carteira;
 - realizar depositos e saques;
@@ -285,7 +288,7 @@ Pode:
 
 Pode:
 - acessar `/admin`;
-- cadastrar e manter corretoras;
+- listar, consultar, cadastrar, editar os dados permitidos, ativar e desativar corretoras;
 - cadastrar e manter ativos;
 - atualizar cotacoes manualmente;
 - consultar metricas gerais;
@@ -499,6 +502,8 @@ O processo deve ser idempotente e seguir estas regras:
 
 Corretoras formam um catalogo global administrado por `ROLE_ADMIN`.
 
+Corretora nao pertence a usuario individual. Nao deve existir `usuario_id` em Corretora para ownership; todos os usuarios consultam o mesmo catalogo global de corretoras ativas.
+
 ### Cadastro
 
 ```http
@@ -534,6 +539,10 @@ CNPJ
 - Falha de validacao CVM deve retornar `422 Unprocessable Entity`.
 - Em falha regulatoria nenhuma corretora deve ser persistida.
 - Falhas de compliance devem gerar auditoria.
+- Corretora ativa pode ser usada em nova Transacao.
+- Corretora inativa nao pode ser usada em nova Transacao, permanece existente e pode continuar referenciada por Transacoes historicas sem altera-las.
+- O lifecycle deve ser administrado por ativacao e desativacao; `DELETE` fisico nao e fluxo normal.
+- Campos, validacoes, unicidade e contrato detalhado da API de Corretora serao definidos na capability especifica.
 
 ### Endpoints
 
@@ -547,6 +556,8 @@ GET  /api/v1/corretoras/cnpj/{cnpj}
 Nao deve existir endpoint de vinculacao permanente entre corretora e acao.
 
 Listagens devem possuir paginacao.
+
+`ROLE_USER` pode somente consultar corretoras ativas. `ROLE_ADMIN` pode listar e consultar corretoras, inclusive conforme necessario para sua administracao.
 
 ---
 
@@ -728,7 +739,7 @@ Dados principais:
 - data da negociacao;
 - corretoraId.
 
-A corretora deve existir no catalogo global e estar valida.
+A transacao exige `corretora_id`, recebido pelo identificador permitido no contrato. A corretora deve existir no catalogo global, estar valida e ativa no momento de nova transacao. `ROLE_USER` nao deve enviar nome livre ou corretora textual arbitraria.
 
 Nesta primeira capability, compra e venda aceitam somente ativo com `mercado = B3` e `moeda = BRL`. Ativo inexistente ou fora do catalogo e invalido. Ativos US/USD continuam cadastrados e cotados, mas nao podem ser negociados ate a capability de cambio USD/BRL estar disponivel. Nao usar conversao `USD = BRL`, conversao `1:1` ou taxa de cambio inventada.
 
@@ -1216,6 +1227,8 @@ Regras de integridade:
 - a criacao do usuario `ROLE_USER` e de sua carteira deve ocorrer na mesma transacao;
 - a role em `usuarios` deve aceitar somente `ROLE_USER` ou `ROLE_ADMIN` por constraint apropriada;
 - o e-mail canonico deve possuir unicidade case-insensitive garantida no PostgreSQL.
+- Corretora e catalogo global, sem `usuario_id` para ownership.
+- a futura referencia `transacoes.corretora_id` deve apontar para `corretoras.id` e preservar o historico financeiro; conceitualmente, utilizar `ON DELETE RESTRICT`, sem criar migration nesta etapa.
 
 Nao deve existir:
 - `corretora_id` em `acoes`;
@@ -1563,6 +1576,10 @@ O `README.md` deve conter:
 - Receita inativa;
 - CVM invalida;
 - cadastro valido.
+- `ROLE_USER` consulta somente corretoras ativas e nao altera o catalogo;
+- `ROLE_ADMIN` cadastra, edita, ativa e desativa corretoras;
+- corretora inativa bloqueada em nova transacao e preservada em transacoes historicas;
+- exclusao fisica bloqueada quando houver referencia por historico financeiro.
 
 ### Ativos
 - ticker invalido;
@@ -1645,6 +1662,11 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] eventos minimos de seguranca geram auditoria sanitizada e correlacionavel, inclusive eventos de sistema sem endpoint HTTP;
 - [ ] apenas ADMIN altera catalogos globais;
 - [ ] corretoras sao validadas na Receita e CVM;
+- [ ] corretoras formam catalogo global, sem `usuario_id` para ownership;
+- [ ] `ROLE_USER` consulta somente corretoras ativas e seleciona corretora ativa pelo identificador permitido em nova transacao, sem nome livre;
+- [ ] `ROLE_ADMIN` lista, consulta, cadastra, edita, ativa e desativa corretoras;
+- [ ] corretora inativa nao pode ser usada em nova transacao, permanece em transacoes historicas e nao e excluida fisicamente como fluxo normal;
+- [ ] futura FK `transacoes.corretora_id -> corretoras.id` preserva historico financeiro, conceitualmente com `ON DELETE RESTRICT`;
 - [ ] nao existe relacionamento fixo entre acao e corretora;
 - [ ] ativos B3 e US podem ser cadastrados pelo ADMIN;
 - [ ] usuarios autenticados podem consultar ativos e corretoras;
@@ -1697,8 +1719,10 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 10. Nao permitir `ROLE_USER` alterar catalogos globais.
 11. Nao permitir `ROLE_USER` acessar rotas administrativas.
 12. Nao criar relacionamento fixo entre `Acao` e `Corretora`.
-13. Nao recalcular retroativamente taxa de cambio persistida em transacoes.
-14. Nao criar historico de cotacao quando a resposta vier do cache.
-15. Manter integracoes externas isoladas por Adapter, Strategy e Factory.
-16. Manter somente uma change principal ativa por vez, salvo dependencia explicitamente documentada.
-17. Changes concluidas devem ser testadas, revisadas e arquivadas antes da proxima etapa principal.
+13. Nao permitir `ROLE_USER` enviar corretora textual livre em Transacao.
+14. Nao excluir fisicamente Corretora como fluxo normal; preservar referencias do historico financeiro.
+15. Nao recalcular retroativamente taxa de cambio persistida em transacoes.
+16. Nao criar historico de cotacao quando a resposta vier do cache.
+17. Manter integracoes externas isoladas por Adapter, Strategy e Factory.
+18. Manter somente uma change principal ativa por vez, salvo dependencia explicitamente documentada.
+19. Changes concluidas devem ser testadas, revisadas e arquivadas antes da proxima etapa principal.
