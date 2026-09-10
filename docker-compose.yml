@@ -34,6 +34,9 @@ services:
       BRAPI_TOKEN: ${BRAPI_TOKEN:-}
       ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
       TWELVE_DATA_API_KEY: ${TWELVE_DATA_API_KEY:-}
+      BRASIL_API_CNPJ_URL: ${BRASIL_API_CNPJ_URL:-https://brasilapi.com.br}
+      BRASIL_API_CVM_URL: ${BRASIL_API_CVM_URL:-https://brasilapi.com.br}
+      VIA_CEP_URL: ${VIA_CEP_URL:-https://viacep.com.br}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
