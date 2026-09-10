@@ -107,6 +107,10 @@ Eventos administrativos podem conter:
 
 Uma nova entrada em `historico_cotacoes` deve ser criada somente quando uma nova cotacao for obtida com sucesso de um provedor externo.
 
+A cotacao real de um ativo deve ser obtida pela capability de market quotes, por meio do provider configurado para o mercado do ativo.
+
+A cotacao recebida do provider e o seu historico representam dados de mercado e nao podem ser alterados por edicao de preco feita pelo usuario durante uma transacao.
+
 Retorno de cotacao pelo cache:
 - nao gera nova entrada no historico.
 
@@ -598,6 +602,7 @@ Configuracao:
 - ticker duplicado nao e permitido;
 - ticker inexistente retorna `404 Not Found`;
 - a cotacao deve preservar a moeda original do ativo;
+- a capability de market quotes deve fornecer a cotacao real mais recente do ativo pelo provider configurado;
 - toda cotacao externa deve possuir data/hora;
 - consultas repetidas em menos de 10 minutos devem utilizar Caffeine;
 - retorno do cache nao gera nova linha no historico;
@@ -716,12 +721,18 @@ Dados principais:
 - ticker;
 - tipo `BUY` ou `SELL`;
 - quantidade;
-- preco unitario na moeda do ativo;
+- preco unitario confirmado na moeda do ativo;
 - taxas na moeda do ativo;
 - data da negociacao;
 - corretoraId.
 
 A corretora deve existir no catalogo global e estar valida.
+
+Ao iniciar uma compra ou venda, o sistema deve obter a cotacao real mais recente pela capability de market quotes e apresenta-la como preco unitario inicial sugerido, na moeda original do ativo.
+
+O usuario pode editar o preco unitario antes de confirmar a transacao. Essa edicao altera somente o preco unitario da transacao em preparacao e nao deve alterar a cotacao recebida do provider, `HistoricoCotacao` ou o historico de mercado.
+
+Ao confirmar a transacao, o sistema deve registrar o preco unitario efetivamente confirmado pelo usuario. Esse preco deve ser utilizado nos calculos da transacao, inclusive do valor total, da movimentacao de caixa, da atualizacao da posicao e, nas compras, do preco medio ponderado.
 
 ### Normalizacao para BRL
 
@@ -753,7 +764,7 @@ Saldo em Caixa BRL >= Custo Total BRL
 
 ```text
 Custo Origem =
-(Quantidade * Preco Unitario) + Taxas
+(Quantidade * Preco Unitario Confirmado) + Taxas
 
 Custo BRL =
 Custo Origem * Taxa Cambio BRL
@@ -764,6 +775,21 @@ Custo Total BRL Anterior + Custo BRL
 Novo Preco Medio BRL =
 Novo Custo Total BRL / Nova Quantidade
 ```
+
+O preco medio ponderado e obrigatorio. Em cada nova compra, o calculo deve considerar a quantidade atual, o preco medio atual, a quantidade comprada e o preco unitario efetivamente confirmado na nova compra, com as taxas e a conversao para BRL aplicaveis ao custo da operacao.
+
+Exemplo conceitual, sem taxas e com valores em BRL:
+
+```text
+Compra 1: 10 unidades a BRL 20.00
+Compra 2: 20 unidades a BRL 25.00
+
+Custo acumulado: BRL 700.00
+Quantidade: 30
+Preco medio: BRL 23.33
+```
+
+O valor exibido do exemplo deve respeitar a politica de precisao e arredondamento definida neste PRD.
 
 Depois da compra:
 - debitar caixa em BRL;
@@ -787,7 +813,7 @@ Custo Base BRL =
 Quantidade Vendida * Preco Medio BRL
 
 Valor Liquido Origem =
-(Quantidade Vendida * Preco Venda) - Taxas
+(Quantidade Vendida * Preco Unitario Confirmado) - Taxas
 
 Valor Liquido BRL =
 Valor Liquido Origem * Taxa Cambio BRL
@@ -801,6 +827,7 @@ A venda:
 - reduz a quantidade da posicao;
 - nao altera o preco medio BRL das unidades restantes;
 - registra resultado realizado em BRL;
+- preserva o preco unitario de venda confirmado na transacao para futuros calculos de resultado realizado;
 - gera auditoria;
 - atualiza snapshot do dia.
 
@@ -815,6 +842,8 @@ totalInvestidoBrl = 0
 Todos os calculos financeiros devem utilizar `BigDecimal` e `RoundingMode.HALF_EVEN`.
 
 Nao utilizar `float` ou `double` para valores financeiros.
+
+A precisao de `preco_unitario` e `preco_medio_brl` nao deve ser limitada automaticamente a duas casas decimais. Deve ser preservada a politica financeira de precisao e arredondamento deste PRD; o detalhamento definitivo dessas escalas pertence a futura change de transacoes e posicoes.
 
 ---
 
@@ -1174,11 +1203,13 @@ Cotacoes:
 NUMERIC(15,4)
 ```
 
-Precos medios e cambio:
+Precos unitarios, precos medios e cambio:
 
 ```sql
 NUMERIC(18,8)
 ```
+
+As escalas definitivas de `preco_unitario` e `preco_medio_brl` devem ser confirmadas na futura change de transacoes e posicoes. Ate la, a implementacao nao deve reduzir esses valores automaticamente a duas casas decimais e deve preservar `BigDecimal` e a politica de arredondamento financeiro deste PRD.
 
 Valores monetarios consolidados:
 
@@ -1524,7 +1555,11 @@ O `README.md` deve conter:
 - compra sem saldo;
 - venda valida;
 - venda acima da custodia;
-- preco medio;
+- cotacao real mais recente sugerida ao iniciar compra ou venda;
+- edicao do preco unitario sem alterar cotacao do provider ou historico de mercado;
+- registro e uso do preco unitario confirmado;
+- preco medio ponderado em novas compras;
+- venda sem recalculo do preco medio remanescente;
 - resultado realizado;
 - conversao USD/BRL.
 
@@ -1595,7 +1630,11 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 - [ ] depositos e saques possuem historico proprio;
 - [ ] usuario consegue comprar com saldo suficiente;
 - [ ] venda a descoberto e bloqueada;
-- [ ] preco medio em BRL e calculado corretamente;
+- [ ] cotacao real mais recente do market quotes e sugerida ao iniciar compra ou venda;
+- [ ] usuario pode editar o preco unitario antes da confirmacao sem alterar a cotacao do provider ou o historico de mercado;
+- [ ] transacao registra e utiliza o preco unitario efetivamente confirmado pelo usuario;
+- [ ] preco medio ponderado em BRL e recalculado corretamente em novas compras;
+- [ ] venda reduz a quantidade sem recalcular o preco medio das unidades remanescentes;
 - [ ] lucro/prejuizo realizado em BRL e calculado corretamente;
 - [ ] snapshots diarios suportam evolucao patrimonial;
 - [ ] dashboard apresenta indicadores consolidados;
