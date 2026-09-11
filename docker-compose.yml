@@ -32,7 +32,9 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       BRAPI_TOKEN: ${BRAPI_TOKEN:-}
+      ALPHAVANTAGE_URL: ${ALPHAVANTAGE_URL:-https://www.alphavantage.co}
       ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY:-}
+      TWELVE_DATA_URL: ${TWELVE_DATA_URL:-https://api.twelvedata.com}
       TWELVE_DATA_API_KEY: ${TWELVE_DATA_API_KEY:-}
       BRASIL_API_CNPJ_URL: ${BRASIL_API_CNPJ_URL:-https://brasilapi.com.br}
       BRASIL_API_CVM_URL: ${BRASIL_API_CVM_URL:-https://brasilapi.com.br}

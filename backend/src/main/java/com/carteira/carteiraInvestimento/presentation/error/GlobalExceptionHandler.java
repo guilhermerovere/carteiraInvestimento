@@ -16,6 +16,7 @@ import com.carteira.carteiraInvestimento.application.service.DuplicateBrokerExce
 import com.carteira.carteiraInvestimento.application.service.BrokerComplianceException;
 import com.carteira.carteiraInvestimento.application.service.BrokerUpstreamException;
 import com.carteira.carteiraInvestimento.application.service.BrokerAuditException;
+import com.carteira.carteiraInvestimento.application.service.CambioUnavailableException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -86,6 +87,12 @@ public class GlobalExceptionHandler {
 	ProblemDetail handleQuoteIntegration(QuoteIntegrationException exception, HttpServletRequest request) {
 		return problem(HttpStatus.BAD_GATEWAY, "Quote provider unavailable",
 				"The market quote service is temporarily unavailable.", request);
+	}
+
+	@ExceptionHandler(CambioUnavailableException.class)
+	ProblemDetail handleCambioUnavailable(CambioUnavailableException exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_GATEWAY, "Exchange-rate provider unavailable",
+				"A valid USD/BRL exchange rate is temporarily unavailable.", request);
 	}
 
 	@ExceptionHandler(AuthenticationFailedException.class)
