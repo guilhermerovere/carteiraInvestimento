@@ -23,9 +23,11 @@ import org.springframework.stereotype.Repository;
 public class CashPersistenceAdapter implements CashWalletPort, CashLedgerPort, CashIdempotencyPort, CashSnapshotPort {
 	private static final BigDecimal MAX_BRL = new BigDecimal("9999999999999999.99");
 	private final JdbcTemplate jdbc;
+	private final LocalSnapshotComposer snapshotComposer;
 
-	public CashPersistenceAdapter(JdbcTemplate jdbc) {
+	public CashPersistenceAdapter(JdbcTemplate jdbc, LocalSnapshotComposer snapshotComposer) {
 		this.jdbc = jdbc;
+		this.snapshotComposer = snapshotComposer;
 	}
 
 	@Override
@@ -125,18 +127,7 @@ public class CashPersistenceAdapter implements CashWalletPort, CashLedgerPort, C
 
 	@Override
 	public void upsert(UUID walletId, LocalDate referenceDate, BigDecimal resultingBalance) {
-		jdbc.update("""
-				INSERT INTO carteira_snapshots
-				(id, carteira_id, data_referencia, saldo_caixa_brl, valor_posicoes_brl,
-				 total_investido_brl, patrimonio_total_brl, lucro_nao_realizado_brl)
-				VALUES (?, ?, ?, ?, 0.00, 0.00, ?, 0.00)
-				ON CONFLICT (carteira_id, data_referencia) DO UPDATE SET
-				 saldo_caixa_brl = EXCLUDED.saldo_caixa_brl,
-				 valor_posicoes_brl = 0.00,
-				 total_investido_brl = 0.00,
-				 patrimonio_total_brl = EXCLUDED.patrimonio_total_brl,
-				 lucro_nao_realizado_brl = 0.00
-				""", UUID.randomUUID(), walletId, referenceDate, resultingBalance, resultingBalance);
+		snapshotComposer.composeCash(walletId, referenceDate, resultingBalance);
 	}
 
 	private MovimentacaoCaixa movement(ResultSet rs, int row) throws SQLException {

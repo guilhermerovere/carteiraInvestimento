@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
+import com.carteira.carteiraInvestimento.application.service.InvestmentConflictException;
+import com.carteira.carteiraInvestimento.application.service.InvestmentNotFoundException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import com.carteira.carteiraInvestimento.infrastructure.web.CorrelationIdFilter;
 import java.util.UUID;
@@ -66,6 +68,15 @@ class GlobalExceptionHandlerTest {
 				.andExpect(content().string(not(containsString("database-password"))));
 	}
 
+	@Test
+	void returnsSanitizedInvestmentConflictAndNotFound() throws Exception {
+		mockMvc.perform(get("/test/investment-conflict"))
+				.andExpect(status().isConflict()).andExpect(jsonPath("$.status").value(409))
+				.andExpect(content().string(not(containsString("idempotency-secret"))));
+		mockMvc.perform(get("/test/investment-not-found"))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
+	}
+
 	@AfterEach
 	void clearSecurityContext() {
 		SecurityContextHolder.clearContext();
@@ -106,5 +117,11 @@ class GlobalExceptionHandlerTest {
 		void accessDenied() {
 			throw new AccessDeniedException("secret");
 		}
+
+		@GetMapping("/test/investment-conflict")
+		void investmentConflict() { throw new InvestmentConflictException("idempotency-secret"); }
+
+		@GetMapping("/test/investment-not-found")
+		void investmentNotFound() { throw new InvestmentNotFoundException(); }
 	}
 }

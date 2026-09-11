@@ -17,6 +17,9 @@ import com.carteira.carteiraInvestimento.application.service.BrokerComplianceExc
 import com.carteira.carteiraInvestimento.application.service.BrokerUpstreamException;
 import com.carteira.carteiraInvestimento.application.service.BrokerAuditException;
 import com.carteira.carteiraInvestimento.application.service.CambioUnavailableException;
+import com.carteira.carteiraInvestimento.application.service.InvestmentConflictException;
+import com.carteira.carteiraInvestimento.application.service.InvestmentNotFoundException;
+import com.carteira.carteiraInvestimento.domain.investment.FinancialStateException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -103,6 +106,16 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(CashConflictException.class)
 	ProblemDetail handleCashConflict(CashConflictException exception, HttpServletRequest request) {
 		return problem(HttpStatus.CONFLICT, "Financial conflict", "The financial operation cannot be completed.", request);
+	}
+
+	@ExceptionHandler({InvestmentConflictException.class, FinancialStateException.class})
+	ProblemDetail handleInvestmentConflict(RuntimeException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Financial conflict", "The financial operation cannot be completed.", request);
+	}
+
+	@ExceptionHandler(InvestmentNotFoundException.class)
+	ProblemDetail handleInvestmentNotFound(InvestmentNotFoundException exception, HttpServletRequest request) {
+		return problem(HttpStatus.NOT_FOUND, "Resource not found", "The requested resource was not found.", request);
 	}
 
 	@ExceptionHandler(PrimaryWalletMissingException.class)
