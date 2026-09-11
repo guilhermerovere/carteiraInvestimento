@@ -5,11 +5,11 @@ import com.carteira.carteiraInvestimento.application.service.CambioProviderExcep
 import com.carteira.carteiraInvestimento.domain.fx.CambioExterno;
 import com.carteira.carteiraInvestimento.domain.fx.CambioProvider;
 import com.carteira.carteiraInvestimento.domain.fx.MoedaCambio;
-import com.carteira.carteiraInvestimento.infrastructure.config.CambioProperties;
+import com.carteira.carteiraInvestimento.domain.fx.ObservacaoCambio;
+import com.carteira.carteiraInvestimento.infrastructure.config.MarketQuoteProperties;
 import feign.FeignException;
 import feign.RetryableException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.Locale;
 import org.slf4j.Logger;
@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class TwelveDataCambioAdapter implements CambioProviderPort {
 	private static final Logger log = LoggerFactory.getLogger(TwelveDataCambioAdapter.class);
 	private final TwelveDataCambioClient client;
-	private final CambioProperties properties;
+	private final MarketQuoteProperties properties;
 
-	public TwelveDataCambioAdapter(TwelveDataCambioClient client, CambioProperties properties) {
+	public TwelveDataCambioAdapter(TwelveDataCambioClient client, MarketQuoteProperties properties) {
 		this.client = client; this.properties = properties;
 	}
 	@Override public CambioProvider provider() { return CambioProvider.TWELVE_DATA; }
@@ -36,9 +36,11 @@ public class TwelveDataCambioAdapter implements CambioProviderPort {
 		try {
 			TwelveCambioResponse response = client.exchangeRate("USD/BRL", properties.twelveData().credential());
 			if (response == null) throw failure(true, "empty", null);
-			if ("error".equalsIgnoreCase(response.status()) || response.message() != null && response.rate() == null) {
+			if ("error".equalsIgnoreCase(response.status())
+					|| response.message() != null && !response.message().isBlank()
+					|| response.code() != null && response.code() >= 400) {
 				String semantic = response.message() == null ? "" : response.message();
-				throw failure(!credentialError(semantic, response.code()), semanticCategory(semantic), null);
+				throw failure(!configurationError(semantic, response.code()), semanticCategory(semantic), null);
 			}
 			if (!"USD/BRL".equals(required(response.symbol()))) throw failure(true, "pair", null);
 			if (response.timestamp() == null || response.timestamp() <= 0) throw failure(true, "timestamp", null);
@@ -50,7 +52,8 @@ public class TwelveDataCambioAdapter implements CambioProviderPort {
 			throw failure(true, "transport", exception);
 		} catch (FeignException exception) {
 			String body = exception.contentUTF8();
-			boolean credential = exception.status() == 401 || exception.status() == 403 || credentialError(body, exception.status());
+			boolean credential = exception.status() == 400 || exception.status() == 401
+					|| exception.status() == 403 || configurationError(body, exception.status());
 			throw failure(!credential, "http-" + exception.status(), exception);
 		} catch (RuntimeException exception) {
 			throw failure(true, "payload", exception);
@@ -63,16 +66,11 @@ public class TwelveDataCambioAdapter implements CambioProviderPort {
 	}
 	private BigDecimal parseRate(String value) {
 		BigDecimal original = new BigDecimal(required(value));
-		if (original.signum() <= 0) throw failure(true, "rate", null);
-		BigDecimal normalized = original.setScale(8, RoundingMode.HALF_EVEN);
-		if (normalized.signum() <= 0 || normalized.precision() - normalized.scale() > 10) {
-			throw failure(true, "rate", null);
-		}
-		return original;
+		return ObservacaoCambio.normalizarTaxa(original);
 	}
-	private boolean credentialError(String value, Integer code) {
+	private boolean configurationError(String value, Integer code) {
 		String normalized = value == null ? "" : value.toLowerCase(Locale.ROOT);
-		return code != null && (code == 401 || code == 403)
+		return code != null && (code == 400 || code == 401 || code == 403)
 				|| normalized.contains("invalid api key") || normalized.contains("apikey is invalid")
 				|| normalized.contains("api key is invalid") || normalized.contains("missing api key")
 				|| normalized.contains("unauthorized") || normalized.contains("forbidden");
@@ -88,7 +86,7 @@ public class TwelveDataCambioAdapter implements CambioProviderPort {
 	}
 }
 
-@FeignClient(name = "twelveDataCambioClient", url = "${application.exchange-rates.twelve-data.url}")
+@FeignClient(name = "twelveDataCambioClient", url = "${application.market-quotes.twelve-data.url}")
 interface TwelveDataCambioClient {
 	@GetMapping("/exchange_rate")
 	TwelveCambioResponse exchangeRate(@RequestParam("symbol") String symbol, @RequestParam("apikey") String apiKey);

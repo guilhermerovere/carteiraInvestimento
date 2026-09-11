@@ -5,12 +5,12 @@ import com.carteira.carteiraInvestimento.application.service.CambioProviderExcep
 import com.carteira.carteiraInvestimento.domain.fx.CambioExterno;
 import com.carteira.carteiraInvestimento.domain.fx.CambioProvider;
 import com.carteira.carteiraInvestimento.domain.fx.MoedaCambio;
-import com.carteira.carteiraInvestimento.infrastructure.config.CambioProperties;
+import com.carteira.carteiraInvestimento.domain.fx.ObservacaoCambio;
+import com.carteira.carteiraInvestimento.infrastructure.config.MarketQuoteProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import feign.FeignException;
 import feign.RetryableException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -27,9 +27,9 @@ public class AlphaVantageCambioAdapter implements CambioProviderPort {
 	private static final Logger log = LoggerFactory.getLogger(AlphaVantageCambioAdapter.class);
 	private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final AlphaVantageCambioClient client;
-	private final CambioProperties properties;
+	private final MarketQuoteProperties properties;
 
-	public AlphaVantageCambioAdapter(AlphaVantageCambioClient client, CambioProperties properties) {
+	public AlphaVantageCambioAdapter(AlphaVantageCambioClient client, MarketQuoteProperties properties) {
 		this.client = client; this.properties = properties;
 	}
 
@@ -59,7 +59,8 @@ public class AlphaVantageCambioAdapter implements CambioProviderPort {
 			throw failure(true, "transport", exception);
 		} catch (FeignException exception) {
 			String body = exception.contentUTF8();
-			boolean credential = exception.status() == 401 || exception.status() == 403 || credentialError(body);
+			boolean credential = exception.status() == 400 || exception.status() == 401
+					|| exception.status() == 403 || credentialError(body);
 			throw failure(!credential, "http-" + exception.status(), exception);
 		} catch (RuntimeException exception) {
 			throw failure(true, "payload", exception);
@@ -72,12 +73,7 @@ public class AlphaVantageCambioAdapter implements CambioProviderPort {
 	}
 	private BigDecimal parseRate(String value) {
 		BigDecimal original = new BigDecimal(required(value));
-		if (original.signum() <= 0) throw failure(true, "rate", null);
-		BigDecimal normalized = original.setScale(8, RoundingMode.HALF_EVEN);
-		if (normalized.signum() <= 0 || normalized.precision() - normalized.scale() > 10) {
-			throw failure(true, "rate", null);
-		}
-		return original;
+		return ObservacaoCambio.normalizarTaxa(original);
 	}
 	private String first(String... values) {
 		for (String value : values) if (value != null && !value.isBlank()) return value;
@@ -103,7 +99,7 @@ public class AlphaVantageCambioAdapter implements CambioProviderPort {
 	}
 }
 
-@FeignClient(name = "alphaVantageCambioClient", url = "${application.exchange-rates.alpha-vantage.url}")
+@FeignClient(name = "alphaVantageCambioClient", url = "${application.market-quotes.alpha-vantage.url}")
 interface AlphaVantageCambioClient {
 	@GetMapping("/query")
 	AlphaCambioResponse exchangeRate(@RequestParam("function") String function,

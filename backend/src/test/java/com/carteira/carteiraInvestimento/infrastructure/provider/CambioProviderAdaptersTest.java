@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.carteira.carteiraInvestimento.application.service.CambioProviderException;
 import com.carteira.carteiraInvestimento.domain.fx.CambioProvider;
-import com.carteira.carteiraInvestimento.infrastructure.config.CambioProperties;
+import com.carteira.carteiraInvestimento.infrastructure.config.MarketQuoteProperties;
 import feign.Feign;
 import feign.FeignException;
 import feign.RetryableException;
@@ -33,7 +33,7 @@ class CambioProviderAdaptersTest {
 			var request = server.takeRequest();
 			assertThat(request.getPath()).contains("function=CURRENCY_EXCHANGE_RATE", "from_currency=USD",
 					"to_currency=BRL", "apikey=alpha");
-			assertThat(result.taxa().toPlainString()).isEqualTo("5.123456789");
+			assertThat(result.taxa().toPlainString()).isEqualTo("5.12345679");
 			assertThat(result.instanteCotacao()).isEqualTo(Instant.parse("2026-09-10T13:30:00Z"));
 			assertThat(result.provider()).isEqualTo(CambioProvider.ALPHA_VANTAGE);
 		}
@@ -86,11 +86,11 @@ class CambioProviderAdaptersTest {
 		RetryableException retry = mock(RetryableException.class);
 		doThrow(retry).when(client).exchangeRate(anyString(), anyString(), anyString(), anyString());
 		assertFailure(adapter::obterUsdBrl, true);
-		for (int status : List.of(429, 500, 503, 401, 403)) {
+		for (int status : List.of(429, 500, 503, 400, 401, 403)) {
 			FeignException failure = mock(FeignException.class);
 			when(failure.status()).thenReturn(status); when(failure.contentUTF8()).thenReturn("");
 			doThrow(failure).when(client).exchangeRate(anyString(), anyString(), anyString(), anyString());
-			assertFailure(adapter::obterUsdBrl, status != 401 && status != 403);
+			assertFailure(adapter::obterUsdBrl, status != 400 && status != 401 && status != 403);
 		}
 	}
 
@@ -100,6 +100,10 @@ class CambioProviderAdaptersTest {
 		when(client.exchangeRate(anyString(), anyString())).thenReturn(new TwelveCambioResponse(null, null, null, "error", 429, "rate limit"));
 		assertFailure(adapter::obterUsdBrl, true);
 		when(client.exchangeRate(anyString(), anyString())).thenReturn(new TwelveCambioResponse(null, null, null, "error", 401, "Invalid API key"));
+		assertFailure(adapter::obterUsdBrl, false);
+		when(client.exchangeRate(anyString(), anyString())).thenReturn(new TwelveCambioResponse("USD/BRL", "5", 1L, null, 429, "rate limit"));
+		assertFailure(adapter::obterUsdBrl, true);
+		when(client.exchangeRate(anyString(), anyString())).thenReturn(new TwelveCambioResponse("USD/BRL", "5", 1L, null, 401, "Invalid API key"));
 		assertFailure(adapter::obterUsdBrl, false);
 		when(client.exchangeRate(anyString(), anyString())).thenReturn(new TwelveCambioResponse("USD/BRL", null, 1L, null, null, null));
 		assertFailure(adapter::obterUsdBrl, true);
@@ -119,10 +123,10 @@ class CambioProviderAdaptersTest {
 		var adapter = new TwelveDataCambioAdapter(client, properties("alpha", "twelve"));
 		doThrow(mock(RetryableException.class)).when(client).exchangeRate(anyString(), anyString());
 		assertFailure(adapter::obterUsdBrl, true);
-		for (int status : List.of(429, 500, 503, 401, 403)) {
+		for (int status : List.of(429, 500, 503, 400, 401, 403)) {
 			FeignException failure = mock(FeignException.class); when(failure.status()).thenReturn(status);
 			when(failure.contentUTF8()).thenReturn(""); doThrow(failure).when(client).exchangeRate(anyString(), anyString());
-			assertFailure(adapter::obterUsdBrl, status != 401 && status != 403);
+			assertFailure(adapter::obterUsdBrl, status != 400 && status != 401 && status != 403);
 		}
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(json("{invalid-json"));
@@ -145,13 +149,15 @@ class CambioProviderAdaptersTest {
 				.target(type, server.url("/").toString());
 	}
 	private MockResponse json(String body) { return new MockResponse().setHeader("Content-Type", "application/json").setBody(body); }
-	private CambioProperties properties(MockWebServer server, String alpha, String twelve) {
-		return new CambioProperties(new CambioProperties.Provider(server.url("/").toString(), alpha),
-				new CambioProperties.Provider(server.url("/").toString(), twelve));
+	private MarketQuoteProperties properties(MockWebServer server, String alpha, String twelve) {
+		return new MarketQuoteProperties(new MarketQuoteProperties.Provider("http://localhost", ""),
+				new MarketQuoteProperties.Provider(server.url("/").toString(), alpha),
+				new MarketQuoteProperties.Provider(server.url("/").toString(), twelve));
 	}
-	private CambioProperties properties(String alpha, String twelve) {
-		return new CambioProperties(new CambioProperties.Provider("http://localhost", alpha),
-				new CambioProperties.Provider("http://localhost", twelve));
+	private MarketQuoteProperties properties(String alpha, String twelve) {
+		return new MarketQuoteProperties(new MarketQuoteProperties.Provider("http://localhost", ""),
+				new MarketQuoteProperties.Provider("http://localhost", alpha),
+				new MarketQuoteProperties.Provider("http://localhost", twelve));
 	}
 	private void assertFailure(Runnable action, boolean eligible) {
 		assertThatThrownBy(action::run).isInstanceOfSatisfying(CambioProviderException.class,

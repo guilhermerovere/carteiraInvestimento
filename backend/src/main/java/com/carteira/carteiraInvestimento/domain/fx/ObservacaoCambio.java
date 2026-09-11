@@ -33,7 +33,9 @@ public record ObservacaoCambio(UUID id, MoedaCambio moedaOrigem, MoedaCambio moe
 	public static BigDecimal normalizarTaxa(BigDecimal value) {
 		Objects.requireNonNull(value, "rate must not be null");
 		if (value.signum() <= 0) throw new IllegalArgumentException("rate must be positive");
-		BigDecimal normalized = value.setScale(SCALE, RoundingMode.HALF_EVEN);
+		BigDecimal normalized = value.scale() == SCALE
+				? value
+				: value.setScale(SCALE, RoundingMode.HALF_EVEN);
 		if (normalized.signum() <= 0) throw new IllegalArgumentException("rate rounds to zero");
 		if (normalized.precision() - normalized.scale() > INTEGER_DIGITS) {
 			throw new IllegalArgumentException("rate exceeds NUMERIC(18,8)");

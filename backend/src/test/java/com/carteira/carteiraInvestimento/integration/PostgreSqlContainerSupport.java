@@ -30,10 +30,6 @@ abstract class PostgreSqlContainerSupport {
 		registry.add("application.market-quotes.alpha-vantage.credential", () -> "");
 		registry.add("application.market-quotes.twelve-data.url", () -> "http://127.0.0.1:1");
 		registry.add("application.market-quotes.twelve-data.credential", () -> "");
-		registry.add("application.exchange-rates.alpha-vantage.url", () -> "http://127.0.0.1:1");
-		registry.add("application.exchange-rates.alpha-vantage.credential", () -> "");
-		registry.add("application.exchange-rates.twelve-data.url", () -> "http://127.0.0.1:1");
-		registry.add("application.exchange-rates.twelve-data.credential", () -> "");
 		registry.add("application.broker-catalog.brasil-api-cnpj.url", () -> System.getProperty("broker.test.url", "http://127.0.0.1:1"));
 		registry.add("application.broker-catalog.brasil-api-cvm.url", () -> System.getProperty("broker.test.url", "http://127.0.0.1:1"));
 		registry.add("application.broker-catalog.via-cep.url", () -> System.getProperty("broker.test.url", "http://127.0.0.1:1"));

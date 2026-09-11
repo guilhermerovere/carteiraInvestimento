@@ -29,12 +29,19 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 class CambioApplicationServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-10T12:00:00Z");
 
-	@Test void hitPreservesEveryFieldWithoutProviderPersistenceOrAudit() {
+	@Test void alphaObservationCacheHitPreservesUuidProviderAndTimestampsWithoutNewCallOrHistory() {
 		Fixture f = new Fixture();
 		ObservacaoCambio first = f.service.obterUsdBrl();
 		ObservacaoCambio second = f.service.obterUsdBrl();
+		assertThat(first.provider()).isEqualTo(CambioProvider.ALPHA_VANTAGE);
 		assertThat(second).isSameAs(first);
-		assertThat(second).usingRecursiveComparison().isEqualTo(first);
+		assertThat(second.id()).isEqualTo(first.id());
+		assertThat(second.moedaOrigem()).isEqualTo(first.moedaOrigem());
+		assertThat(second.moedaDestino()).isEqualTo(first.moedaDestino());
+		assertThat(second.taxa()).isEqualByComparingTo(first.taxa());
+		assertThat(second.provider()).isEqualTo(first.provider());
+		assertThat(second.instanteCotacao()).isEqualTo(first.instanteCotacao());
+		assertThat(second.registradoEm()).isEqualTo(first.registradoEm());
 		assertThat(f.alpha.calls()).isEqualTo(1); assertThat(f.twelve.calls()).isZero();
 		assertThat(f.history.saved).containsExactly(first); assertThat(f.audit.events).isEmpty();
 	}
@@ -53,6 +60,21 @@ class CambioApplicationServiceTest {
 		f.twelve.failure = new CambioProviderException(true, "down");
 		assertThatThrownBy(f.service::obterUsdBrl).isInstanceOf(CambioUnavailableException.class);
 		assertThat(f.cache.getIfPresent(CambioApplicationService.CACHE_KEY)).isNull();
+	}
+
+	@Test void cachePutAfterDelayedCommitDoesNotRestartFiveMinuteDeadline() {
+		Fixture f = new Fixture();
+		f.history.afterSave = () -> f.clock.set(NOW.plusSeconds(299));
+		ObservacaoCambio first = f.service.obterUsdBrl();
+		assertThat(first.registradoEm()).isEqualTo(NOW);
+
+		f.history.afterSave = null;
+		f.clock.set(NOW.plusSeconds(300));
+		assertThat(f.service.obterUsdBrl().id()).isEqualTo(first.id());
+		f.clock.set(NOW.plusSeconds(300).plusNanos(1));
+		assertThat(f.service.obterUsdBrl().id()).isNotEqualTo(first.id());
+		assertThat(f.alpha.calls()).isEqualTo(2);
+		assertThat(f.history.saved).hasSize(2);
 	}
 
 	@Test void eligiblePrimaryFailureFallsBackAndSuccessfulFallbackIsNotAudited() {
@@ -118,8 +140,8 @@ class CambioApplicationServiceTest {
 		int calls(){return calls.get();}
 	}
 	private static final class FakeHistory implements HistoricoCambioPort {
-		final List<ObservacaoCambio> saved = new ArrayList<>(); boolean fail;
-		@Override public synchronized ObservacaoCambio save(ObservacaoCambio value){if(fail)throw new IllegalStateException("database secret");saved.add(value);return value;}
+		final List<ObservacaoCambio> saved = new ArrayList<>(); boolean fail; Runnable afterSave;
+		@Override public synchronized ObservacaoCambio save(ObservacaoCambio value){if(fail)throw new IllegalStateException("database secret");saved.add(value);if(afterSave!=null)afterSave.run();return value;}
 	}
 	private static final class FakeAudit implements AuditoriaIsoladaPort {
 		final List<AuditoriaCommand> events = new ArrayList<>(); boolean fail;
