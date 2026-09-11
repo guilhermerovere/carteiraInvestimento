@@ -21,7 +21,8 @@ public class AuditoriaPersistenceAdapter implements AuditoriaPort, AuditoriaIsol
 	@Override
 	public void record(AuditoriaCommand command) {
 		repository.save(new LogAuditoriaJpaEntity(UUID.randomUUID(), command.usuarioId(), command.tipo(),
-				command.resultado(), command.severidade(), command.endpoint(), command.correlationId(), Instant.now()));
+				command.resultado(), command.severidade(), command.endpoint(), command.correlationId(),
+				command.instante() == null ? Instant.now() : command.instante()));
 	}
 
 	@Override

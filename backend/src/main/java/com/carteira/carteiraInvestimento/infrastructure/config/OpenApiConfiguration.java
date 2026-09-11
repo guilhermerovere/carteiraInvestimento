@@ -15,7 +15,7 @@ public class OpenApiConfiguration {
 		return new OpenAPI()
 				.info(new Info()
 						.title("Carteira Investimento API")
-						.description("Fundação técnica da API; endpoints de negócio serão adicionados em changes futuras.")
+						.description("API de carteira com autenticação Bearer, caixa BRL e transações/posições B3 e US. As posições públicas não incluem valuation de mercado.")
 						.version("v1"))
 				.components(new Components().addSecuritySchemes("bearerAuth",
 						new SecurityScheme()

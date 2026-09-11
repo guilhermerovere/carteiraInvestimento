@@ -72,7 +72,7 @@ public class CashMovementApplicationService implements CashMovementUseCase {
 		ledger.save(movement);
 		snapshots.upsert(wallet.id(), operationInstant.atZone(snapshotZone).toLocalDate(), resultingBalance);
 		audit.record(new AuditoriaCommand(userId, TipoEvento.valueOf(type.name()), ResultadoAuditoria.SUCESSO,
-				SeveridadeAuditoria.INFO, endpoint, correlationId));
+				SeveridadeAuditoria.INFO, endpoint, correlationId, operationInstant));
 		idempotency.complete(((CashIdempotencyPort.NewReservation) reservation).id(), movement.id(), resultingBalance);
 		return new CashOperationResult(movement, resultingBalance);
 	}
