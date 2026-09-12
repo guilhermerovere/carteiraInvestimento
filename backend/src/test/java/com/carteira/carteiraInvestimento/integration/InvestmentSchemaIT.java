@@ -114,7 +114,7 @@ class InvestmentSchemaIT extends PostgreSqlContainerSupport {
     }
     private void reserve(Connection c,Fixture f,String key)throws SQLException{exec(c,"INSERT INTO transacoes_idempotencia(id,carteira_id,usuario_id,idempotency_key,fingerprint,estado) VALUES (?,?,?,?,?,'RESERVADA')",UUID.randomUUID(),f.wallet(),f.user(),key,"a".repeat(64));}
     private void snapshot(Connection c,UUID wallet,LocalDate date,BigDecimal value,BigDecimal profit,BigDecimal equity) throws SQLException {
-        exec(c,"INSERT INTO carteira_snapshots VALUES (?,?,?,?,?,?,?,?)",UUID.randomUUID(),wallet,date,new BigDecimal("1000.00"),value,BigDecimal.ZERO.setScale(2),equity,profit);
+        exec(c,"INSERT INTO carteira_snapshots(id,carteira_id,data_referencia,saldo_caixa_brl,valor_posicoes_brl,total_investido_brl,patrimonio_total_brl,lucro_nao_realizado_brl) VALUES (?,?,?,?,?,?,?,?)",UUID.randomUUID(),wallet,date,new BigDecimal("1000.00"),value,BigDecimal.ZERO.setScale(2),equity,profit);
     }
     private String columnNullable(Connection c,String table,String column) throws SQLException { try(var p=c.prepareStatement("SELECT is_nullable FROM information_schema.columns WHERE table_schema=? AND table_name=? AND column_name=?")){p.setString(1,SCHEMA);p.setString(2,table);p.setString(3,column);try(var r=p.executeQuery()){r.next();return r.getString(1);}} }
     private long count(Connection c,String sql,String value) throws SQLException { try(var p=c.prepareStatement(sql)){p.setString(1,value);try(var r=p.executeQuery()){r.next();return r.getLong(1);}} }

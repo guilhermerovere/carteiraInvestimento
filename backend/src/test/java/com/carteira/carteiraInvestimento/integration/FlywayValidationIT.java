@@ -13,7 +13,7 @@ class FlywayValidationIT extends PostgreSqlContainerSupport {
 	private static final String NEGATIVE_SCHEMA = "flyway_negative_test";
 
 	@Test
-	void validatesTheIdentityMigrationSequenceAgainstPostgreSql() {
+	void validatesTheMigrationSequenceAgainstPostgreSql() {
 		Flyway migrations = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.schemas(POSITIVE_SCHEMA)
@@ -24,7 +24,7 @@ class FlywayValidationIT extends PostgreSqlContainerSupport {
 		migrations.migrate();
 
 		assertThat(migrations.validateWithResult().validationSuccessful).isTrue();
-		assertThat(migrations.info().current().getVersion().getVersion()).isEqualTo("9");
+		assertThat(migrations.info().current().getVersion().getVersion()).isEqualTo("10");
 	}
 
 	@Test

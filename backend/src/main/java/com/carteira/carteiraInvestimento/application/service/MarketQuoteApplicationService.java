@@ -55,6 +55,18 @@ public class MarketQuoteApplicationService implements MarketQuoteUseCase {
 	}
 
 	@Override
+	public Cotacao cotacaoAtualParaCustodia(UUID ativoId, boolean posicaoAberta) {
+		Ativo ativo = ativos.findById(ativoId).orElseThrow(AtivoNotFoundException::new);
+		if (!ativo.ativo() && !posicaoAberta) throw new AtivoNotFoundException();
+		Cotacao cached = cache.getIfPresent(ativoId);
+		if (cached != null) return cached;
+		return locked(ativoId, () -> {
+			Cotacao inside = cache.getIfPresent(ativoId);
+			return inside != null ? inside : obterPersistirCachear(ativo);
+		});
+	}
+
+	@Override
 	public HistoricoCotacaoPage historico(UUID ativoId, int page, int size, boolean admin) {
 		if (page < 0 || size < 1 || size > 100) throw new IllegalArgumentException("invalid pagination");
 		Ativo ativo = ativos.findById(ativoId).orElseThrow(AtivoNotFoundException::new);

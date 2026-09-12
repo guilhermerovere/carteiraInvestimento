@@ -102,7 +102,7 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
 
     @Override public BigDecimal debit(UUID walletId, BigDecimal amount) {
         return jdbc.query("""
-                UPDATE carteiras SET saldo_caixa_brl=saldo_caixa_brl-?
+                UPDATE carteiras SET saldo_caixa_brl=saldo_caixa_brl-?,estado_versao=estado_versao+1
                 WHERE id=? AND saldo_caixa_brl>=? RETURNING saldo_caixa_brl
                 """, (rs, n) -> rs.getBigDecimal(1), amount, walletId, amount).stream().findFirst()
                 .orElseThrow(() -> new InvestmentConflictException("insufficient funds"));
@@ -110,7 +110,7 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
 
     @Override public BigDecimal credit(UUID walletId, BigDecimal amount) {
         return jdbc.query("""
-                UPDATE carteiras SET saldo_caixa_brl=saldo_caixa_brl+?
+                UPDATE carteiras SET saldo_caixa_brl=saldo_caixa_brl+?,estado_versao=estado_versao+1
                 WHERE id=? AND saldo_caixa_brl<=?-? RETURNING saldo_caixa_brl
                 """, (rs, n) -> rs.getBigDecimal(1), amount, walletId, InvestmentNumbers.MAX_18_2, amount)
                 .stream().findFirst().orElseThrow(() -> new InvestmentConflictException("cash balance overflow"));

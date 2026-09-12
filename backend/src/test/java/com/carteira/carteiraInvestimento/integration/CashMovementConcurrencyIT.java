@@ -132,7 +132,11 @@ class CashMovementConcurrencyIT extends PostgreSqlContainerSupport {
 		Fixture fixture = fixture(BigDecimal.ZERO);
 		LocalDate previousDate = LocalDate.now(ZoneId.of("America/Sao_Paulo")).minusDays(1);
 		UUID previousId = UUID.randomUUID();
-		jdbc.update("INSERT INTO carteira_snapshots VALUES (?,?,?,?,?,?,?,?)", previousId, fixture.walletId(),
+        jdbc.update("""
+                INSERT INTO carteira_snapshots(id,carteira_id,data_referencia,saldo_caixa_brl,
+                    valor_posicoes_brl,total_investido_brl,patrimonio_total_brl,lucro_nao_realizado_brl)
+                VALUES (?,?,?,?,?,?,?,?)
+                """, previousId, fixture.walletId(),
 				previousDate, new BigDecimal("7.00"), BigDecimal.ZERO, BigDecimal.ZERO, new BigDecimal("7.00"),
 				BigDecimal.ZERO);
 		var outcomes = concurrent(

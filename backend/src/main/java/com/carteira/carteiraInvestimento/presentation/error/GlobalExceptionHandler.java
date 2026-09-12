@@ -19,6 +19,8 @@ import com.carteira.carteiraInvestimento.application.service.BrokerAuditExceptio
 import com.carteira.carteiraInvestimento.application.service.CambioUnavailableException;
 import com.carteira.carteiraInvestimento.application.service.InvestmentConflictException;
 import com.carteira.carteiraInvestimento.application.service.InvestmentNotFoundException;
+import com.carteira.carteiraInvestimento.application.service.PortfolioValuationConflictException;
+import com.carteira.carteiraInvestimento.application.service.PortfolioValuationUpstreamException;
 import com.carteira.carteiraInvestimento.domain.investment.FinancialStateException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
 import org.springframework.http.HttpStatus;
@@ -111,6 +113,18 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({InvestmentConflictException.class, FinancialStateException.class})
 	ProblemDetail handleInvestmentConflict(RuntimeException exception, HttpServletRequest request) {
 		return problem(HttpStatus.CONFLICT, "Financial conflict", "The financial operation cannot be completed.", request);
+	}
+
+	@ExceptionHandler(PortfolioValuationConflictException.class)
+	ProblemDetail handleValuationConflict(PortfolioValuationConflictException exception, HttpServletRequest request) {
+		return problem(HttpStatus.CONFLICT, "Valuation conflict",
+				"The portfolio changed while valuation was being calculated.", request);
+	}
+
+	@ExceptionHandler(PortfolioValuationUpstreamException.class)
+	ProblemDetail handleValuationUpstream(PortfolioValuationUpstreamException exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_GATEWAY, "Valuation provider unavailable",
+				"A required market data service is temporarily unavailable.", request);
 	}
 
 	@ExceptionHandler(InvestmentNotFoundException.class)

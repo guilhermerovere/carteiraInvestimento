@@ -57,11 +57,13 @@ class InvestmentRollbackIT extends PostgreSqlContainerSupport {
                 .isInstanceOf(IllegalStateException.class);
         assertThat(jdbc.queryForObject("SELECT saldo_caixa_brl FROM carteiras WHERE id=?",BigDecimal.class,f.wallet()))
                 .isEqualByComparingTo("1000.00");
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?",Long.class,f.wallet())).isZero();
         for(String table:new String[]{"transacoes","posicoes","carteira_snapshots","transacoes_idempotencia"})
             assertThat(jdbc.queryForObject("SELECT count(*) FROM "+table+" WHERE carteira_id=?",Long.class,f.wallet())).isZero();
         assertThat(jdbc.queryForObject("SELECT count(*) FROM logs_auditoria WHERE usuario_id=? AND tipo_evento='COMPRA'",Long.class,f.user())).isZero();
         assertThat(realUseCase.execute(f.user(),command(f),key,UUID.randomUUID(),"/transactions").resultingCashBalance())
                 .isEqualByComparingTo("900.00");
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?",Long.class,f.wallet())).isEqualTo(1);
     }
 
     private InvestmentPersistencePort failingPersistence(Stage stage){

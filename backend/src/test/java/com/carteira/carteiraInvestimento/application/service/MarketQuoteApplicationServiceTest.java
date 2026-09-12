@@ -117,6 +117,18 @@ class MarketQuoteApplicationServiceTest {
 	}
 
 	@Test
+	void inactiveAssetIsQuotedOnlyForExplicitOpenCustodyAndPublicRouteRemainsBlocked() {
+		Fixture f = new Fixture(Mercado.B3, false);
+		assertThatThrownBy(() -> f.service.cotacaoAtualParaCustodia(f.asset.id(), false))
+				.isInstanceOf(AtivoNotFoundException.class);
+		Cotacao custodyQuote = f.service.cotacaoAtualParaCustodia(f.asset.id(), true);
+		assertThat(custodyQuote.ativoId()).isEqualTo(f.asset.id());
+		assertThat(f.brapi.calls()).isEqualTo(1);
+		assertThatThrownBy(() -> f.service.cotacaoAtual(f.asset.id())).isInstanceOf(AtivoNotFoundException.class);
+		assertThat(f.brapi.calls()).isEqualTo(1);
+	}
+
+	@Test
 	void neverUsesHistoryAsStaleFallbackAndProviderRunsOutsideTransaction() {
 		Fixture f = new Fixture(Mercado.B3);
 		f.history.saved.add(new Cotacao(UUID.randomUUID(), f.asset.id(), new BigDecimal("99"), Moeda.BRL,

@@ -38,11 +38,14 @@ class SnapshotCompatibilityIT extends PostgreSqlContainerSupport {
         assertSnapshot(f,today,"1100.00","500.00","600.00","1600.00","-100.00");
         cash.execute(f.user(),TipoMovimentacaoCaixa.SAQUE,new BigDecimal("50"),null,"withdraw",UUID.randomUUID(),"/saque");
         assertSnapshot(f,today,"1050.00","500.00","600.00","1550.00","-100.00");
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?",Long.class,f.wallet())).isEqualTo(2);
         assertThat(jdbc.queryForObject("""
                 SELECT count(*) FROM movimentacoes_caixa m JOIN logs_auditoria l
                   ON l.usuario_id=m.usuario_id AND l.tipo_evento=m.tipo AND l.data_hora=m.data_hora
                 WHERE m.carteira_id=?
                 """,Long.class,f.wallet())).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT valuation_instant FROM carteira_snapshots WHERE carteira_id=? AND data_referencia=?",
+                java.time.Instant.class,f.wallet(),today)).isNotNull();
     }
 
     @Test void unknownValuationStaysUnknownAndFirstNewDayDoesNotCopyPriorValuation(){
@@ -62,7 +65,7 @@ class SnapshotCompatibilityIT extends PostgreSqlContainerSupport {
         jdbc.update("INSERT INTO acoes(id,ticker,nome,tipo,mercado,moeda,ativo) VALUES (?,'SNAP4','Snapshot Asset','ACAO','B3','BRL',true)",asset);
         jdbc.update("INSERT INTO posicoes VALUES (?,?,?,6,100,600,0,CURRENT_TIMESTAMP)",position,wallet,asset);return new Fixture(user,wallet);}
     private void snapshot(Fixture f,LocalDate date,BigDecimal cash,BigDecimal value,BigDecimal invested,BigDecimal equity,BigDecimal profit){
-        jdbc.update("INSERT INTO carteira_snapshots VALUES (?,?,?,?,?,?,?,?)",UUID.randomUUID(),f.wallet(),date,cash,value,invested,equity,profit);}
+        jdbc.update("INSERT INTO carteira_snapshots(id,carteira_id,data_referencia,saldo_caixa_brl,valor_posicoes_brl,total_investido_brl,patrimonio_total_brl,lucro_nao_realizado_brl,valuation_instant) VALUES (?,?,?,?,?,?,?,?,?)",UUID.randomUUID(),f.wallet(),date,cash,value,invested,equity,profit,value==null?null:java.sql.Timestamp.from(java.time.Instant.now()));}
     private void assertSnapshot(Fixture f,LocalDate date,String cash,String value,String invested,String equity,String profit){
         Map<String,Object> row=jdbc.queryForMap("SELECT * FROM carteira_snapshots WHERE carteira_id=? AND data_referencia=?",f.wallet(),date);
         equal(row.get("saldo_caixa_brl"),cash);equal(row.get("valor_posicoes_brl"),value);equal(row.get("total_investido_brl"),invested);

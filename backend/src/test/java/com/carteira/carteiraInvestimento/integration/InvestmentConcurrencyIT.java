@@ -127,8 +127,8 @@ class InvestmentConcurrencyIT extends PostgreSqlContainerSupport {
         LocalDate yesterday=LocalDate.now(ZoneId.of("America/Sao_Paulo")).minusDays(1);
         jdbc.update("""
                 INSERT INTO carteira_snapshots(id,carteira_id,data_referencia,saldo_caixa_brl,valor_posicoes_brl,
-                  total_investido_brl,patrimonio_total_brl,lucro_nao_realizado_brl)
-                VALUES (?,?,?,777.00,333.00,222.00,1110.00,111.00)
+                    total_investido_brl,patrimonio_total_brl,lucro_nao_realizado_brl,valuation_instant)
+                VALUES (?,?,?,777.00,333.00,222.00,1110.00,111.00,CURRENT_TIMESTAMP)
                 """,UUID.randomUUID(),f.wallet(),yesterday);
         Outcomes out=concurrent(
                 ()->execute(f,command(asset,broker,race.investmentType,"1",sell?"120":"100"),"investment"),

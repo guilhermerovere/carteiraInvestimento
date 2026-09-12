@@ -81,6 +81,10 @@ class InvestmentTransactionApiIT extends PostgreSqlContainerSupport {
                 .content(body(asset, broker, "BUY", "10.0000000000", "100.0", "1.00000000", null)))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         assertThat(replay).isEqualTo(original);
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?",Long.class,f.walletId()))
+                .isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?", Long.class, f.walletId()))
+                .isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT valor_posicoes_brl FROM carteira_snapshots WHERE carteira_id=?",
                 BigDecimal.class, f.walletId())).isNull();
         assertThat(jdbc.queryForObject("SELECT total_investido_brl FROM carteira_snapshots WHERE carteira_id=?",
@@ -118,6 +122,8 @@ class InvestmentTransactionApiIT extends PostgreSqlContainerSupport {
                 .andExpect(jsonPath("$.lucroRealizadoAcumuladoBrl").value(198.0));
 
         assertThat(jdbc.queryForObject("SELECT count(*) FROM transacoes", Long.class)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?", Long.class, f.walletId()))
+                .isEqualTo(2);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM logs_auditoria WHERE usuario_id=? AND tipo_evento IN ('COMPRA','VENDA')",
                 Long.class, f.userId())).isEqualTo(2);
         assertThat(jdbc.queryForObject("""
@@ -137,6 +143,8 @@ class InvestmentTransactionApiIT extends PostgreSqlContainerSupport {
                 BigDecimal.class, f.walletId())).isEqualByComparingTo("0.00");
         assertThat(jdbc.queryForObject("SELECT patrimonio_total_brl FROM carteira_snapshots WHERE carteira_id=?",
                 BigDecimal.class, f.walletId())).isEqualByComparingTo("5198.00");
+        assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?",Long.class,f.walletId()))
+                .isEqualTo(2);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM historico_cotacoes",Long.class)).isEqualTo(initialQuotes);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM historico_cambio",Long.class)).isEqualTo(initialFx);
     }

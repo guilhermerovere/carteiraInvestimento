@@ -102,7 +102,11 @@ class CashMovementSchemaIT extends PostgreSqlContainerSupport {
 	}
 
 	private void insertSnapshot(Connection connection, UUID wallet, LocalDate date) throws SQLException {
-		try (var statement = connection.prepareStatement("INSERT INTO carteira_snapshots VALUES (?,?,?,?,?,?,?,?)")) {
+		try (var statement = connection.prepareStatement("""
+				INSERT INTO carteira_snapshots(id,carteira_id,data_referencia,saldo_caixa_brl,
+					valor_posicoes_brl,total_investido_brl,patrimonio_total_brl,lucro_nao_realizado_brl)
+				VALUES (?,?,?,?,?,?,?,?)
+				""")) {
 			statement.setObject(1, UUID.randomUUID()); statement.setObject(2, wallet); statement.setObject(3, date);
 			for (int index = 4; index <= 8; index++) statement.setBigDecimal(index, BigDecimal.ZERO);
 			statement.executeUpdate();

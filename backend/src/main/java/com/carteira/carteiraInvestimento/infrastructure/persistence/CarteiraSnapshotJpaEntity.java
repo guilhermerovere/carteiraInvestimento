@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity @Table(name="carteira_snapshots")
@@ -19,4 +20,5 @@ class CarteiraSnapshotJpaEntity {
     @Column(name="total_investido_brl",nullable=false,precision=18,scale=2) BigDecimal totalInvestidoBrl;
     @Column(name="patrimonio_total_brl",precision=18,scale=2) BigDecimal patrimonioTotalBrl;
     @Column(name="lucro_nao_realizado_brl",precision=18,scale=2) BigDecimal lucroNaoRealizadoBrl;
+    @Column(name="valuation_instant") Instant valuationInstant;
 }
