@@ -1,2 +1,4 @@
 export const AUTH_SESSION_COOKIE = "auth_session";
-export const protectedRoutes = new Set(["/inicio", "/admin"]);
+export function isProtectedRoute(pathname: string): boolean {
+  return pathname === "/inicio" || pathname === "/admin" || pathname === "/carteira" || pathname.startsWith("/carteira/");
+}

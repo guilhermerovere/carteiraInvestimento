@@ -1,1 +1,5 @@
-export default function InicioPage() { return <main><h1>Início</h1><p>Área autenticada.</p></main>; }
+import { redirect } from "next/navigation";
+
+export default function InicioPage() {
+  return redirect("/carteira");
+}

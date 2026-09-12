@@ -1,4 +1,4 @@
-export const DEFAULT_RETURN_TO = "/inicio";
+export const DEFAULT_RETURN_TO = "/carteira";
 
 function isSafeInternalPath(value: string): boolean {
   if (!value.startsWith("/") || value.startsWith("//") || /[\\\\\s\u0000-\u001f]/.test(value) || /%(?![0-9a-f]{2})|%2f|%5c/i.test(value)) {
