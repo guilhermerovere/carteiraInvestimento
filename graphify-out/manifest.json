@@ -36,10 +36,10 @@
     "semantic_hash": "c4dc06e80a4d54035369bdf6dd2c2013"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/presentation/error/GlobalExceptionHandler.java": {
-    "mtime": 1789164577.618292,
-    "seen": 1789164750.0472283,
-    "ast_hash": "12e3521b6746e3a4756b41b8a2df92ac",
-    "semantic_hash": "12e3521b6746e3a4756b41b8a2df92ac"
+    "mtime": 1789196230.4952693,
+    "seen": 1789196271.8982818,
+    "ast_hash": "7c122923f61fab32762159b3f5352ea6",
+    "semantic_hash": "7c122923f61fab32762159b3f5352ea6"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/MissingDatabaseConfigurationTest.java": {
     "mtime": 1788406795.390931,
@@ -54,10 +54,10 @@
     "semantic_hash": "9f7cf0b55b3a823a740063fac05b91bd"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/FlywayValidationIT.java": {
-    "mtime": 1789164577.626821,
-    "seen": 1789164750.08296,
-    "ast_hash": "50ed1b2debde602413fddc5bdf76ef63",
-    "semantic_hash": "50ed1b2debde602413fddc5bdf76ef63"
+    "mtime": 1789196230.5024283,
+    "seen": 1789196271.9187653,
+    "ast_hash": "24188b9afdb1e0fc149b61dce1a15a8c",
+    "semantic_hash": "24188b9afdb1e0fc149b61dce1a15a8c"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/PostgreSqlContainerSupport.java": {
     "mtime": 1789092587.2056103,
@@ -444,10 +444,10 @@
     "semantic_hash": "df6141c2e0da63dd97710d4b01e0c192"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/CarteiraJpaEntity.java": {
-    "mtime": 1788406795.3768504,
-    "seen": 1788633151.0085032,
-    "ast_hash": "8d61c9dfb4d3766c196608390379a459",
-    "semantic_hash": "8d61c9dfb4d3766c196608390379a459"
+    "mtime": 1789196230.4910827,
+    "seen": 1789196271.8811429,
+    "ast_hash": "4a28781c211cc0ae8659c3f32251fe58",
+    "semantic_hash": "4a28781c211cc0ae8659c3f32251fe58"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/CarteiraJpaRepository.java": {
     "mtime": 1788406795.37785,
@@ -1362,16 +1362,16 @@
     "semantic_hash": "42d98773560cd80135a68eb1ff337771"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/MarketQuoteApplicationService.java": {
-    "mtime": 1788910733.8319297,
-    "seen": 1788910789.4727633,
-    "ast_hash": "8707563df20c93e3cd4225e426c4f926",
-    "semantic_hash": "8707563df20c93e3cd4225e426c4f926"
+    "mtime": 1789196230.4870832,
+    "seen": 1789196271.863534,
+    "ast_hash": "c7096d909b81ef3276aff83b62843c74",
+    "semantic_hash": "c7096d909b81ef3276aff83b62843c74"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/MarketQuoteUseCase.java": {
-    "mtime": 1788910733.8329296,
-    "seen": 1788910789.4727652,
-    "ast_hash": "4ec56f99feea951928eeb7adba584d75",
-    "semantic_hash": "4ec56f99feea951928eeb7adba584d75"
+    "mtime": 1789196230.4880848,
+    "seen": 1789196271.8635366,
+    "ast_hash": "04910e104caf8943cc6e085a473c4622",
+    "semantic_hash": "04910e104caf8943cc6e085a473c4622"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/QuoteIntegrationException.java": {
     "mtime": 1788910733.8329296,
@@ -1470,10 +1470,10 @@
     "semantic_hash": "b0d4cec0c1d0724d6f00c514259a387b"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/application/service/MarketQuoteApplicationServiceTest.java": {
-    "mtime": 1788910733.8455534,
-    "seen": 1788910789.491351,
-    "ast_hash": "34ff3f43679c64eb9fc60d697e492e78",
-    "semantic_hash": "34ff3f43679c64eb9fc60d697e492e78"
+    "mtime": 1789196230.4982698,
+    "seen": 1789196271.9068763,
+    "ast_hash": "2d069ee8bd6efd1e208f8c0f6d242686",
+    "semantic_hash": "2d069ee8bd6efd1e208f8c0f6d242686"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/domain/quote/CotacaoDomainTest.java": {
     "mtime": 1788910733.8465526,
@@ -1596,10 +1596,10 @@
     "semantic_hash": "94c72c0ff4468431e1594724a99e6518"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/CashPersistenceAdapter.java": {
-    "mtime": 1789164577.6099203,
-    "seen": 1789164750.0191708,
-    "ast_hash": "7ee403afda4be1c4c7000108be5efb06",
-    "semantic_hash": "7ee403afda4be1c4c7000108be5efb06"
+    "mtime": 1789196230.493272,
+    "seen": 1789196271.8814802,
+    "ast_hash": "870c8327e9161a5195414e70249a432a",
+    "semantic_hash": "870c8327e9161a5195414e70249a432a"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/presentation/wallet/CashBalanceResponse.java": {
     "mtime": 1789003104.0732787,
@@ -1644,28 +1644,28 @@
     "semantic_hash": "8b9511300c42be74bf9f8abdc052aa90"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/CashMovementApiIT.java": {
-    "mtime": 1789003104.079279,
-    "seen": 1789003196.114894,
-    "ast_hash": "b644c426b7292f13f010acd9f3318ecd",
-    "semantic_hash": "b644c426b7292f13f010acd9f3318ecd"
+    "mtime": 1789196230.5002713,
+    "seen": 1789196271.9184532,
+    "ast_hash": "4f0dd029fe868ee21e26faf72d5965b0",
+    "semantic_hash": "4f0dd029fe868ee21e26faf72d5965b0"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/CashMovementConcurrencyIT.java": {
-    "mtime": 1789003104.0802789,
-    "seen": 1789003196.1148956,
-    "ast_hash": "92febc9c5ca68b5bce8ac3c83675dff1",
-    "semantic_hash": "92febc9c5ca68b5bce8ac3c83675dff1"
+    "mtime": 1789196230.5002713,
+    "seen": 1789196271.9184554,
+    "ast_hash": "ac78581c10a90bbc75abc36dbf622f8b",
+    "semantic_hash": "ac78581c10a90bbc75abc36dbf622f8b"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/CashMovementRollbackIT.java": {
-    "mtime": 1789003104.0802789,
-    "seen": 1789003196.114897,
-    "ast_hash": "34c2a426308244d50ea753ece25f4b4f",
-    "semantic_hash": "34c2a426308244d50ea753ece25f4b4f"
+    "mtime": 1789196230.5012727,
+    "seen": 1789196271.9184568,
+    "ast_hash": "126ef758c7206f36c856ad224910be79",
+    "semantic_hash": "126ef758c7206f36c856ad224910be79"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/CashMovementSchemaIT.java": {
-    "mtime": 1789003104.0816202,
-    "seen": 1789003196.1148982,
-    "ast_hash": "f79ac608ccf3956a8af1c8a125c72fc9",
-    "semantic_hash": "f79ac608ccf3956a8af1c8a125c72fc9"
+    "mtime": 1789196230.5012727,
+    "seen": 1789196271.9184587,
+    "ast_hash": "c1d32c8aa27754d980bc17807621546f",
+    "semantic_hash": "c1d32c8aa27754d980bc17807621546f"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/presentation/wallet/CashMovementContractTest.java": {
     "mtime": 1789003104.0831363,
@@ -2178,22 +2178,22 @@
     "semantic_hash": "71a161954271058d1e3ba0934aac0099"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/CarteiraSnapshotJpaEntity.java": {
-    "mtime": 1789164577.6084132,
-    "seen": 1789164750.019167,
-    "ast_hash": "df340cf1785c135078c63c5e19a7b306",
-    "semantic_hash": "df340cf1785c135078c63c5e19a7b306"
+    "mtime": 1789196230.4922693,
+    "seen": 1789196271.8814776,
+    "ast_hash": "3b6401554c76b5326096ee833d71dac5",
+    "semantic_hash": "3b6401554c76b5326096ee833d71dac5"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/InvestmentPersistenceAdapter.java": {
-    "mtime": 1789164577.612958,
-    "seen": 1789164750.0243125,
-    "ast_hash": "8bec0d4c7fcae1b75c93beeb9f4cfdc1",
-    "semantic_hash": "8bec0d4c7fcae1b75c93beeb9f4cfdc1"
+    "mtime": 1789196230.493272,
+    "seen": 1789196271.8848364,
+    "ast_hash": "081b4f8bfdf666db7e4b8203886867d2",
+    "semantic_hash": "081b4f8bfdf666db7e4b8203886867d2"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/LocalSnapshotComposer.java": {
-    "mtime": 1789164577.6149545,
-    "seen": 1789164750.0243177,
-    "ast_hash": "486a77ba6acb73c82a9d8cc835f76572",
-    "semantic_hash": "486a77ba6acb73c82a9d8cc835f76572"
+    "mtime": 1789196230.49427,
+    "seen": 1789196271.884839,
+    "ast_hash": "bd31eca2084325960dd93aff8a31c57c",
+    "semantic_hash": "bd31eca2084325960dd93aff8a31c57c"
   },
   "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/PosicaoJpaEntity.java": {
     "mtime": 1789164577.6159632,
@@ -2268,10 +2268,10 @@
     "semantic_hash": "466e57a98f84d44a0eebbf18d2d80c2d"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/InvestmentConcurrencyIT.java": {
-    "mtime": 1789164577.6278212,
-    "seen": 1789164750.084029,
-    "ast_hash": "1de85a11fadb9acdb4e9e224bdaba77e",
-    "semantic_hash": "1de85a11fadb9acdb4e9e224bdaba77e"
+    "mtime": 1789196230.5034275,
+    "seen": 1789196271.9193475,
+    "ast_hash": "3d3c95bad83539ce2c0016028f902957",
+    "semantic_hash": "3d3c95bad83539ce2c0016028f902957"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/InvestmentLifecycleConcurrencyIT.java": {
     "mtime": 1789164577.6288218,
@@ -2280,22 +2280,22 @@
     "semantic_hash": "a1873cc57f6ce8a4345b2d65f43a6f1a"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/InvestmentRollbackIT.java": {
-    "mtime": 1789164577.6288218,
-    "seen": 1789164750.0840383,
-    "ast_hash": "5ca2e0a6ca41869280325b3e5683a796",
-    "semantic_hash": "5ca2e0a6ca41869280325b3e5683a796"
+    "mtime": 1789196230.5034275,
+    "seen": 1789196271.9196432,
+    "ast_hash": "d9bdd8af35a3729ffa9e5776bed3565e",
+    "semantic_hash": "d9bdd8af35a3729ffa9e5776bed3565e"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/InvestmentSchemaIT.java": {
-    "mtime": 1789164577.6298206,
-    "seen": 1789164750.084041,
-    "ast_hash": "2afc302c6431403b83a63f7f649b7db4",
-    "semantic_hash": "2afc302c6431403b83a63f7f649b7db4"
+    "mtime": 1789196230.5044382,
+    "seen": 1789196271.919645,
+    "ast_hash": "28296047f8eb6bb916a419d83a9915a4",
+    "semantic_hash": "28296047f8eb6bb916a419d83a9915a4"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/InvestmentTransactionApiIT.java": {
-    "mtime": 1789164577.6303253,
-    "seen": 1789164750.0840456,
-    "ast_hash": "248d0059ddbd5a565c94030a12b491e0",
-    "semantic_hash": "248d0059ddbd5a565c94030a12b491e0"
+    "mtime": 1789196230.505427,
+    "seen": 1789196271.9196467,
+    "ast_hash": "e06a0ece7c708ec5f0e88716ad982dae",
+    "semantic_hash": "e06a0ece7c708ec5f0e88716ad982dae"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/InvestmentV9MetadataIT.java": {
     "mtime": 1789164577.6303253,
@@ -2304,15 +2304,93 @@
     "semantic_hash": "a17040b1c5fc72eb73bd6ca55349d224"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/integration/SnapshotCompatibilityIT.java": {
-    "mtime": 1789164577.6313312,
-    "seen": 1789164750.0872104,
-    "ast_hash": "44b17592df610e9741a5127e7a03e310",
-    "semantic_hash": "44b17592df610e9741a5127e7a03e310"
+    "mtime": 1789196230.5074303,
+    "seen": 1789196271.9214568,
+    "ast_hash": "4e49199f8314b8028a0cf97b9fc92caa",
+    "semantic_hash": "4e49199f8314b8028a0cf97b9fc92caa"
   },
   "backend/src/test/java/com/carteira/carteiraInvestimento/presentation/investment/InvestmentTransactionContractTest.java": {
     "mtime": 1789164577.632838,
     "seen": 1789164750.0907314,
     "ast_hash": "77908b24ed6bd7d46ff5cbcf4c215fac",
     "semantic_hash": "77908b24ed6bd7d46ff5cbcf4c215fac"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/application/port/PortfolioValuationPort.java": {
+    "mtime": 1789196230.4860857,
+    "seen": 1789196271.851085,
+    "ast_hash": "5a49edd1702df8f7d570a2a8b4c9c610",
+    "semantic_hash": "5a49edd1702df8f7d570a2a8b4c9c610"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/PortfolioValuationApplicationService.java": {
+    "mtime": 1789196230.4880848,
+    "seen": 1789196271.8635387,
+    "ast_hash": "80814729047c73981d792d0b4bf5344f",
+    "semantic_hash": "80814729047c73981d792d0b4bf5344f"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/PortfolioValuationConflictException.java": {
+    "mtime": 1789196230.4890807,
+    "seen": 1789196271.8635402,
+    "ast_hash": "bab92b4fbe9336cc94f91b2a50646ba3",
+    "semantic_hash": "bab92b4fbe9336cc94f91b2a50646ba3"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/PortfolioValuationResult.java": {
+    "mtime": 1789196230.4890807,
+    "seen": 1789196271.8635414,
+    "ast_hash": "69636e975ca0d6e1e7eaafaa57af3c37",
+    "semantic_hash": "69636e975ca0d6e1e7eaafaa57af3c37"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/PortfolioValuationUpstreamException.java": {
+    "mtime": 1789196230.490082,
+    "seen": 1789196271.8635426,
+    "ast_hash": "7541f7e7b502cc8498c0663d4f3a1bb1",
+    "semantic_hash": "7541f7e7b502cc8498c0663d4f3a1bb1"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/application/service/PortfolioValuationUseCase.java": {
+    "mtime": 1789196230.490082,
+    "seen": 1789196271.8635435,
+    "ast_hash": "d4b92953381b5af90b1699b6fdc9e3ab",
+    "semantic_hash": "d4b92953381b5af90b1699b6fdc9e3ab"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/config/PortfolioValuationConfiguration.java": {
+    "mtime": 1789196230.4910827,
+    "seen": 1789196271.8798277,
+    "ast_hash": "8f4b0b201efff84f7958a08ac0deb305",
+    "semantic_hash": "8f4b0b201efff84f7958a08ac0deb305"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/infrastructure/persistence/PortfolioValuationPersistenceAdapter.java": {
+    "mtime": 1789196230.4952693,
+    "seen": 1789196271.885466,
+    "ast_hash": "7ad8357207dae528bba23c1daaeae989",
+    "semantic_hash": "7ad8357207dae528bba23c1daaeae989"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/presentation/valuation/PortfolioValuationController.java": {
+    "mtime": 1789196230.496269,
+    "seen": 1789196271.90231,
+    "ast_hash": "6eeb51ee76a5270ce533757b75a154f9",
+    "semantic_hash": "6eeb51ee76a5270ce533757b75a154f9"
+  },
+  "backend/src/main/java/com/carteira/carteiraInvestimento/presentation/valuation/PortfolioValuationResponse.java": {
+    "mtime": 1789196230.497269,
+    "seen": 1789196271.9023123,
+    "ast_hash": "b561b7b635a353d5847fa2382b2d7403",
+    "semantic_hash": "b561b7b635a353d5847fa2382b2d7403"
+  },
+  "backend/src/test/java/com/carteira/carteiraInvestimento/application/service/PortfolioValuationApplicationServiceTest.java": {
+    "mtime": 1789196230.4992692,
+    "seen": 1789196271.9068787,
+    "ast_hash": "5982786a7ea3620422afa40e47a3216b",
+    "semantic_hash": "5982786a7ea3620422afa40e47a3216b"
+  },
+  "backend/src/test/java/com/carteira/carteiraInvestimento/integration/PortfolioValuationIT.java": {
+    "mtime": 1789196230.505427,
+    "seen": 1789196271.9205406,
+    "ast_hash": "0ccd754a059839d293b66e3dbd1d8a57",
+    "semantic_hash": "0ccd754a059839d293b66e3dbd1d8a57"
+  },
+  "backend/src/test/java/com/carteira/carteiraInvestimento/integration/PortfolioValuationSchemaIT.java": {
+    "mtime": 1789196230.506427,
+    "seen": 1789196271.9205422,
+    "ast_hash": "971a628ece53de6d5eb867aa834665f4",
+    "semantic_hash": "971a628ece53de6d5eb867aa834665f4"
   }
 }
