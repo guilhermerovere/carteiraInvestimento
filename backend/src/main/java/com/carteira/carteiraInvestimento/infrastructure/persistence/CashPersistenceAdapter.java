@@ -46,7 +46,7 @@ public class CashPersistenceAdapter implements CashWalletPort, CashLedgerPort, C
 	public Optional<BigDecimal> credit(UUID walletId, BigDecimal amount) {
 		return jdbc.query("""
 				UPDATE carteiras
-				SET saldo_caixa_brl = saldo_caixa_brl + ?
+				SET saldo_caixa_brl = saldo_caixa_brl + ?, estado_versao = estado_versao + 1
 				WHERE id = ? AND saldo_caixa_brl <= ? - ?
 				RETURNING saldo_caixa_brl
 				""", (rs, row) -> rs.getBigDecimal(1), amount, walletId, MAX_BRL, amount).stream().findFirst();
@@ -56,7 +56,7 @@ public class CashPersistenceAdapter implements CashWalletPort, CashLedgerPort, C
 	public Optional<BigDecimal> debit(UUID walletId, BigDecimal amount) {
 		return jdbc.query("""
 				UPDATE carteiras
-				SET saldo_caixa_brl = saldo_caixa_brl - ?
+				SET saldo_caixa_brl = saldo_caixa_brl - ?, estado_versao = estado_versao + 1
 				WHERE id = ? AND saldo_caixa_brl >= ?
 				RETURNING saldo_caixa_brl
 				""", (rs, row) -> rs.getBigDecimal(1), amount, walletId, amount).stream().findFirst();

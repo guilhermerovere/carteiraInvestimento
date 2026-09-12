@@ -67,6 +67,7 @@ class CashMovementRollbackIT extends PostgreSqlContainerSupport {
 
 		assertThat(jdbc.queryForObject("SELECT saldo_caixa_brl FROM carteiras WHERE id=?", BigDecimal.class, wallet))
 				.isEqualByComparingTo("0.00");
+		assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?", Long.class, wallet)).isZero();
 		assertThat(count("movimentacoes_caixa", wallet)).isZero();
 		assertThat(count("carteira_snapshots", wallet)).isZero();
 		assertThat(count("movimentacoes_caixa_idempotencia", wallet)).isZero();
@@ -75,6 +76,7 @@ class CashMovementRollbackIT extends PostgreSqlContainerSupport {
 
 		assertThat(cash.execute(user, TipoMovimentacaoCaixa.DEPOSITO, BigDecimal.TEN, null, key,
 				UUID.randomUUID(), "/deposito").resultingBalance()).isEqualByComparingTo("10.00");
+		assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?", Long.class, wallet)).isEqualTo(1);
 	}
 
 	@Test

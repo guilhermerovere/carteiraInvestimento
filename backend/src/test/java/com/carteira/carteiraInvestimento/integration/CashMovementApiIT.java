@@ -99,6 +99,8 @@ class CashMovementApiIT extends PostgreSqlContainerSupport {
 				.andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
 		assertThat(replayWithoutScale).isEqualTo(response);
 		assertThat(replayWithOneDecimal).isEqualTo(response);
+		assertThat(jdbc.queryForObject("SELECT estado_versao FROM carteiras WHERE id=?",Long.class,user.walletId()))
+				.isEqualTo(1);
 		assertThat(response).contains("\"valorBrl\":100.00", "\"saldoResultante\":100.00");
 
 		for (String body : List.of("{\"valor\":0}", "{\"valor\":-1}", "{\"valor\":1.001}",
