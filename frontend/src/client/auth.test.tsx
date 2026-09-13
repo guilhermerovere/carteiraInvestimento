@@ -38,7 +38,7 @@ describe("estado de autenticação TanStack Query", () => {
     const queryClient = client();
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 })).mockResolvedValueOnce(new Response(JSON.stringify(user), { status: 200, headers: { "Content-Type": "application/json" } }));
     const result = renderHook(() => useLogin(), { wrapper: wrapper(queryClient) });
-    await result.result.current.mutateAsync({ email: "user@example.test", senha: "Password1!" });
+    await expect(result.result.current.mutateAsync({ email: "user@example.test", senha: "Password1!" })).resolves.toEqual(user);
     expect(fetchMock.mock.calls.map(([path]) => path)).toEqual(["/api/auth/login", "/api/auth/me"]);
     expect(queryClient.getQueryData(authMeKey)).toEqual(user);
   });

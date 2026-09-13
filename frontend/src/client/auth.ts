@@ -38,9 +38,11 @@ export function useCurrentUser() {
 export function useLogin() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: login,
+    mutationFn: async (input: LoginInput) => {
+      await login(input);
+      return confirmCurrentUser(queryClient);
+    },
     retry: false,
-    onSuccess: () => confirmCurrentUser(queryClient),
     onError: (error) => {
       if (isUnauthorized(error)) clearAuthState(queryClient);
     },
