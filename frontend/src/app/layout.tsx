@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Carteira Investimento",
-  description: "Fundação técnica da plataforma de investimentos.",
+  title: "Valore",
+  description: "Acompanhe seu patrimônio com clareza, segurança e confiança.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

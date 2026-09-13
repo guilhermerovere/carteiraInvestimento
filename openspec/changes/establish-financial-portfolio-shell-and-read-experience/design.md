@@ -62,9 +62,15 @@ Use a central query-key factory, no broad cache reset and no polling. Refresh in
 
 Every finance handler validates request shape before Spring and always emits `Cache-Control: no-store`. Pagination accepts only `page`/`size`, validates limits, and converts response counters to Number only after finite, non-negative safe-integer validation. Refresh accepts no body or query. The transport flows raw Spring text → `lossless-json` → contract validation → mapper → frontend DTO with canonical decimal strings → BFF JSON. Money/Percentage/Quantity format canonical strings with string-aware formatting; no generic string→Number→Intl path is permitted for arbitrary magnitudes. DateTime may use Date for safe temporal strings. When the established infrastructure accepts a safe incoming correlation ID, the BFF forwards it; a safe Spring response value is returned unchanged to the browser. ProblemDetail remains sanitized.
 
-### Theme scope and routing authority
+### Theme scope, Valore auth experience and routing authority
 
-`next-themes` uses class strategy and a narrow provider; `suppressHydrationWarning` is applied only to `<html>`. Tokens are global, so login/admin are tested for functional, readable Light/Dark behavior but are not visually redesigned. `/inicio` redirect happens only after the server guard confirms ROLE_USER; proxy only handles missing-cookie pre-check and safe returnTo, never authorization.
+`next-themes` uses class strategy and a narrow provider; `suppressHydrationWarning` is applied only to `<html>`. Tokens are global. Login and register use a Valore split layout at desktop (institutional hero left, form right) and a compact stacked layout on mobile. Light uses clear surfaces and restrained financial green; Dark uses charcoal hierarchy and deep purple without simple color inversion. The theme control occupies a stable top-right toolbar. Forms keep only existing capabilities and contracts; `Nome Completo` remains serialized as `nome`.
+
+The root page resolves the current user directly server-side and redirects anonymous, ROLE_USER and ROLE_ADMIN sessions to `/login`, `/carteira` and `/admin`. Login confirms `/api/auth/me` after the session cookie is set, then selects the role's natural destination unless a sanitized internal `returnTo` is allowed for that confirmed role. It never reads JWT in the browser. `/inicio` redirects only after the server guard confirms ROLE_USER; proxy only handles missing-cookie pre-check and safe returnTo, never authorization.
+
+### Sidebar refinement
+
+Desktop collapse remains explicit from 1440px down to the mobile breakpoint. Expanded state shows Valore and `Recolher menu`; collapsed state centers the V monogram, navigation icons and `Expandir menu`, with contextual tooltips only while labels are hidden. Active-state spacing is symmetric so its indicator never clips against the sidebar edge. Mobile keeps the existing compact header and bottom navigation.
 
 ### Errors, freshness and state handling
 

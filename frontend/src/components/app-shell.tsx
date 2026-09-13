@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ArrowLeftToLine, ArrowRightFromLine, BriefcaseBusiness, ChevronDown, CircleUserRound,
+  BriefcaseBusiness, ChevronDown, ChevronLeft, ChevronRight, CircleUserRound,
   Ellipsis, Landmark, LogOut, Menu, ReceiptText, WalletCards,
 } from "lucide-react";
 import Link from "next/link";
@@ -32,14 +32,15 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return exact ? pathname === href : pathname.startsWith(href);
 }
 
-function NavigationLink({ item, compact = false }: { item: (typeof navigation)[number]; compact?: boolean }) {
+function NavigationLink({ item, compact = false, tooltip = false }: { item: (typeof navigation)[number]; compact?: boolean; tooltip?: boolean }) {
   const pathname = usePathname();
   const Icon = item.icon;
   const active = isActive(pathname, item.href, "exact" in item ? item.exact : false);
   return (
     <Link className={cn("shell-nav__link", compact && "shell-nav__link--compact", active && "is-active")} href={item.href} aria-current={active ? "page" : undefined}>
       <Icon aria-hidden="true" />
-      <span>{item.label}</span>
+      <span className="shell-nav__label">{item.label}</span>
+      {tooltip && <span className="sidebar-tooltip" role="tooltip">{item.label}</span>}
     </Link>
   );
 }
@@ -61,17 +62,18 @@ export function AppShell({ user, children }: { user: CurrentUser; children: Reac
       <a className="skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
       <aside className="desktop-sidebar" aria-label="Navegação financeira">
         <div className="brand">
-          <span className="brand__mark" aria-hidden="true">JF</span>
-          <span className="brand__name">Jota Finance</span>
+          <span className="brand__mark" aria-hidden="true">V</span>
+          <span className="brand__name">Valore</span>
         </div>
         <nav className="shell-nav" aria-label="Seções da carteira">
-          {navigation.map((item) => <NavigationLink key={item.href} item={item} />)}
+          {navigation.map((item) => <NavigationLink key={item.href} item={item} tooltip={collapsed} />)}
         </nav>
         <div className="sidebar-footer">
           <Separator />
-          <Button className="sidebar-collapse" variant="ghost" size="sm" aria-expanded={!collapsed} aria-label={collapsed ? "Expandir navegação" : "Recolher navegação"} onClick={() => setCollapsed((value) => !value)}>
-            {collapsed ? <ArrowRightFromLine aria-hidden="true" /> : <ArrowLeftToLine aria-hidden="true" />}
-            <span>{collapsed ? "Expandir" : "Recolher"}</span>
+          <Button className="sidebar-collapse" variant="ghost" size="sm" aria-expanded={!collapsed} aria-label={collapsed ? "Expandir menu" : "Recolher menu"} onClick={() => setCollapsed((value) => !value)}>
+            {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}
+            {!collapsed && <span className="sidebar-collapse__label">Recolher</span>}
+            {collapsed && <span className="sidebar-tooltip" role="tooltip">Expandir menu</span>}
           </Button>
         </div>
       </aside>
@@ -95,7 +97,7 @@ export function AppShell({ user, children }: { user: CurrentUser; children: Reac
           </div>
         </header>
         <header className="mobile-header">
-          <Link href="/carteira" className="brand" aria-label="Jota Finance — Carteira"><span className="brand__mark" aria-hidden="true">JF</span></Link>
+          <Link href="/carteira" className="brand" aria-label="Valore — Carteira"><span className="brand__mark" aria-hidden="true">V</span></Link>
           <div><span>{heading.eyebrow}</span><strong>{heading.title}</strong></div>
           <details className="mobile-menu">
             <summary aria-label="Abrir preferências"><Menu aria-hidden="true" /></summary>

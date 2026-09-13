@@ -5,7 +5,7 @@ Define experiência financeira autenticada sem mutações operacionais para a ca
 ## ADDED Requirements
 
 ### Requirement: Shell autenticado, rotas e navegação financeira
-O sistema SHALL disponibilizar `/carteira`, `/carteira/posicoes`, `/carteira/transacoes` e `/carteira/movimentacoes` exclusivamente para ROLE_USER confirmado. Em desktop SHALL apresentar navegação persistente com Carteira, Posições, Transações e Movimentações; em mobile SHALL apresentar cabeçalho compacto e navegação inferior com Carteira, Posições, Transações e Mais, que permita alcançar Movimentações. O cabeçalho SHALL incluir contexto da página, tema, perfil e logout sem oferecer ação financeira inexistente. ROLE_ADMIN SHALL continuar fora da experiência de carteira.
+O sistema SHALL disponibilizar `/carteira`, `/carteira/posicoes`, `/carteira/transacoes` e `/carteira/movimentacoes` exclusivamente para ROLE_USER confirmado. Em desktop SHALL apresentar navegação persistente com branding Valore, Carteira, Posições, Transações e Movimentações; a sidebar SHALL poder ser recolhida e expandida com controle visível, nome acessível e tooltip contextual, mantendo logo, itens, item ativo e controle centralizados sem corte ou overflow. Em mobile SHALL apresentar cabeçalho compacto e navegação inferior com Carteira, Posições, Transações e Mais, que permita alcançar Movimentações. O cabeçalho SHALL incluir contexto da página, tema, perfil e logout sem oferecer ação financeira inexistente. ROLE_ADMIN SHALL continuar fora da experiência de carteira.
 
 #### Scenario: Navegação de usuário autenticado
 - **WHEN** ROLE_USER confirmado acessa qualquer rota de carteira
@@ -16,11 +16,18 @@ O sistema SHALL disponibilizar `/carteira`, `/carteira/posicoes`, `/carteira/tra
 - **THEN** recebe o fluxo existente de acesso negado e sua sessão permanece ativa
 
 ### Requirement: Tema e tokens semânticos
-O sistema SHALL suportar tema global Light, Dark e System, persistir a preferência e respeitar a preferência do sistema quando selecionado System, sem flash perceptível ou mismatch relevante de hidratação. A supressão de hydration SHALL existir somente no elemento raiz necessário. Light SHALL usar superfícies claras com acento verde financeiro sóbrio; Dark SHALL usar hierarquia intencional de quase-preto/carvão com acento roxo profundo. Tokens SHALL cobrir superfícies e semânticas; componentes financeiros MUST NOT espalhar cores raw. Resultado financeiro SHALL comunicar sinal e texto, e nunca depender somente da cor. Login e `/admin` SHALL permanecer funcionais, legíveis e não redesenhados nos três temas.
+O sistema SHALL suportar tema global Light, Dark e System, persistir a preferência e respeitar a preferência do sistema quando selecionado System, sem flash perceptível ou mismatch relevante de hidratação. A supressão de hydration SHALL existir somente no elemento raiz necessário. Light SHALL usar superfícies claras com acento verde financeiro sóbrio; Dark SHALL usar hierarquia intencional de quase-preto/carvão com acento roxo profundo. Tokens SHALL cobrir superfícies e semânticas; componentes financeiros MUST NOT espalhar cores raw. Resultado financeiro SHALL comunicar sinal e texto, e nunca depender somente da cor. Login, cadastro e `/admin` SHALL permanecer funcionais e legíveis nos três temas; login e cadastro SHALL receber composição responsiva própria da Valore, com Light claro e verde sóbrio e Dark carvão com roxo profundo.
 
 #### Scenario: Preferência de tema persistida
 - **WHEN** o usuário escolhe Dark e recarrega uma rota de carteira
 - **THEN** a rota reaparece em Dark antes da interação visual principal, preservando contraste e hierarquia próprios do tema
+
+### Requirement: Branding e autenticação visual Valore
+O produto SHALL exibir o nome Valore na metadata, login, cadastro e shell sem renomear contratos ou identificadores técnicos. Login e cadastro SHALL usar hero institucional à esquerda e formulário à direita em desktop, reduzindo o hero e priorizando o formulário em mobile. Campos SHALL possuir labels reais, autocomplete, foco visível, associação de erro e estados disabled/loading. O cadastro SHALL apresentar o rótulo `Nome Completo`, mantendo `nome` no payload existente. A autenticação MUST NOT oferecer providers sociais, recuperação de senha ou capacidades inexistentes.
+
+#### Scenario: Cadastro preserva contrato
+- **WHEN** a pessoa preenche `Nome Completo` e envia o cadastro
+- **THEN** o frontend envia o valor no campo técnico `nome` do contrato existente
 
 ### Requirement: Fronteira financeira same-origin e precisa
 O browser SHALL consumir somente `/api/finance/*` para dados financeiros. O BFF SHALL ler `auth_session` exclusivamente no servidor, chamar o backend com Bearer e nunca devolver JWT, Authorization, URL interna ou payload sensível. Todo handler SHALL validar entrada antes de chamar Spring e responder `Cache-Control: no-store`. Listagens aceitarão somente page e size, rejeitarão parâmetros desconhecidos e validarão page >= 0 e size nos limites backend; counters poderão ser Number somente após validação integer, finito, >= 0 e safe integer. Refresh SHALL rejeitar body ou query params inesperados. O BFF SHALL preservar tokens financeiros e normalizar dinheiro, quantidade, preço, taxas, FX e percentual para strings decimais antes do JSON frontend; nenhum valor financeiro SHALL ser convertido primeiro para Number. SHALL preservar X-Correlation-ID seguro no round-trip quando aceito/retornado pela infraestrutura.

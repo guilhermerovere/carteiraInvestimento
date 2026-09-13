@@ -97,3 +97,28 @@
 - [x] 16.1a Perform and document manual/structural visual QA for Light and Dark at desktop, tablet and mobile, covering overflow, hierarchy, contrast, spacing, density, navigation, table/cards and loading/empty/error states
 - [x] 16.2 Run `npx.cmd openspec validate establish-financial-portfolio-shell-and-read-experience --strict` and verify the change is strictly valid
 - [x] 16.3 Run `git diff --check` and `git status`, and verify only intended planning/implementation files are present with no commit, archive, backend change or Graphify update
+
+## 17. Final Valore branding and authentication refinement
+
+- [x] 17.1 Synchronize proposal, design, main spec and authentication delta with Valore branding, root role routing and post-login role routing without expanding into financial operations
+- [x] 17.2 Replace user-visible legacy branding and app metadata with Valore while preserving technical identifiers and contracts
+- [x] 17.3 Redesign login and register with responsive Valore institutional hero, premium form hierarchy and stable ThemeToggle placement in Light and Dark
+- [x] 17.4 Add accessible auth field labels, placeholders, autocomplete, focus/error associations and loading/disabled states, with `Nome Completo` mapped to backend field `nome`
+
+## 18. Final root and authentication routing
+
+- [x] 18.1 Replace the foundation root with server-side anonymous, ROLE_USER and ROLE_ADMIN redirects using the existing current-user resolver
+- [x] 18.2 Route confirmed login by role, preserve only safe role-compatible `returnTo`, reject malicious destinations and preserve `/inicio` plus access-denied session semantics
+
+## 19. Final sidebar refinement
+
+- [x] 19.1 Refine expanded/collapsed Valore sidebar alignment, active item spacing, visible chevrons, tooltips, focus targets and desktop/tablet responsiveness
+- [x] 19.2 Extend RTL coverage for branding, active state, keyboard collapse/expand cycle, exact aria labels and collapsed-only tooltips
+
+## 20. Final validation and QA
+
+- [x] 20.1 Extend Vitest/RTL coverage for root redirects, role-aware login, safe returnTo, Valore auth semantics and `Nome Completo` payload preservation
+- [x] 20.2 Update Playwright smoke coverage for root, USER/ADMIN login destinations, register label, sidebar cycle, theme and cross-role access denial without financial operation E2E
+- [x] 20.3 Perform and document real visual QA for login/register Light/Dark and sidebar expanded/collapsed at desktop, tablet and mobile viewports, correcting regressions found
+- [x] 20.4 Run frontend lint, typecheck, Vitest, Playwright and production build, resolving regressions within this change scope
+- [x] 20.5 Run strict OpenSpec validation, `git diff --check` and `git status`, verifying no archive, merge, commit, backend edit or Graphify update

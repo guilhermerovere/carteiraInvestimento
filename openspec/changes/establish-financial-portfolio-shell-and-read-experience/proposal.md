@@ -5,10 +5,10 @@ O frontend possui sessão segura, mas não uma experiência financeira autentica
 ## What Changes
 
 - Cria área ROLE_USER da carteira com shell, resumo, posições, transações, movimentações, responsividade, acessibilidade e testes focados.
-- Cria fundação global Light/Dark/System com tokens semânticos e `next-themes`; a experiência visual completa é aplicada à carteira, enquanto login e admin permanecem funcionais, legíveis e não redesenhados.
+- Cria fundação global Light/Dark/System com tokens semânticos e `next-themes`; aplica o branding Valore e uma experiência premium e responsiva a login, cadastro e shell, preservando o admin funcional e legível.
 - Cria BFF financeiro same-origin, estrito, `Cache-Control: no-store`, com correlação segura e normalização lossless de BigDecimal para strings decimais.
 - Usa refresh técnico explícito de valuation, sem depósito, saque, BUY, SELL, formulários, seletores, Idempotency-Key operacional, gráficos ou dashboard analítico.
-- Define `/carteira` como landing de ROLE_USER e `/inicio` como compatibilidade server-side, sem mudar a fronteira de sessão ou ROLE_ADMIN.
+- Define `/` como redirect server-side para `/login`, `/carteira` ou `/admin` conforme a sessão confirmada, usa a landing natural de cada role após login sem `returnTo`, e mantém `/inicio` como compatibilidade server-side sem mudar a fronteira de sessão.
 - Adiciona `next-themes` e `lossless-json`; não adiciona `decimal.js`, que fica para `establish-financial-operations-frontend`.
 
 ## Capabilities

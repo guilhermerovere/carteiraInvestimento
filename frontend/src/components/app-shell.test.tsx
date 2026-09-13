@@ -30,17 +30,26 @@ describe("shell financeiro autenticado", () => {
     expect(screen.getAllByRole("link", { name: "Carteira" }).every((link) => !link.hasAttribute("aria-current"))).toBe(true);
     expect(screen.getByRole("navigation", { name: "Navegação financeira móvel" })).toBeInTheDocument();
     expect(screen.getByText("Mais")).toBeInTheDocument();
+    expect(screen.getByText("Valore")).toBeInTheDocument();
+    expect(positionLinks[0]).toHaveClass("is-active");
   });
 
-  it("recolhe e expande a sidebar sem remover o foco do controle", async () => {
+  it("recolhe, expande e recolhe por teclado sem remover o foco do controle", async () => {
     render(<AppShell user={user}><span>conteúdo</span></AppShell>);
-    const button = screen.getByRole("button", { name: "Recolher navegação" });
-    await userEvent.click(button);
-    const expand = screen.getByRole("button", { name: "Expandir navegação" });
+    const interaction = userEvent.setup();
+    const button = screen.getByRole("button", { name: "Recolher menu" });
+    button.focus();
+    await interaction.keyboard("{Enter}");
+    const expand = screen.getByRole("button", { name: "Expandir menu" });
     expect(expand).toHaveFocus();
     expect(expand.closest(".app-shell")).toHaveClass("app-shell--collapsed");
-    await userEvent.click(expand);
-    expect(screen.getByRole("button", { name: "Recolher navegação" })).toHaveFocus();
+    expect(screen.getAllByRole("tooltip").map((item) => item.textContent)).toEqual(["Carteira", "Posições", "Transações", "Movimentações", "Expandir menu"]);
+    await interaction.keyboard(" ");
+    const collapseAgain = screen.getByRole("button", { name: "Recolher menu" });
+    expect(collapseAgain).toHaveFocus();
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    await interaction.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "Expandir menu" })).toHaveFocus();
   });
 
   it("usa o logout existente e não oferece operações financeiras", async () => {
