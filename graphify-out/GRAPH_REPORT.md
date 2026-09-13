@@ -4,170 +4,151 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2874 nodes · 7776 edges · 184 communities (122 shown, 52 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 576 edges (avg confidence: 0.81)
+- 3102 nodes · 8498 edges · 166 communities (106 shown, 49 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 579 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6b537e71`
+- Built from commit: `bc903f1e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- AuditoriaCommand
-- jakarta.servlet.http.HttpServletRequest
-- java.sql.Connection
-- InvestmentConcurrencyIT
-- PortfolioValuationIT.java
-- org.springframework.context.annotation.Bean
-- org.junit.jupiter.api.BeforeEach
-- Usuario
-- UsuarioJpaEntity
-- .register
-- com.carteira.carteiraInvestimento.domain.quote.Cotacao
-- AuditSecurityEventsIntegrationTest.java
-- org.springframework.security.access.prepost.PreAuthorize
-- InvestmentPersistenceAdapter
-- .execute
-- org.junit.jupiter.api.Test
-- auth.ts
-- AtivoControllerTest.java
-- com.fasterxml.jackson.annotation.JsonAnySetter
 - types.ts
-- Requirements
+- QuoteProvider
+- AuditoriaCommand
+- org.springframework.context.annotation.Bean
+- auth-form-api.ts
+- jakarta.servlet.http.HttpServletRequest
+- InvestmentConcurrencyIT
+- ObservacaoCambio
+- org.junit.jupiter.api.Test
+- Fakes
+- org.junit.jupiter.api.BeforeEach
+- AlphaVantageCambioAdapter
+- InvestmentPersistenceAdapter
+- positions-panel.tsx
+- org.springframework.stereotype.Repository
+- Usuario
+- finance-panels.test.tsx
+- transport.ts
+- org.springframework.cloud.openfeign.FeignClient
+- .edit
+- InvestmentApplicationService
+- com.carteira.carteiraInvestimento.domain.quote.Cotacao
+- CorretoraReadScope
+- AuditSecurityEventsIntegrationTest.java
 - org.springframework.web.bind.annotation.GetMapping
-- Ativo
-- TransactionView
+- PortfolioValuationIT
+- CorretoraJpaEntity
+- Cotacao
+- org.springframework.transaction.annotation.Transactional
+- com.fasterxml.jackson.annotation.JsonAnySetter
+- Requirements
+- .criar
+- Posicao
+- PortfolioValuationPort
+- org.springframework.security.oauth2.jwt.Jwt
 - ADDED Requirements
 - Requirement: Cadastro publico transacional
+- org.springframework.security.oauth2.jwt.JwtEncoder
 - ADDED Requirements
 - compilerOptions
-- CorretoraReadScope
-- org.springframework.boot.test.context.SpringBootTest
-- JwtConfiguration
+- Ativo
 - org.springframework.web.bind.annotation.RestController
-- BrokerCatalogPersistenceIT
-- CambioApplicationService
-- Cotacao
-- PortfolioValuationPort
-- PortfolioValuationIT
-- CambioProvider
-- components.json
-- .get
-- com.carteira.carteiraInvestimento.application.port.AuditoriaPort
-- .execute
-- TipoTransacao
-- CambioProviderAdaptersTest
-- Fixture
-- AuditSecurityEventsIntegrationTest
-- .execute
+- AtivoPort
+- InvestmentPersistencePort
+- CashMovementRollbackIT.java
 - Corretora
-- AlphaVantageQuoteAdapter.java
-- org.springframework.security.oauth2.jwt.Jwt
-- login-form.tsx
-- Posicao
-- MarketQuoteUseCase
 - TipoAtivo
-- AtivoJpaEntity
-- InvestmentApplicationService.java
-- Role
-- package.json
-- login/route.ts
-- MovimentacaoCaixa
-- SecurityProblemDetailHandler
+- PostgreSqlContainerSupport
 - dependencies
-- devDependencies
-- Requirement: Eventos minimos de seguranca
-- CorretoraPersistenceAdapter
+- Fixture
+- MovimentacaoCaixa
 - PortfolioValuationApplicationServiceTest
+- UsuarioJpaEntity
+- AtivoController
+- java.sql.Connection
+- portfolio-queries.ts
+- TipoTransacao
+- devDependencies
+- IdentityApplicationConfiguration.java
+- AuditSecurityEventsIntegrationTest
+- BrokerApplicationService
 - com.carteira.carteiraInvestimento.domain.asset.Moeda
+- AtivoUseCase
+- HistoricoCotacaoJpaEntity
+- .get
+- package.json
+- Requirement: Eventos minimos de seguranca
+- CashMovementApplicationService
 - jakarta.persistence.Entity
 - CashPersistenceAdapter
 - CashMovementApiIT
-- cookie.ts
+- CashMovementRollbackIT
 - ADDED Requirements
-- AtivoUseCase
-- .criar
-- com.carteira.carteiraInvestimento.domain.quote.QuoteProvider
-- CorretoraJpaEntity
+- AtivoPersistenceAdapter
+- SecurityProblemDetailHandler
+- org.springframework.security.access.prepost.PreAuthorize
 - AssetCatalogPersistenceIT
+- CashMovementSchemaIT
+- PostgreSqlContainerSupport
+- components.json
+- mappers.ts
 - Decisions
-- CashIdempotencyPort
-- org.springframework.transaction.annotation.Transactional
-- CambioAuditIT.java
-- CanonicalFingerprint
-- AtivoController
+- .execute
 - InvestmentTransactionApiIT
-- ObservacaoCambio
-- org.springframework.stereotype.Repository
-- BrapiQuoteAdapter.java
-- PersistedUserJwtAuthenticationConverterTest
-- FakeQuotes
-- .consultar
-- CvmPort
-- CambioSchemaIT
-- Mercado.java
-- RegistrationTransactionIntegrationTest
-- MarketQuoteApplicationServiceTest
-- CotacaoExterna
-- MarketQuoteController
-- org.springframework.jdbc.core.JdbcTemplate
-- ApplicationFoundationIT
+- .login
+- .execute
+- CashIdempotencyPort
+- .novo
+- CambioUseCase
+- InvestmentLifecycleConcurrencyIT
+- MarketQuoteSecurityIT
+- finance-core.test.ts
 - Requirement: Documentacao HTTP e erros padronizados
-- BrokerProviderAdaptersIT
-- org.springframework.cloud.openfeign.FeignClient
-- .fingerprint
-- org.springframework.boot.context.properties.ConfigurationProperties
-- HistoricoCotacaoPersistenceAdapter
-- TwelveDataCambioAdapter
-- TwelveDataQuoteAdapter
-- guard.ts
+- CashMovementConfiguration.java
+- InvestmentApplicationService.java
+- Mercado.java
+- IdentitySchemaIntegrationTest
+- PortfolioValuationSchemaIT
 - mvnw
-- ViaCepPort
-- BrokerControllerTest
-- CambioConfiguration.java
-- AlphaVantageCambioAdapter
-- UpdateBrokerRequest
-- auth-pages.test.tsx
+- CanonicalFingerprint
 - tasks.md
 - CnpjCanonicalizer
-- .properties
+- CambioConfiguration
 - CambioAuditIT
 - MarketQuotePersistenceIT
 - scripts
 - BrokerProviderAdaptersIT.java
-- IdentitySchemaIntegrationTest
+- FakeQuotes
 - Project Foundation Proposal
-- ObservacaoCambioTest
+- BcryptPasswordHasher
+- CambioSchemaIT
 - proposal.md
 - OpenSpec Apply Change Workflow
-- AtivoApplicationService.java
 - usuarios
-- Fakes
-- .validate
-- CorrelationIdFilterTest
-- app/layout.tsx
+- RegistrationConcurrencyIntegrationTest
+- mock-backend.mjs
+- AppShell
 - Q: Localizar impactos existentes para estabelecer identidade e controle de acesso
 - Spec-Driven Development Policy
-- NomeAtivoCanonicalizer
-- PropertiesConfiguration
+- CotacaoDomainTest
 - frontend/package.json
 - BrokerAuditException
 - CashConflictException
 - PrimaryWalletMissingException
-- app/page.tsx
 - BrokerNotFoundException.java
 - JWT Application Configuration
 - incompatible/V1__foundation_probe.sql
 - initial/V1__foundation_probe.sql
-- eslint-config-next
 - next.config.ts
 - next-env.d.ts
+- jsdom
 - tailwindcss
-- @testing-library/jest-dom
 - @testing-library/user-event
-- @types/react
-- @types/react-dom
+- typescript
+- vitest
 - postcss.config.mjs
 - Identity and Access Design
 - Access-Denied Auditing Design
@@ -194,8 +175,8 @@
 2. `Corretora` - 50 edges
 3. `PortfolioValuationIT` - 42 edges
 4. `ObservacaoCambio` - 41 edges
-5. `InvestmentPersistencePort` - 38 edges
-6. `Ativo` - 38 edges
+5. `Ativo` - 38 edges
+6. `InvestmentPersistencePort` - 38 edges
 7. `AuditoriaCommand` - 36 edges
 8. `GlobalExceptionHandler` - 36 edges
 9. `AuditSecurityEventsIntegrationTest` - 34 edges
@@ -206,12 +187,12 @@
   AGENTS.md → openspec/config.yaml
 - `JWT Application Configuration` --implements--> `Bearer Authentication Specification`  [INFERRED]
   backend/src/main/resources/application.yml → openspec/specs/bearer-authentication-and-authorization/spec.md
-- `Containerized Local Environment Delta Specification` --semantically_similar_to--> `Containerized Local Environment Specification`  [INFERRED] [semantically similar]
-  openspec/changes/archive/2026-08-31-establish-project-foundation/specs/containerized-local-environment/spec.md → openspec/specs/containerized-local-environment/spec.md
-- `Frontend Foundation Delta Specification` --semantically_similar_to--> `Frontend Foundation Specification`  [INFERRED] [semantically similar]
-  openspec/changes/archive/2026-08-31-establish-project-foundation/specs/frontend-foundation/spec.md → openspec/specs/frontend-foundation/spec.md
-- `Fakes` --references--> `AuditoriaCommand`  [EXTRACTED]
-  backend/src/test/java/com/carteira/carteiraInvestimento/application/service/IdentityApplicationServiceTest.java → backend/src/main/java/com/carteira/carteiraInvestimento/application/service/AuditoriaCommand.java
+- `GET()` --indirect_call--> `mapCashMovement()`  [INFERRED]
+  frontend/src/app/api/finance/cash/movements/route.ts → frontend/src/server/finance/mappers.ts
+- `GET()` --indirect_call--> `mapPosition()`  [INFERRED]
+  frontend/src/app/api/finance/positions/route.ts → frontend/src/server/finance/mappers.ts
+- `GET()` --indirect_call--> `mapTransaction()`  [INFERRED]
+  frontend/src/app/api/finance/transactions/route.ts → frontend/src/server/finance/mappers.ts
 
 ## Import Cycles
 - None detected.
@@ -221,515 +202,451 @@
 - **Project Foundation Planning Artifacts** — openspec_changes_archive_2026_08_31_establish_project_foundation_proposal_project_foundation_proposal, openspec_changes_archive_2026_08_31_establish_project_foundation_design_project_foundation_design, openspec_changes_archive_2026_08_31_establish_project_foundation_specs_backend_foundation_spec_backend_foundation_delta, openspec_changes_archive_2026_08_31_establish_project_foundation_specs_containerized_local_environment_spec_containerized_environment_delta, openspec_changes_archive_2026_08_31_establish_project_foundation_specs_frontend_foundation_spec_frontend_foundation_delta, openspec_changes_archive_2026_08_31_establish_project_foundation_tasks_project_foundation_tasks [EXTRACTED 1.00]
 - **Integrated Runtime Readiness** — openspec_changes_archive_2026_08_31_establish_project_foundation_design_healthcheck_readiness_chain, openspec_specs_containerized_local_environment_spec_containerized_local_environment [INFERRED 0.95]
 
-## Communities (184 total, 52 thin omitted)
+## Communities (166 total, 49 thin omitted)
 
-### Community 0 - "AuditoriaCommand"
+### Community 0 - "types.ts"
+Cohesion: 0.05
+Nodes (61): POST(), { loginMock, originMock }, POST(), fetchMock, GET(), { resolveMock }, POST(), { registerMock, originMock } (+53 more)
+
+### Community 1 - "QuoteProvider"
 Cohesion: 0.06
-Nodes (40): AuditoriaCommand, ResultadoAuditoria, FALHA, NEGADO, SUCESSO, SeveridadeAuditoria, ALERTA, AVISO (+32 more)
+Nodes (33): CotacaoProviderPort, QuoteIntegrationException, QuoteNotFoundException, CotacaoExterna, QuoteProvider, ALPHA_VANTAGE, BRAPI, TWELVE_DATA (+25 more)
 
-### Community 1 - "jakarta.servlet.http.HttpServletRequest"
-Cohesion: 0.09
-Nodes (32): PortfolioValuationConflictException, PortfolioValuationUpstreamException, GlobalExceptionHandler, com.carteira.carteiraInvestimento.application.service.AtivoNotFoundException, com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException, com.carteira.carteiraInvestimento.application.service.BrokerAuditException, com.carteira.carteiraInvestimento.application.service.BrokerComplianceException, com.carteira.carteiraInvestimento.application.service.BrokerNotFoundException (+24 more)
+### Community 2 - "AuditoriaCommand"
+Cohesion: 0.05
+Nodes (42): AuditoriaCommand, ResultadoAuditoria, FALHA, NEGADO, SUCESSO, SeveridadeAuditoria, ALERTA, AVISO (+34 more)
 
-### Community 2 - "java.sql.Connection"
-Cohesion: 0.08
-Nodes (10): CashMovementSchemaIT, Fixture, InvestmentSchemaIT, Column, InvestmentV9MetadataIT, PortfolioValuationSchemaIT, Entry, java.sql.Connection (+2 more)
+### Community 3 - "org.springframework.context.annotation.Bean"
+Cohesion: 0.07
+Nodes (39): FoundationSecurityConfiguration, OpenApiConfiguration, PortfolioValuationConfiguration, Override, PersistedUserJwtAuthenticationConverter, FoundationSecurityConfigurationTest, SecurityTestConfiguration, OpenApiConfigurationTest (+31 more)
 
-### Community 3 - "InvestmentConcurrencyIT"
+### Community 4 - "auth-form-api.ts"
+Cohesion: 0.06
+Nodes (43): AccessDeniedPage(), fetchMock, { replaceMock, searchMock }, { redirect }, metadata, LoginForm(), messageFor(), LoginPage() (+35 more)
+
+### Community 5 - "jakarta.servlet.http.HttpServletRequest"
+Cohesion: 0.10
+Nodes (30): PortfolioValuationConflictException, PortfolioValuationUpstreamException, GlobalExceptionHandler, com.carteira.carteiraInvestimento.application.service.AtivoNotFoundException, com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException, com.carteira.carteiraInvestimento.application.service.BrokerAuditException, com.carteira.carteiraInvestimento.application.service.BrokerComplianceException, com.carteira.carteiraInvestimento.application.service.BrokerNotFoundException (+22 more)
+
+### Community 6 - "InvestmentConcurrencyIT"
 Cohesion: 0.09
 Nodes (18): CashMovementConcurrencyIT, Fixture, FunctionalInterface, Outcomes, ThrowingSupplier, Action, CashInvestmentRace, DEPOSIT_BUY (+10 more)
 
-### Community 4 - "PortfolioValuationIT.java"
+### Community 7 - "ObservacaoCambio"
+Cohesion: 0.09
+Nodes (17): CambioProviderPort, HistoricoCambioPort, CambioApplicationService, Override, CambioExterno, CambioProvider, ALPHA_VANTAGE, TWELVE_DATA (+9 more)
+
+### Community 8 - "org.junit.jupiter.api.Test"
+Cohesion: 0.06
+Nodes (13): Cotacao, MarketQuoteApplicationServiceTest, ObservacaoCambioTest, MarketQuoteConfigurationTest, PasswordSecurityConfigurationTest, SecurityConfigurationPropertiesTest, AuditoriaPersistenceAdapterTest, CorrelationIdFilterTest (+5 more)
+
+### Community 9 - "Fakes"
+Cohesion: 0.06
+Nodes (11): CarteiraPort, DuplicateEmailException, Carteira, IdentityPersistenceAdapter, Override, Fakes, IdentityApplicationServiceTest, IdentityDomainTest (+3 more)
+
+### Community 10 - "org.junit.jupiter.api.BeforeEach"
+Cohesion: 0.11
+Nodes (23): AssetCatalogSecurityIT, CambioSecurityIT, InitialAdminBootstrapIntegrationTest, CambioSecurityIT.FixedCambio, com.carteira.carteiraInvestimento.application.port.UsuarioPort, com.carteira.carteiraInvestimento.application.service.AtivoUseCase, com.carteira.carteiraInvestimento.application.service.CashMovementUseCase, com.carteira.carteiraInvestimento.domain.asset.TipoAtivo (+15 more)
+
+### Community 11 - "AlphaVantageCambioAdapter"
+Cohesion: 0.09
+Nodes (16): CambioProviderException, AlphaCambioRate, AlphaCambioResponse, AlphaVantageCambioAdapter, AlphaVantageCambioClient, Override, Override, TwelveCambioResponse (+8 more)
+
+### Community 12 - "InvestmentPersistenceAdapter"
 Cohesion: 0.08
-Nodes (30): CashMovementRollbackIT, FailureStage, AUDIT, MOVEMENT, RESULT, SNAPSHOT, TransactionTemplate, Fixture (+22 more)
+Nodes (22): InvestmentPersistenceAdapter, Override, Reservation, Wallet, KnownValuation, LocalSnapshotComposer, Totals, com.carteira.carteiraInvestimento.application.port.InvestmentPersistencePort (+14 more)
 
-### Community 5 - "org.springframework.context.annotation.Bean"
-Cohesion: 0.10
-Nodes (30): FoundationSecurityConfiguration, JwtProperties, Override, PersistedUserJwtAuthenticationConverter, FoundationSecurityConfigurationTest, SecurityTestConfiguration, SecurityTestConfiguration, AccessDeniedProbeConfiguration (+22 more)
+### Community 13 - "positions-panel.tsx"
+Cohesion: 0.11
+Nodes (31): isActive(), navigation, NavigationLink(), titles, MarketFreshness(), FinancialPageIntro(), Pagination(), EmptyState() (+23 more)
 
-### Community 6 - "org.junit.jupiter.api.BeforeEach"
-Cohesion: 0.10
-Nodes (16): AssetCatalogSecurityIT, CambioSecurityIT, MarketQuoteSecurityIT, CambioSecurityIT.FixedCambio, com.carteira.carteiraInvestimento.application.port.UsuarioPort, com.carteira.carteiraInvestimento.application.service.AtivoUseCase, com.carteira.carteiraInvestimento.domain.asset.Mercado, com.carteira.carteiraInvestimento.domain.asset.TipoAtivo (+8 more)
+### Community 14 - "org.springframework.stereotype.Repository"
+Cohesion: 0.06
+Nodes (20): CarteiraInvestimentoApplication, AuditoriaPersistenceAdapter, Override, CarteiraJpaEntity, Entity, Table, CarteiraJpaRepository, HistoricoCambioJpaRepository (+12 more)
 
-### Community 7 - "Usuario"
-Cohesion: 0.08
-Nodes (9): UsuarioPort, CurrentPrincipalService, Usuario, Fakes, IdentityApplicationServiceTest, Override, TestUsuarios, Override (+1 more)
-
-### Community 8 - "UsuarioJpaEntity"
+### Community 15 - "Usuario"
 Cohesion: 0.07
-Nodes (16): AtivoJpaRepository, CarteiraJpaEntity, Entity, Table, CarteiraJpaRepository, LogAuditoriaJpaRepository, Override, RepositoryUserDetailsService (+8 more)
+Nodes (15): CurrentPrincipalService, Role, ROLE_ADMIN, ROLE_USER, Usuario, CurrentUserResponse, RegisteredUserResponse, Override (+7 more)
 
-### Community 9 - ".register"
-Cohesion: 0.08
-Nodes (11): CarteiraPort, DuplicateEmailException, RegistrationService, Carteira, IdentityPersistenceAdapter, Override, DuplicateEmailPersistenceIntegrationTest, DataSource (+3 more)
+### Community 16 - "finance-panels.test.tsx"
+Cohesion: 0.09
+Nodes (35): financeApi, FinanceApiError, request(), safeProblem(), fetchMock, hooks, QueryState, RefreshState (+27 more)
 
-### Community 10 - "com.carteira.carteiraInvestimento.domain.quote.Cotacao"
+### Community 17 - "transport.ts"
+Cohesion: 0.20
+Nodes (26): GET(), GET(), { backendRequest }, POST(), GET(), GET(), GET(), GET() (+18 more)
+
+### Community 18 - "org.springframework.cloud.openfeign.FeignClient"
+Cohesion: 0.09
+Nodes (20): CvmPort, ReceitaFederalPort, ViaCepPort, BrokerUpstreamException, BrasilApiCnpjAdapter, BrasilApiCnpjClient, CnpjProviderResponse, Override (+12 more)
+
+### Community 19 - ".edit"
 Cohesion: 0.13
+Nodes (17): BrokerAdminResponse, BrokerController, GetMapping, BrokerErrors, BrokerSelectionResponse, UpdateBrokerRequest, com.fasterxml.jackson.annotation.JsonSetter, io.swagger.v3.oas.annotations.responses.ApiResponse (+9 more)
+
+### Community 20 - "InvestmentApplicationService"
+Cohesion: 0.12
+Nodes (11): Page, PositionView, TransactionView, InvestmentApplicationService, Override, InvestmentOperationResult, InvestmentUseCase, InvestmentConfiguration (+3 more)
+
+### Community 21 - "com.carteira.carteiraInvestimento.domain.quote.Cotacao"
+Cohesion: 0.14
 Nodes (18): Override, MarketQuoteApplicationService, FakeAssets, FakeHistory, Fixture, CotacaoExterna, HistoricoCotacaoPage, Override (+10 more)
 
-### Community 11 - "AuditSecurityEventsIntegrationTest.java"
-Cohesion: 0.09
-Nodes (13): AccessTokenIssuer, IssuedAccessToken, AuditoriaIsoladaPort, AuditoriaPort, PasswordHasher, AuthenticationFailedException, InitialAdminBootstrapService, LoginService (+5 more)
+### Community 22 - "CorretoraReadScope"
+Cohesion: 0.08
+Nodes (13): CorretoraPage, CorretoraReadScope, ACTIVE_ONLY, ALL, BrokerUseCase, DuplicateBrokerException, BrokerListResponse, Test (+5 more)
 
-### Community 12 - "org.springframework.security.access.prepost.PreAuthorize"
-Cohesion: 0.14
-Nodes (17): BrokerUseCase, BrokerAdminResponse, BrokerController, GetMapping, BrokerErrors, BrokerListResponse, BrokerSelectionResponse, Test (+9 more)
+### Community 23 - "AuditSecurityEventsIntegrationTest.java"
+Cohesion: 0.13
+Nodes (12): AccessTokenIssuer, AuditoriaIsoladaPort, AuditoriaPort, PasswordHasher, UsuarioPort, InitialAdminBootstrapService, LoginService, RegistrationService (+4 more)
 
-### Community 13 - "InvestmentPersistenceAdapter"
+### Community 24 - "org.springframework.web.bind.annotation.GetMapping"
+Cohesion: 0.08
+Nodes (9): Authentication, InvestmentConflictException, InvestmentNotFoundException, SecurityProbeController, ProtectedProbeController, CorrelationProbeController, AccessDeniedProbeController, FailureProbeController (+1 more)
+
+### Community 25 - "PortfolioValuationIT"
+Cohesion: 0.16
+Nodes (6): PortfolioValuationUseCase, Fixture, Cotacao, InvestmentTransactionCommand, PortfolioValuationIT, PortfolioValuationIT.Fakes
+
+### Community 26 - "CorretoraJpaEntity"
 Cohesion: 0.12
-Nodes (15): InvestmentPersistenceAdapter, Override, Reservation, Wallet, com.carteira.carteiraInvestimento.domain.investment.Posicao, com.carteira.carteiraInvestimento.domain.investment.Transacao, ExistingReservation, LocalExchangeRate (+7 more)
+Nodes (4): CorretoraJpaEntity, CorretoraJpaRepository, CorretoraPersistenceAdapter, Override
 
-### Community 14 - ".execute"
-Cohesion: 0.20
-Nodes (9): ExistingReservation, InvestmentPersistencePort, LocalExchangeRate, NewReservation, ProtectedAsset, ProtectedBroker, Reservation, Wallet (+1 more)
+### Community 27 - "Cotacao"
+Cohesion: 0.11
+Nodes (10): HistoricoCotacaoPage, HistoricoCotacaoPort, InactiveAssetRefreshException, MarketQuoteUseCase, Cotacao, MarketQuoteConfiguration, MarketQuoteControllerTest, com.carteira.carteiraInvestimento.application.port.HistoricoCotacaoPage (+2 more)
 
-### Community 15 - "org.junit.jupiter.api.Test"
-Cohesion: 0.09
-Nodes (10): MarketQuoteConfigurationTest, PasswordSecurityConfigurationTest, SecurityConfigurationPropertiesTest, AuditoriaPersistenceAdapterTest, FlywayValidationIT, MissingDatabaseConfigurationTest, InvestmentTransactionContractTest, CashMovementContractTest (+2 more)
+### Community 28 - "org.springframework.transaction.annotation.Transactional"
+Cohesion: 0.15
+Nodes (6): Override, BrokerPatch, BrokerCatalogPersistenceIT, BeforeEach, Test, org.springframework.transaction.annotation.Transactional
 
-### Community 16 - "auth.ts"
-Cohesion: 0.14
-Nodes (24): messageFor(), RegisterForm(), authMeKey, clearAuthState(), confirmCurrentUser(), asProblem(), AuthFormError, AuthProblem (+16 more)
-
-### Community 17 - "AtivoControllerTest.java"
-Cohesion: 0.14
-Nodes (12): AtivoPage, AtivoQuery, AtivoReadScope, ACTIVE_ONLY, ALL, INACTIVE_ONLY, AtivoSort, NOME (+4 more)
-
-### Community 18 - "com.fasterxml.jackson.annotation.JsonAnySetter"
-Cohesion: 0.09
+### Community 29 - "com.fasterxml.jackson.annotation.JsonAnySetter"
+Cohesion: 0.10
 Nodes (7): UpdateAtivoLifecycleRequest, UpdateAtivoNameRequest, CreateBrokerRequest, UpdateBrokerLifecycleRequest, CashMovementRequest, com.fasterxml.jackson.annotation.JsonAnySetter, com.fasterxml.jackson.annotation.JsonCreator
 
-### Community 19 - "types.ts"
-Cohesion: 0.15
-Nodes (19): { loginMock, originMock }, { resolveMock }, CurrentUser, LoginInput, RegisterInput, Role, request(), fetchMock (+11 more)
-
-### Community 20 - "Requirements"
+### Community 30 - "Requirements"
 Cohesion: 0.06
 Nodes (30): Bearer Authentication And Authorization Specification, Purpose, Requirement: Access token JWT verificavel, Requirement: Autenticacao stateless limitada ao access token, Requirement: Estado atual validado em toda requisicao protegida, Requirement: Fronteira de rotas publicas e privadas, Requirement: Login por credenciais, Requirement: Semantica uniforme de erros de seguranca (+22 more)
 
-### Community 21 - "org.springframework.web.bind.annotation.GetMapping"
-Cohesion: 0.09
-Nodes (9): Authentication, InvestmentConflictException, InvestmentNotFoundException, SecurityProbeController, AdminProbeController, ProtectedProbeController, AccessDeniedProbeController, FailureProbeController (+1 more)
+### Community 31 - ".criar"
+Cohesion: 0.19
+Nodes (10): AfterAll, CadastroCnpj, EnderecoPostal, RegistroCvm, BrokerApplicationServiceTest, AuditoriaIsoladaPort, Test, BrokerProviderAdaptersIT (+2 more)
 
-### Community 22 - "Ativo"
+### Community 32 - "Posicao"
+Cohesion: 0.13
+Nodes (4): InvestmentNumbers, Posicao, Sale, InvestmentDomainTest
+
+### Community 33 - "PortfolioValuationPort"
+Cohesion: 0.13
+Nodes (13): LocalState, MaterializedTotals, PortfolioValuationPort, CambioUseCase, PortfolioValuationApplicationService, Override, PortfolioValuationPersistenceAdapter, WalletRow (+5 more)
+
+### Community 34 - "org.springframework.security.oauth2.jwt.Jwt"
 Cohesion: 0.17
-Nodes (6): AtivoPort, AtivoApplicationService, Override, Ativo, AtivoApplicationServiceTest, AtivoDomainTest
+Nodes (8): CashMovementUseCase, InvestmentController, PortfolioValuationController, CashBalanceResponse, CashMovementController, CashMovementResponse, io.swagger.v3.oas.annotations.Operation, org.springframework.security.oauth2.jwt.Jwt
 
-### Community 23 - "TransactionView"
-Cohesion: 0.14
-Nodes (11): Page, PositionView, TransactionView, InvestmentOperationResult, InvestmentUseCase, InvestmentOperationResponse, PositionPageResponse, PositionResponse (+3 more)
-
-### Community 24 - "ADDED Requirements"
+### Community 35 - "ADDED Requirements"
 Cohesion: 0.07
 Nodes (29): ADDED Requirements, Purpose, Requirement: Access token JWT verificavel, Requirement: Autenticacao stateless limitada ao access token, Requirement: Estado atual validado em toda requisicao protegida, Requirement: Fronteira de rotas publicas e privadas, Requirement: Login por credenciais, Requirement: Semantica uniforme de erros de seguranca (+21 more)
 
-### Community 25 - "Requirement: Cadastro publico transacional"
+### Community 36 - "Requirement: Cadastro publico transacional"
 Cohesion: 0.07
 Nodes (29): Purpose, Requirement: Cadastro publico transacional, Requirement: Carteira principal minima por usuario comum, Requirement: E-mail canonico e unico, Requirement: Provisionamento do administrador inicial, Requirement: Role unica e restrita, Requirement: Usuario persistido e protegido, Requirements (+21 more)
 
-### Community 26 - "ADDED Requirements"
+### Community 37 - "org.springframework.security.oauth2.jwt.JwtEncoder"
+Cohesion: 0.16
+Nodes (11): JwtConfiguration, JwtProperties, Override, JwtAccessTokenIssuer, JwtAccessTokenIssuerTest, javax.crypto.spec.SecretKeySpec, org.springframework.security.oauth2.core.OAuth2TokenValidator, org.springframework.security.oauth2.core.OAuth2TokenValidatorResult (+3 more)
+
+### Community 38 - "ADDED Requirements"
 Cohesion: 0.07
 Nodes (28): ADDED Requirements, Purpose, Requirement: Cadastro publico transacional, Requirement: Carteira principal minima por usuario comum, Requirement: E-mail canonico e unico, Requirement: Provisionamento do administrador inicial, Requirement: Role unica e restrita, Requirement: Usuario persistido e protegido (+20 more)
 
-### Community 27 - "compilerOptions"
+### Community 39 - "compilerOptions"
 Cohesion: 0.07
 Nodes (27): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+19 more)
 
-### Community 28 - "CorretoraReadScope"
-Cohesion: 0.11
-Nodes (8): CorretoraPage, CorretoraPort, CorretoraReadScope, ACTIVE_ONLY, ALL, Override, DataIntegrityViolationException, org.springframework.stereotype.Service
+### Community 40 - "Ativo"
+Cohesion: 0.17
+Nodes (13): AtivoPage, AtivoQuery, AtivoReadScope, ACTIVE_ONLY, ALL, INACTIVE_ONLY, AtivoSort, NOME (+5 more)
 
-### Community 29 - "org.springframework.boot.test.context.SpringBootTest"
-Cohesion: 0.15
-Nodes (12): AuditPersistenceIntegrationTest, DataSource, BrokerTransactionBoundaryIT, BeforeEach, InitialAdminBootstrapIntegrationTest, PostgreSqlContainerSupport, RegistrationConcurrencyIntegrationTest, BrokerTransactionBoundaryIT.Fakes (+4 more)
-
-### Community 30 - "JwtConfiguration"
-Cohesion: 0.13
-Nodes (9): JwtConfiguration, Override, JwtAccessTokenIssuer, JwtAccessTokenIssuerTest, javax.crypto.spec.SecretKeySpec, org.springframework.security.oauth2.core.OAuth2TokenValidator, org.springframework.security.oauth2.core.OAuth2TokenValidatorResult, org.springframework.security.oauth2.jwt.JwtDecoder (+1 more)
-
-### Community 31 - "org.springframework.web.bind.annotation.RestController"
-Cohesion: 0.18
-Nodes (12): CurrentPrincipalController, LoginController, LoginRequest, RegisterRequest, RegistrationController, CambioController, CorrelationProbeController, io.swagger.v3.oas.annotations.security.SecurityRequirement (+4 more)
-
-### Community 32 - "BrokerCatalogPersistenceIT"
+### Community 41 - "org.springframework.web.bind.annotation.RestController"
 Cohesion: 0.20
-Nodes (4): BrokerLocalTransactionService, BrokerCatalogPersistenceIT, BeforeEach, Test
+Nodes (11): CurrentPrincipalController, LoginController, LoginRequest, RegisterRequest, RegistrationController, CambioController, io.swagger.v3.oas.annotations.security.SecurityRequirement, org.springframework.http.ResponseEntity (+3 more)
 
-### Community 33 - "CambioApplicationService"
+### Community 42 - "AtivoPort"
 Cohesion: 0.18
-Nodes (6): CambioProviderPort, HistoricoCambioPort, CambioApplicationService, Override, CambioExterno, com.carteira.carteiraInvestimento.application.port.AuditoriaIsoladaPort
+Nodes (5): AtivoPort, AtivoApplicationService, Override, TickerCanonicalizer, AtivoApplicationServiceTest
 
-### Community 34 - "Cotacao"
-Cohesion: 0.13
-Nodes (6): HistoricoCotacaoPage, HistoricoCotacaoPort, InactiveAssetRefreshException, Cotacao, MarketQuoteControllerTest, com.carteira.carteiraInvestimento.presentation.error.ProblemDetailFactory
-
-### Community 35 - "PortfolioValuationPort"
-Cohesion: 0.15
-Nodes (10): LocalState, MaterializedTotals, OpenPosition, PortfolioValuationPort, Override, PortfolioValuationPersistenceAdapter, WalletRow, FakePort (+2 more)
-
-### Community 36 - "PortfolioValuationIT"
+### Community 43 - "InvestmentPersistencePort"
 Cohesion: 0.24
-Nodes (4): Fixture, Cotacao, PortfolioValuationIT, PortfolioValuationIT.Fakes
+Nodes (10): ExistingReservation, InvestmentPersistencePort, LocalExchangeRate, NewReservation, ProtectedAsset, ProtectedBroker, Reservation, Wallet (+2 more)
 
-### Community 37 - "CambioProvider"
-Cohesion: 0.13
-Nodes (10): CambioProvider, ALPHA_VANTAGE, TWELVE_DATA, MoedaCambio, BRL, USD, HistoricoCambioJpaEntity, CambioResponse (+2 more)
-
-### Community 38 - "components.json"
-Cohesion: 0.09
-Nodes (20): OpenApiConfiguration, OpenApiConfigurationTest, aliases, components, hooks, lib, ui, utils (+12 more)
-
-### Community 39 - ".get"
-Cohesion: 0.15
-Nodes (7): BrokerCatalogSecurityIT, BeforeEach, Test, GlobalExceptionHandlerTest, JwtEncoder, Role, Usuario
-
-### Community 40 - "com.carteira.carteiraInvestimento.application.port.AuditoriaPort"
+### Community 44 - "CashMovementRollbackIT.java"
 Cohesion: 0.14
-Nodes (15): AdminProperties, IdentityApplicationConfiguration, com.carteira.carteiraInvestimento.application.port.AccessTokenIssuer, com.carteira.carteiraInvestimento.application.port.AuditoriaPort, com.carteira.carteiraInvestimento.application.port.CarteiraPort, com.carteira.carteiraInvestimento.application.port.PasswordHasher, com.carteira.carteiraInvestimento.application.service.CurrentPrincipalService, com.carteira.carteiraInvestimento.application.service.InitialAdminBootstrapService (+7 more)
+Nodes (16): Fixture, InvestmentRollbackIT, InvestmentTransactionCommand, Stage, AUDIT, COMPLETE, POSITION, SNAPSHOT (+8 more)
 
-### Community 41 - ".execute"
-Cohesion: 0.15
-Nodes (7): CashMovementPage, CashMovementUseCase, CashBalanceResponse, CashMovementController, CashMovementHistoryResponse, CashMovementResponse, Movement
+### Community 45 - "Corretora"
+Cohesion: 0.14
+Nodes (3): Corretora, BrokerDomainTest, BeforeEach
 
-### Community 42 - "TipoTransacao"
-Cohesion: 0.18
-Nodes (9): InvestmentTransactionCommand, TipoTransacao, BUY, SELL, InvestmentTransactionRequest, Fixture, Fixture, HeldOperation (+1 more)
+### Community 46 - "TipoAtivo"
+Cohesion: 0.16
+Nodes (11): Mercado, B3, US, Moeda, BRL, USD, TipoAtivo, ACAO (+3 more)
 
-### Community 43 - "CambioProviderAdaptersTest"
-Cohesion: 0.21
-Nodes (8): AlphaCambioRate, AlphaCambioResponse, TwelveCambioResponse, CambioProviderAdaptersTest, MarketQuoteProperties, MockWebServer, okhttp3.mockwebserver.MockResponse, okhttp3.mockwebserver.MockWebServer
+### Community 47 - "PostgreSqlContainerSupport"
+Cohesion: 0.14
+Nodes (11): BrokerCatalogSecurityIT, Test, BrokerTransactionBoundaryIT, BeforeEach, CambioTransactionBoundaryIT, PostgreSqlContainerSupport, BrokerTransactionBoundaryIT.Fakes, Import (+3 more)
 
-### Community 44 - "Fixture"
+### Community 48 - "dependencies"
+Cohesion: 0.09
+Nodes (23): class-variance-authority, clsx, dependencies, class-variance-authority, clsx, lossless-json, lucide-react, next (+15 more)
+
+### Community 49 - "Fixture"
 Cohesion: 0.16
 Nodes (7): AuditoriaCommand, CambioApplicationServiceTest, FakeAudit, FakeHistory, Fixture, Override, MutableClock
 
-### Community 46 - ".execute"
-Cohesion: 0.19
-Nodes (10): CashMovementApplicationService, Override, CashMovementUseCase, CashOperationResult, com.carteira.carteiraInvestimento.application.port.CashIdempotencyPort, com.carteira.carteiraInvestimento.application.port.CashLedgerPort, com.carteira.carteiraInvestimento.application.port.CashMovementPage, com.carteira.carteiraInvestimento.application.port.CashSnapshotPort (+2 more)
-
-### Community 47 - "Corretora"
+### Community 50 - "MovimentacaoCaixa"
 Cohesion: 0.15
-Nodes (3): Corretora, BrokerDomainTest, BeforeEach
+Nodes (9): CashLedgerPort, CashMovementPage, CashOperationResult, MovimentacaoCaixa, TipoMovimentacaoCaixa, DEPOSITO, SAQUE, CashMovementHistoryResponse (+1 more)
 
-### Community 48 - "AlphaVantageQuoteAdapter.java"
-Cohesion: 0.18
-Nodes (8): QuoteIntegrationException, QuoteNotFoundException, MarketQuoteProperties, Provider, AlphaVantageClient, AlphaVantageQuoteAdapter, Override, org.slf4j.Logger
-
-### Community 49 - "org.springframework.security.oauth2.jwt.Jwt"
-Cohesion: 0.27
-Nodes (7): InvestmentController, PortfolioValuationController, PortfolioValuationResponse, io.swagger.v3.oas.annotations.Operation, io.swagger.v3.oas.annotations.responses.ApiResponses, io.swagger.v3.oas.annotations.tags.Tag, org.springframework.security.oauth2.jwt.Jwt
-
-### Community 50 - "login-form.tsx"
-Cohesion: 0.15
-Nodes (11): fetchMock, { replaceMock, searchMock }, LoginForm(), messageFor(), AUTH_SESSION_COOKIE, protectedRoutes, DEFAULT_RETURN_TO, isSafeInternalPath() (+3 more)
-
-### Community 51 - "Posicao"
+### Community 51 - "PortfolioValuationApplicationServiceTest"
 Cohesion: 0.19
-Nodes (3): Posicao, Sale, InvestmentDomainTest
+Nodes (7): OpenPosition, Override, CambioUseCase, Cotacao, ObservacaoCambio, PortfolioValuationApplicationServiceTest, SuppressWarnings
 
-### Community 52 - "MarketQuoteUseCase"
+### Community 52 - "UsuarioJpaEntity"
 Cohesion: 0.16
-Nodes (11): MarketQuoteUseCase, CambioUseCase, PortfolioValuationApplicationService, PortfolioValuationUseCase, MarketQuoteConfiguration, PortfolioValuationConfiguration, com.carteira.carteiraInvestimento.application.service.CambioUseCase, org.springframework.cloud.openfeign.EnableFeignClients (+3 more)
+Nodes (8): Override, RepositoryUserDetailsService, Entity, Table, UsuarioJpaEntity, UsuarioJpaRepository, UserDetails, UserDetailsService
 
-### Community 53 - "TipoAtivo"
+### Community 53 - "AtivoController"
+Cohesion: 0.16
+Nodes (5): AtivoController, AtivoListResponse, AtivoResponse, CreateAtivoRequest, org.springframework.web.bind.annotation.PatchMapping
+
+### Community 54 - "java.sql.Connection"
+Cohesion: 0.28
+Nodes (3): Fixture, InvestmentSchemaIT, java.sql.Connection
+
+### Community 55 - "portfolio-queries.ts"
+Cohesion: 0.10
+Nodes (12): portfolioKeys, useCashBalance(), useCashMovements(), usePortfolioSummary(), usePositions(), useRefreshPortfolioSummary(), useTransactions(), CashPanel() (+4 more)
+
+### Community 56 - "TipoTransacao"
 Cohesion: 0.17
-Nodes (11): Mercado, B3, US, Moeda, BRL, USD, TipoAtivo, ACAO (+3 more)
+Nodes (9): InvestmentTransactionCommand, TipoTransacao, BUY, SELL, InvestmentOperationResponse, InvestmentTransactionRequest, PositionResponse, TransactionResponse (+1 more)
 
-### Community 54 - "AtivoJpaEntity"
-Cohesion: 0.18
-Nodes (3): AtivoJpaEntity, AtivoPersistenceAdapter, Override
+### Community 57 - "devDependencies"
+Cohesion: 0.10
+Nodes (21): eslint, eslint-config-next, devDependencies, eslint, eslint-config-next, @playwright/test, shadcn, @tailwindcss/postcss (+13 more)
 
-### Community 55 - "InvestmentApplicationService.java"
+### Community 58 - "IdentityApplicationConfiguration.java"
 Cohesion: 0.16
-Nodes (4): FinancialStateException, InvestmentNumbers, Transacao, com.carteira.carteiraInvestimento.domain.fx.MoedaCambio
+Nodes (14): AdminProperties, IdentityApplicationConfiguration, com.carteira.carteiraInvestimento.application.port.AccessTokenIssuer, com.carteira.carteiraInvestimento.application.port.CarteiraPort, com.carteira.carteiraInvestimento.application.port.PasswordHasher, com.carteira.carteiraInvestimento.application.service.CurrentPrincipalService, com.carteira.carteiraInvestimento.application.service.InitialAdminBootstrapService, com.carteira.carteiraInvestimento.application.service.LoginService (+6 more)
 
-### Community 56 - "Role"
-Cohesion: 0.14
-Nodes (7): EmailCanonicalizer, PasswordPolicy, Role, ROLE_ADMIN, ROLE_USER, CurrentUserResponse, RegisteredUserResponse
+### Community 60 - "BrokerApplicationService"
+Cohesion: 0.15
+Nodes (7): CorretoraPort, BrokerApplicationService, AuditoriaIsoladaPort, BrokerComplianceException, BrokerLocalTransactionService, BeforeEach, org.springframework.stereotype.Service
 
-### Community 57 - "package.json"
+### Community 61 - "com.carteira.carteiraInvestimento.domain.asset.Moeda"
+Cohesion: 0.19
+Nodes (10): CurrentExchangeRate, PortfolioValuationResult, ValuedPosition, CambioAtualResponse, PortfolioValuationResponse, ValuedPositionResponse, FakeProvider, com.carteira.carteiraInvestimento.domain.asset.Moeda (+2 more)
+
+### Community 62 - "AtivoUseCase"
+Cohesion: 0.16
+Nodes (3): AtivoNotFoundException, AtivoUseCase, AtivoControllerTest
+
+### Community 63 - "HistoricoCotacaoJpaEntity"
+Cohesion: 0.19
+Nodes (6): HistoricoCotacaoJpaEntity, HistoricoCotacaoJpaRepository, HistoricoCotacaoPersistenceAdapter, Override, org.springframework.data.domain.Page, org.springframework.data.domain.Pageable
+
+### Community 64 - ".get"
+Cohesion: 0.16
+Nodes (4): ApplicationFoundationIT, GlobalExceptionHandlerTest, com.fasterxml.jackson.databind.JsonNode, org.springframework.web.context.WebApplicationContext
+
+### Community 65 - "package.json"
 Cohesion: 0.10
 Nodes (19): @fission-ai/openspec, author, bugs, url, description, devDependencies, @fission-ai/openspec, homepage (+11 more)
 
-### Community 58 - "login/route.ts"
-Cohesion: 0.18
-Nodes (12): POST(), POST(), { registerMock, originMock }, backendClient, AuthConfig, AuthEnv, loadAuthConfig(), hasValidOrigin() (+4 more)
-
-### Community 59 - "MovimentacaoCaixa"
-Cohesion: 0.17
-Nodes (8): CashLedgerPort, CashSnapshotPort, CashOperationResult, MovimentacaoCaixa, TipoMovimentacaoCaixa, DEPOSITO, SAQUE, CashMovementConfiguration
-
-### Community 60 - "SecurityProblemDetailHandler"
-Cohesion: 0.22
-Nodes (9): Override, SecurityProblemDetailHandler, MockHttpServletRequest, SecurityProblemDetailHandlerTest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.access.AccessDeniedException, org.springframework.security.core.AuthenticationException, org.springframework.security.web.access.AccessDeniedHandler (+1 more)
-
-### Community 61 - "dependencies"
-Cohesion: 0.11
-Nodes (19): class-variance-authority, clsx, dependencies, class-variance-authority, clsx, lucide-react, next, react (+11 more)
-
-### Community 62 - "devDependencies"
-Cohesion: 0.11
-Nodes (19): eslint, devDependencies, eslint, jsdom, @playwright/test, shadcn, @tailwindcss/postcss, @testing-library/react (+11 more)
-
-### Community 63 - "Requirement: Eventos minimos de seguranca"
+### Community 66 - "Requirement: Eventos minimos de seguranca"
 Cohesion: 0.11
 Nodes (18): Purpose, Requirement: Ausencia de consulta de auditoria nesta etapa, Requirement: Eventos minimos de seguranca, Requirement: Registro persistido de auditoria de seguranca, Requirement: Sanitizacao obrigatoria, Requirements, Scenario: Acesso negado, Scenario: Administrador inicial criado (+10 more)
 
-### Community 64 - "CorretoraPersistenceAdapter"
-Cohesion: 0.18
-Nodes (4): DuplicateBrokerException, CorretoraJpaRepository, CorretoraPersistenceAdapter, Override
+### Community 67 - "CashMovementApplicationService"
+Cohesion: 0.23
+Nodes (10): CashMovementApplicationService, Override, CashMovementUseCase, com.carteira.carteiraInvestimento.application.port.CashIdempotencyPort, com.carteira.carteiraInvestimento.application.port.CashLedgerPort, com.carteira.carteiraInvestimento.application.port.CashMovementPage, com.carteira.carteiraInvestimento.application.port.CashSnapshotPort, com.carteira.carteiraInvestimento.application.port.CashWalletPort (+2 more)
 
-### Community 65 - "PortfolioValuationApplicationServiceTest"
-Cohesion: 0.25
-Nodes (5): Override, CambioUseCase, Cotacao, ObservacaoCambio, PortfolioValuationApplicationServiceTest
-
-### Community 66 - "com.carteira.carteiraInvestimento.domain.asset.Moeda"
-Cohesion: 0.22
-Nodes (7): QuoteProvider, ALPHA_VANTAGE, BRAPI, TWELVE_DATA, HistoricoCotacaoJpaEntity, CotacaoResponse, com.carteira.carteiraInvestimento.domain.asset.Moeda
-
-### Community 67 - "jakarta.persistence.Entity"
+### Community 68 - "jakarta.persistence.Entity"
 Cohesion: 0.22
 Nodes (8): CarteiraSnapshotJpaEntity, PosicaoJpaEntity, TransacaoIdempotenciaJpaEntity, TransacaoJpaEntity, jakarta.persistence.Column, jakarta.persistence.Entity, jakarta.persistence.Table, org.hibernate.annotations.Immutable
 
-### Community 68 - "CashPersistenceAdapter"
+### Community 69 - "CashPersistenceAdapter"
 Cohesion: 0.19
-Nodes (8): CashPersistenceAdapter, Override, Reservation, Wallet, CashMovementPage, com.carteira.carteiraInvestimento.domain.wallet.MovimentacaoCaixa, java.sql.ResultSet, MovimentacaoCaixa
+Nodes (7): CashPersistenceAdapter, Override, Reservation, Wallet, CashMovementPage, com.carteira.carteiraInvestimento.domain.wallet.MovimentacaoCaixa, MovimentacaoCaixa
 
-### Community 69 - "CashMovementApiIT"
+### Community 70 - "CashMovementApiIT"
 Cohesion: 0.24
 Nodes (6): CashMovementApiIT, HttpCall, HttpResults, FunctionalInterface, User, org.springframework.test.web.servlet.MvcResult
 
-### Community 70 - "cookie.ts"
-Cohesion: 0.23
-Nodes (10): POST(), fetchMock, GET(), AUTH_SESSION_COOKIE, authCookie(), authCookieBase(), expiredAuthCookie(), resolveCurrentUser() (+2 more)
+### Community 71 - "CashMovementRollbackIT"
+Cohesion: 0.21
+Nodes (9): CashMovementRollbackIT, FailureStage, AUDIT, MOVEMENT, RESULT, SNAPSHOT, TransactionTemplate, CashMovementApplicationService (+1 more)
 
-### Community 71 - "ADDED Requirements"
+### Community 72 - "ADDED Requirements"
 Cohesion: 0.11
 Nodes (17): ADDED Requirements, Purpose, Requirement: Ausencia de consulta de auditoria nesta etapa, Requirement: Eventos minimos de seguranca, Requirement: Registro persistido de auditoria de seguranca, Requirement: Sanitizacao obrigatoria, Scenario: Acesso negado, Scenario: Administrador inicial criado (+9 more)
 
-### Community 72 - "AtivoUseCase"
+### Community 73 - "AtivoPersistenceAdapter"
 Cohesion: 0.18
-Nodes (3): AtivoNotFoundException, AtivoUseCase, AtivoControllerTest
+Nodes (5): DuplicateTickerException, AtivoJpaRepository, AtivoPersistenceAdapter, Override, org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-### Community 73 - ".criar"
-Cohesion: 0.18
-Nodes (6): BrokerApplicationService, AuditoriaIsoladaPort, BrokerComplianceException, BrokerApplicationServiceTest, AuditoriaIsoladaPort, BeforeEach
+### Community 74 - "SecurityProblemDetailHandler"
+Cohesion: 0.21
+Nodes (8): Override, SecurityProblemDetailHandler, MockHttpServletRequest, SecurityProblemDetailHandlerTest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.AuthenticationException, org.springframework.security.web.access.AccessDeniedHandler, org.springframework.security.web.AuthenticationEntryPoint
 
-### Community 74 - "com.carteira.carteiraInvestimento.domain.quote.QuoteProvider"
+### Community 75 - "org.springframework.security.access.prepost.PreAuthorize"
 Cohesion: 0.19
-Nodes (8): CurrentExchangeRate, PortfolioValuationResult, ValuedPosition, CambioAtualResponse, ValuedPositionResponse, FakeProvider, com.carteira.carteiraInvestimento.domain.fx.CambioProvider, com.carteira.carteiraInvestimento.domain.quote.QuoteProvider
+Nodes (6): CotacaoResponse, HistoricoCotacaoResponse, MarketQuoteController, AdminProbeController, org.springframework.security.access.prepost.PreAuthorize, org.springframework.web.bind.annotation.PutMapping
 
 ### Community 76 - "AssetCatalogPersistenceIT"
 Cohesion: 0.21
-Nodes (5): AssetCatalogPersistenceIT, AtivoQuery, SqlAction, com.carteira.carteiraInvestimento.application.port.AtivoQuery, FunctionalInterface
+Nodes (4): AssetCatalogPersistenceIT, AtivoQuery, SqlAction, FunctionalInterface
 
-### Community 77 - "Decisions"
+### Community 78 - "PostgreSqlContainerSupport"
+Cohesion: 0.20
+Nodes (5): FlywayValidationIT, Column, InvestmentV9MetadataIT, Entry, PostgreSqlContainerSupport
+
+### Community 79 - "components.json"
+Cohesion: 0.12
+Nodes (16): aliases, components, hooks, lib, ui, utils, iconLibrary, rsc (+8 more)
+
+### Community 80 - "mappers.ts"
+Cohesion: 0.35
+Nodes (16): array(), Data, decimal(), mapCashBalance(), mapCashMovement(), mapPage(), mapPosition(), mapSummary() (+8 more)
+
+### Community 81 - "Decisions"
 Cohesion: 0.12
 Nodes (16): 10. Make audit writes typed, correlated and sanitized, 11. Preserve and extend the foundation verification strategy, 1. Separate domain, application, infrastructure and presentation, 2. Add forward-only Flyway migrations with PostgreSQL-native integrity, 3. Register through one transactional use case, 4. Use Spring Security resource-server JWT support with persisted-principal resolution, 5. Restore deliberate user authentication configuration, 6. Define an explicit public-route allowlist and deny by default (+8 more)
 
-### Community 78 - "CashIdempotencyPort"
-Cohesion: 0.27
-Nodes (7): CashIdempotencyPort, ExistingReservation, NewReservation, Reservation, CashWalletPort, Wallet, CashMovementApplicationServiceTest
+### Community 84 - ".login"
+Cohesion: 0.19
+Nodes (4): IssuedAccessToken, AuthenticationFailedException, LoginResponse, LoginControllerTest
 
-### Community 79 - "org.springframework.transaction.annotation.Transactional"
-Cohesion: 0.23
-Nodes (4): InvestmentApplicationService, Override, InvestmentConfiguration, org.springframework.transaction.annotation.Transactional
-
-### Community 80 - "CambioAuditIT.java"
-Cohesion: 0.23
-Nodes (3): CambioProviderException, AlphaVantageCambioClient, com.carteira.carteiraInvestimento.infrastructure.config.MarketQuoteProperties
-
-### Community 81 - "CanonicalFingerprint"
-Cohesion: 0.18
-Nodes (5): InvestmentFingerprint, CanonicalFingerprint, Field, DataOutputStream, java.io.DataOutputStream
-
-### Community 82 - "AtivoController"
-Cohesion: 0.24
-Nodes (4): AtivoController, AtivoListResponse, AtivoResponse, org.springframework.web.bind.annotation.PatchMapping
-
-### Community 83 - "InvestmentTransactionApiIT"
-Cohesion: 0.36
-Nodes (3): Fixture, InvestmentTransactionApiIT, PostgreSqlContainerSupport
-
-### Community 84 - "ObservacaoCambio"
+### Community 85 - ".execute"
 Cohesion: 0.22
-Nodes (5): CambioUnavailableException, CambioUseCase, ObservacaoCambio, CambioControllerTest, org.springframework.security.authentication.TestingAuthenticationToken
+Nodes (4): CashMovementNormalizer, TipoMovimentacaoCaixa, CashMovementDomainTest, CashOperationResult
 
-### Community 85 - "org.springframework.stereotype.Repository"
-Cohesion: 0.19
-Nodes (7): AuditoriaPersistenceAdapter, Override, HistoricoCambioJpaRepository, HistoricoCambioPersistenceAdapter, Override, LogAuditoriaJpaRepository, org.springframework.stereotype.Repository
-
-### Community 86 - "BrapiQuoteAdapter.java"
-Cohesion: 0.30
-Nodes (5): BrapiClient, BrapiQuoteAdapter, BrapiResponse, BrapiResult, Override
-
-### Community 87 - "PersistedUserJwtAuthenticationConverterTest"
-Cohesion: 0.27
-Nodes (4): PersistedUserJwtAuthenticationConverterTest, PersistedUserJwtAuthenticationConverterTest.AdminProbeController, PersistedUserJwtAuthenticationConverterTest.ProtectedProbeController, PersistedUserJwtAuthenticationConverterTest.SecurityTestConfiguration
-
-### Community 88 - "FakeQuotes"
-Cohesion: 0.18
-Nodes (6): FakeExchange, FakeQuotes, Fakes, ObservacaoCambio, Override, com.carteira.carteiraInvestimento.domain.fx.ObservacaoCambio
-
-### Community 89 - ".consultar"
+### Community 86 - "CashIdempotencyPort"
 Cohesion: 0.35
-Nodes (4): CadastroCnpj, EnderecoPostal, RegistroCvm, Test
+Nodes (6): CashIdempotencyPort, ExistingReservation, NewReservation, Reservation, Wallet, CashMovementApplicationServiceTest
 
-### Community 90 - "CvmPort"
-Cohesion: 0.23
-Nodes (6): CvmPort, BrokerUpstreamException, BrasilApiCvmAdapter, BrasilApiCvmClient, CvmProviderResponse, Override
+### Community 88 - "CambioUseCase"
+Cohesion: 0.20
+Nodes (4): CambioUnavailableException, CambioUseCase, FixedCambio, CambioControllerTest
 
-### Community 92 - "Mercado.java"
-Cohesion: 0.19
-Nodes (4): DuplicateTickerException, AtivoPersistenceAdapterTest, java.util.regex.Pattern, org.springframework.dao.DataIntegrityViolationException
+### Community 89 - "InvestmentLifecycleConcurrencyIT"
+Cohesion: 0.41
+Nodes (4): Fixture, Fixture, HeldOperation, InvestmentLifecycleConcurrencyIT
 
-### Community 93 - "RegistrationTransactionIntegrationTest"
-Cohesion: 0.24
-Nodes (5): CarteiraInvestimentoApplication, RegistrationTransactionIntegrationTest, org.springframework.boot.autoconfigure.SpringBootApplication, org.springframework.boot.context.properties.ConfigurationPropertiesScan, RegistrationTransactionIntegrationTest.FaultInjectionConfiguration
+### Community 91 - "finance-core.test.ts"
+Cohesion: 0.35
+Nodes (10): DATE_TIME, decimalSign(), formatDateTime(), formatDecimal(), formatMoney(), formatPercentage(), formatQuantity(), group() (+2 more)
 
-### Community 95 - "CotacaoExterna"
-Cohesion: 0.21
-Nodes (3): CotacaoProviderPort, CotacaoExterna, CotacaoDomainTest
-
-### Community 96 - "MarketQuoteController"
-Cohesion: 0.23
-Nodes (3): HistoricoCotacaoResponse, MarketQuoteController, org.springframework.web.bind.annotation.PutMapping
-
-### Community 97 - "org.springframework.jdbc.core.JdbcTemplate"
-Cohesion: 0.32
-Nodes (4): KnownValuation, LocalSnapshotComposer, Totals, org.springframework.jdbc.core.JdbcTemplate
-
-### Community 98 - "ApplicationFoundationIT"
-Cohesion: 0.29
-Nodes (4): ApplicationFoundationIT, com.fasterxml.jackson.databind.JsonNode, com.fasterxml.jackson.databind.ObjectMapper, org.springframework.web.context.WebApplicationContext
-
-### Community 99 - "Requirement: Documentacao HTTP e erros padronizados"
+### Community 92 - "Requirement: Documentacao HTTP e erros padronizados"
 Cohesion: 0.17
 Nodes (11): MODIFIED Requirements, Requirement: Documentacao HTTP e erros padronizados, Requirement: Seguranca temporariamente permissiva, Scenario: Acesso anonimo fora da lista publica, Scenario: Acesso tecnico apos identidade, Scenario: Consulta do Swagger, Scenario: Erro tratado pela aplicacao, Scenario: Falha de autenticacao (+3 more)
 
-### Community 100 - "BrokerProviderAdaptersIT"
-Cohesion: 0.38
-Nodes (4): AfterAll, BrokerProviderAdaptersIT, Test, MockResponse
+### Community 93 - "CashMovementConfiguration.java"
+Cohesion: 0.24
+Nodes (3): CashSnapshotPort, CashWalletPort, CashMovementConfiguration
 
-### Community 101 - "org.springframework.cloud.openfeign.FeignClient"
-Cohesion: 0.29
-Nodes (6): ReceitaFederalPort, BrasilApiCnpjAdapter, BrasilApiCnpjClient, CnpjProviderResponse, Override, org.springframework.cloud.openfeign.FeignClient
+### Community 94 - "InvestmentApplicationService.java"
+Cohesion: 0.22
+Nodes (3): FinancialStateException, InvestmentFingerprint, Transacao
 
-### Community 102 - ".fingerprint"
-Cohesion: 0.27
-Nodes (3): CashMovementNormalizer, TipoMovimentacaoCaixa, CashMovementDomainTest
+### Community 95 - "Mercado.java"
+Cohesion: 0.24
+Nodes (3): AtivoPersistenceAdapterTest, DataIntegrityViolationException, org.springframework.dao.DataIntegrityViolationException
 
-### Community 103 - "org.springframework.boot.context.properties.ConfigurationProperties"
-Cohesion: 0.25
-Nodes (6): AdminProperties, BrokerProviderProperties, Provider, jakarta.validation.constraints.AssertTrue, org.springframework.boot.context.properties.ConfigurationProperties, org.springframework.validation.annotation.Validated
-
-### Community 104 - "HistoricoCotacaoPersistenceAdapter"
-Cohesion: 0.29
-Nodes (5): HistoricoCotacaoJpaRepository, HistoricoCotacaoPersistenceAdapter, Override, org.springframework.data.domain.Page, org.springframework.data.domain.Pageable
-
-### Community 105 - "TwelveDataCambioAdapter"
-Cohesion: 0.38
-Nodes (3): Override, TwelveDataCambioAdapter, TwelveDataCambioClient
-
-### Community 106 - "TwelveDataQuoteAdapter"
-Cohesion: 0.35
-Nodes (4): Override, TwelveDataClient, TwelveDataQuoteAdapter, TwelveResponse
-
-### Community 107 - "guard.ts"
-Cohesion: 0.33
-Nodes (7): AdminLayout(), InicioLayout(), redirectToLogin(), requireCurrentUser(), requireRole(), { redirectMock, resolveMock }, user
-
-### Community 108 - "mvnw"
+### Community 98 - "mvnw"
 Cohesion: 0.38
 Nodes (8): mvnw script, clean(), die(), exec_maven(), hash_string(), set_java_home(), trim(), verbose()
 
-### Community 109 - "ViaCepPort"
-Cohesion: 0.31
-Nodes (5): ViaCepPort, Override, ViaCepAdapter, ViaCepClient, ViaCepProviderResponse
-
-### Community 110 - "BrokerControllerTest"
-Cohesion: 0.31
-Nodes (4): BrokerPatch, BrokerControllerTest, MockMvc, Test
-
-### Community 111 - "CambioConfiguration.java"
-Cohesion: 0.31
-Nodes (4): CambioConfiguration, CambioConfigurationTest, MutableTicker, com.github.benmanes.caffeine.cache.Ticker
-
-### Community 114 - "auth-pages.test.tsx"
+### Community 99 - "CanonicalFingerprint"
 Cohesion: 0.29
-Nodes (5): AccessDeniedPage(), LoginPage(), AdminPage(), InicioPage(), RegisterPage()
+Nodes (4): CanonicalFingerprint, Field, DataOutputStream, java.io.DataOutputStream
 
-### Community 115 - "tasks.md"
+### Community 100 - "tasks.md"
 Cohesion: 0.20
 Nodes (9): 1. Dependencias e configuracao segura, 2. Schema PostgreSQL governado por Flyway, 3. Dominio, application e adapters de persistencia, 4. Auditoria tecnica sanitizada, 5. Cadastro e carteira principal, 6. Login, JWT e principal atual, 7. Autorizacao e contratos de erro, 8. Administrador inicial (+1 more)
 
-### Community 117 - ".properties"
-Cohesion: 0.44
-Nodes (4): AlphaBar, AlphaMeta, AlphaResponse, QuoteProviderAdaptersTest
+### Community 102 - "CambioConfiguration"
+Cohesion: 0.33
+Nodes (4): CambioConfiguration, CambioConfigurationTest, MutableTicker, com.github.benmanes.caffeine.cache.Ticker
 
-### Community 120 - "scripts"
+### Community 105 - "scripts"
 Cohesion: 0.22
 Nodes (9): scripts, build, dev, lint, start, test, test:e2e, test:watch (+1 more)
 
-### Community 121 - "BrokerProviderAdaptersIT.java"
+### Community 106 - "BrokerProviderAdaptersIT.java"
 Cohesion: 0.36
 Nodes (4): org.springframework.core.env.Environment, org.springframework.test.context.DynamicPropertyRegistry, org.springframework.test.context.DynamicPropertySource, org.testcontainers.containers.PostgreSQLContainer
 
-### Community 123 - "Project Foundation Proposal"
+### Community 107 - "FakeQuotes"
+Cohesion: 0.36
+Nodes (3): FakeQuotes, ObservacaoCambio, Override
+
+### Community 108 - "Project Foundation Proposal"
 Cohesion: 0.36
 Nodes (8): Project Foundation Design, Project Foundation Proposal, Backend Foundation Delta Specification, Containerized Local Environment Delta Specification, Frontend Foundation Delta Specification, Project Foundation Implementation Tasks, Containerized Local Environment Specification, Frontend Foundation Specification
 
-### Community 125 - "proposal.md"
+### Community 111 - "proposal.md"
 Cohesion: 0.29
 Nodes (6): Capabilities, Impact, Modified Capabilities, New Capabilities, What Changes, Why
 
-### Community 126 - "OpenSpec Apply Change Workflow"
+### Community 112 - "OpenSpec Apply Change Workflow"
 Cohesion: 0.40
 Nodes (6): OpenSpec Apply Change Workflow, OpenSpec Archive Change Workflow, OpenSpec Explore Mode, OpenSpec Propose Change Workflow, OpenSpec Sync Specs Workflow, OpenSpec Update Change Workflow
 
-### Community 128 - "usuarios"
+### Community 113 - "usuarios"
 Cohesion: 0.33
 Nodes (3): usuarios, carteiras, logs_auditoria
 
-### Community 129 - "Fakes"
-Cohesion: 0.60
-Nodes (3): Fakes, Bean, Primary
+### Community 115 - "mock-backend.mjs"
+Cohesion: 0.70
+Nodes (4): bodyOf(), json(), server, summary()
 
-### Community 133 - "Q: Localizar impactos existentes para estabelecer identidade e controle de acesso"
+### Community 117 - "AppShell"
+Cohesion: 0.40
+Nodes (3): AppShell(), { pathname, replace, logout }, user
+
+### Community 118 - "Q: Localizar impactos existentes para estabelecer identidade e controle de acesso"
 Cohesion: 0.40
 Nodes (4): Answer, Outcome, Q: Localizar impactos existentes para estabelecer identidade e controle de acesso, Source Nodes
 
-### Community 134 - "Spec-Driven Development Policy"
+### Community 119 - "Spec-Driven Development Policy"
 Cohesion: 0.50
 Nodes (4): Codex Project Instructions, Spec-Driven Development Policy, Archived Foundation Change Metadata, OpenSpec Spec-Driven Schema Configuration
 
-### Community 136 - "PropertiesConfiguration"
-Cohesion: 0.50
-Nodes (3): PropertiesConfiguration, LocalValidatorFactoryBean, org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
-
-### Community 137 - "frontend/package.json"
+### Community 121 - "frontend/package.json"
 Cohesion: 0.50
 Nodes (3): name, private, version
 
 ## Knowledge Gaps
-- **348 isolated node(s):** `Provider`, `BrokerNotFoundException`, `AuthProblem`, `BackendErrorKind`, `AuthConfig` (+343 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 580 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **52 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **376 isolated node(s):** `AuthConfig`, `AuthEnv`, `BackendErrorKind`, `Provider`, `BrokerNotFoundException` (+371 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 627 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **49 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Corretora` connect `Corretora` to `BrokerCatalogPersistenceIT`, `CorretoraPersistenceAdapter`, `jakarta.servlet.http.HttpServletRequest`, `.get`, `.criar`, `CorretoraJpaEntity`, `org.springframework.security.access.prepost.PreAuthorize`, `BrokerControllerTest`, `CnpjCanonicalizer`, `CorretoraReadScope`, `org.springframework.boot.test.context.SpringBootTest`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `TipoEvento` connect `AuditoriaCommand` to `BrokerCatalogPersistenceIT`, `AuditSecurityEventsIntegrationTest.java`, `jakarta.persistence.Entity`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **Why does `InvestmentPersistenceAdapter` connect `InvestmentPersistenceAdapter` to `jakarta.servlet.http.HttpServletRequest`, `PortfolioValuationIT.java`, `org.springframework.stereotype.Repository`, `org.springframework.jdbc.core.JdbcTemplate`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
-- **What connects `Provider`, `BrokerNotFoundException`, `AuthProblem` to the rest of the system?**
-  _348 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `CashPersistenceAdapter` connect `CashPersistenceAdapter` to `CashMovementApplicationService`, `CashMovementRollbackIT`, `org.junit.jupiter.api.BeforeEach`, `InvestmentPersistenceAdapter`, `CashMovementRollbackIT.java`, `org.springframework.stereotype.Repository`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `Corretora` connect `Corretora` to `CnpjCanonicalizer`, `org.junit.jupiter.api.BeforeEach`, `org.springframework.transaction.annotation.Transactional`, `PostgreSqlContainerSupport`, `.edit`, `CorretoraReadScope`, `CorretoraJpaEntity`, `BrokerApplicationService`, `.criar`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `CashMovementApiIT` connect `CashMovementApiIT` to `org.junit.jupiter.api.BeforeEach`, `org.springframework.security.oauth2.jwt.JwtEncoder`, `PostgreSqlContainerSupport`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **What connects `AuthConfig`, `AuthEnv`, `BackendErrorKind` to the rest of the system?**
+  _376 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `types.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.051446321102698506 - nodes in this community are weakly interconnected._
+- **Should `QuoteProvider` be split into smaller, more focused modules?**
+  _Cohesion score 0.05524537173082574 - nodes in this community are weakly interconnected._
 - **Should `AuditoriaCommand` be split into smaller, more focused modules?**
-  _Cohesion score 0.05765765765765766 - nodes in this community are weakly interconnected._
-- **Should `jakarta.servlet.http.HttpServletRequest` be split into smaller, more focused modules?**
-  _Cohesion score 0.08653026427962489 - nodes in this community are weakly interconnected._
-- **Should `java.sql.Connection` be split into smaller, more focused modules?**
-  _Cohesion score 0.08125 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05328005328005328 - nodes in this community are weakly interconnected._
