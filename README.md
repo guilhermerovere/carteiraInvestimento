@@ -1,112 +1,241 @@
-# Carteira Investimento
+# Valore — Carteira de Investimentos
 
-Projeto academico desenvolvido no 6o semestre da UNIFEF, sob orientacao do professor Jefferson Antonio Ribeiro Passerine.
+Aplicação full-stack para gestão de uma carteira de investimentos em ações brasileiras e norte-americanas. Ela reúne autenticação segura, controle de caixa, operações de compra e venda, cotações e câmbio, catálogo de ativos e corretoras, valorização da carteira e gráficos de acompanhamento.
 
-Esta change estabelece identidade persistida, carteira principal minima, autenticacao JWT Bearer HS256, autorizacao por role e auditoria de seguranca. O backend usa PostgreSQL, Flyway e Hibernate com `ddl-auto: validate`.
+O projeto foi desenvolvido com Spec-Driven Development (OpenSpec). As entregas concluídas estão registradas em `openspec/changes/archive/` e o [PRD](PRD.md) é a referência do escopo do produto.
 
-## Configuracao local
+## O que já foi entregue
 
-Copie o contrato de configuracao e preencha valores locais seguros:
+- Cadastro, login e sessão segura por JWT Bearer HS256; no frontend, o token permanece em cookie HttpOnly e é encaminhado pelo BFF do Next.js somente no servidor.
+- Controle de acesso por `ROLE_USER` e `ROLE_ADMIN`, proteção de rotas, respostas sanitizadas em `ProblemDetail`, correlação por `X-Correlation-ID` e auditoria de eventos de segurança.
+- Criação automática da **Carteira Principal** de saldo inicial zero para cada usuário; administradores não possuem carteira.
+- Catálogo global de ativos B3 e US, com validação, ciclo de vida, busca e cadastro controlado pelo usuário autenticado.
+- Catálogo administrativo de corretoras com CNPJ canônico, validação por fontes regulatórias, endereço enriquecido, ativação/desativação e identidade visual resolvida pelo sistema.
+- Consulta e histórico de cotações, cache e atualização administrativa. B3 usa Brapi; o mercado americano e o câmbio USD/BRL usam provedores configuráveis com fallback.
+- Depósitos e saques em BRL, ledger imutável, idempotência por `Idempotency-Key`, proteção contra concorrência e saldo insuficiente.
+- Operações BUY e SELL para B3/BRL e US/USD, com corretora obrigatória, taxa de câmbio rastreável, posições, preço médio em BRL e bloqueio de venda a descoberto.
+- Resumo de patrimônio, valorização da carteira em BRL, histórico de snapshots e gráficos de evolução patrimonial e composição por ações.
+- Área do usuário com carteira, posições, transações, movimentações e configurações de perfil, senha e encerramento seguro de conta.
+- Área administrativa para ativos e corretoras, além de interface responsiva, acessível, com temas claro/escuro/sistema.
+
+## Arquitetura
+
+```text
+Browser
+  │
+  ▼
+Frontend Next.js (porta 3000)
+  ├── páginas, componentes e gráficos
+  └── BFF same-origin /api/*
+          │ cookie HttpOnly → Bearer no servidor
+          ▼
+Backend Spring Boot (porta 8080)
+  ├── presentation: controllers e contratos HTTP/OpenAPI
+  ├── application: casos de uso e regras transacionais
+  ├── domain: entidades e regras financeiras
+  └── infrastructure: JPA, Flyway, segurança e adapters externos
+          │
+          ▼
+PostgreSQL 16 (porta 5432)
+```
+
+O banco é evoluído exclusivamente por migrations Flyway; o Hibernate utiliza `ddl-auto: validate`, portanto não cria nem altera o schema automaticamente.
+
+## Stack
+
+| Camada | Tecnologias |
+| --- | --- |
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS, TanStack Query, Recharts |
+| Backend | Java 21, Spring Boot 4, Spring Security, Spring Data JPA, OpenFeign, Caffeine, Springdoc/OpenAPI |
+| Dados | PostgreSQL 16, Flyway |
+| Qualidade | JUnit, Testcontainers, Vitest, Testing Library e Playwright |
+| Infraestrutura | Docker, Docker Compose e imagens Alpine multi-stage |
+
+## Pré-requisitos
+
+Para executar o projeto completo, instale e inicie o Docker Desktop. Em Windows, use o PowerShell na raiz deste repositório.
+
+Para desenvolvimento fora dos containers, também são necessários Java 21 e Node.js compatível com o frontend. Os Dockerfiles usam Node 24 e Java 21.
+
+## Configuração
+
+Crie o arquivo local de ambiente a partir do modelo versionado:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-O arquivo `.env` nao deve ser versionado. Para executar o backend diretamente no host, configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` e, opcionalmente, `BACKEND_PORT` (padrao `8080`).
+Edite `.env` antes de subir a aplicação. O arquivo real não deve ser enviado ao Git.
 
-### JWT e administrador inicial
+As configurações essenciais são:
 
-As variaveis abaixo sao consumidas pelo backend:
-
-| Variavel | Regra |
+| Grupo | Variáveis |
 | --- | --- |
-| `JWT_SECRET_KEY` | Obrigatoria; chave UTF-8 com no minimo 32 bytes (256 bits). Nunca versione uma chave real. |
-| `JWT_EXPIRATION_HOURS` | Opcional; inteiro positivo, com padrao `24`. |
-| `JWT_ISSUER` | Opcional; padrao `carteira-investimento-backend`. |
-| `JWT_AUDIENCE` | Opcional; padrao `carteira-investimento-api`. |
-| `ADMIN_NAME` | Obrigatoria para o provisionamento inicial. |
-| `ADMIN_EMAIL` | Obrigatoria para o provisionamento inicial; e canonicalizada. |
-| `ADMIN_PASSWORD` | Obrigatoria para o provisionamento inicial; segue a politica de senha. |
+| PostgreSQL | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT` |
+| Backend | `BACKEND_PORT`, `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` |
+| Segurança | `JWT_SECRET_KEY`, `JWT_EXPIRATION_HOURS`, `JWT_ISSUER`, `JWT_AUDIENCE` |
+| Administrador inicial | `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` |
+| Frontend/BFF | `FRONTEND_PORT`, `BACKEND_API_URL`, `APP_ORIGIN` |
+| Integrações | `BRAPI_*`, `ALPHAVANTAGE_*`, `TWELVE_DATA_*`, `BRASIL_API_*`, `VIA_CEP_URL`, `LOGO_DEV_*` |
 
-`ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` formam um conjunto: ausencia, preenchimento parcial ou valor invalido interrompe a inicializacao antes do provisionamento. Com configuracao valida, o startup cria somente uma identidade ativa `ROLE_ADMIN`, sem carteira, e preserva senha e role se esse administrador ja existir. Um e-mail que ja pertenca a `ROLE_USER` tambem faz o startup falhar sem promover nem alterar o usuario.
+`JWT_SECRET_KEY` precisa ter ao menos 32 bytes UTF-8. As três variáveis `ADMIN_*` são obrigatórias como conjunto: se estiverem ausentes, parciais ou inválidas, o backend falha no início para não criar um administrador incompleto.
 
-## API de identidade
+O administrador local é criado de modo idempotente a partir de `ADMIN_EMAIL`, `ADMIN_NAME` e `ADMIN_PASSWORD` definidos no seu `.env`. Use essas credenciais para entrar pela primeira vez; não há senha padrão fixa no código.
 
-### Cadastro
+## Executar com Docker
 
-`POST /api/v1/auth/register` recebe somente:
+### Subir o projeto
 
-```json
-{
-  "nome": "Nome da Pessoa",
-  "email": "pessoa@example.test",
-  "senha": "Senha@2026"
-}
-```
-
-A senha deve ter ao menos oito caracteres, com letra maiuscula, minuscula, numero e caractere especial. Em sucesso, a resposta `201 Created` contem exatamente `id`, `nome`, `email`, `role` e `ativo`. O cadastro fixa `ROLE_USER`, cria a `Carteira Principal` com saldo zero e nao emite token. Entrada invalida retorna `400`; e-mail canonicalizado ja utilizado retorna `409`.
-
-### Login e Bearer
-
-`POST /api/v1/auth/login` recebe somente `email` e `senha`:
-
-```json
-{
-  "email": "pessoa@example.test",
-  "senha": "Senha@2026"
-}
-```
-
-Em sucesso, a resposta `200 OK` contem exatamente `accessToken`, `tokenType` (sempre `Bearer`) e `expiresIn` em segundos. Credenciais invalidas, usuario inativo e falhas de autenticacao retornam `401` com detalhe generico; a resposta nunca inclui senha, hash ou credencial adicional.
-
-Use o token em rotas protegidas:
-
-```http
-Authorization: Bearer <accessToken>
-```
-
-O token usa HS256 e contem `sub`, `role`, `iat`, `exp`, `jti`, `iss` e `aud`. Em cada requisicao protegida, a assinatura, issuer, audience e o usuario persistido sao validados. Usuario inexistente, inativo ou com role divergente da claim recebe `401`. Um principal autenticado, mas sem permissao para uma rota, recebe `403`. Ambos usam `application/problem+json` sanitizado.
-
-`GET /api/v1/auth/me` exige Bearer valido e retorna somente `id`, `nome`, `email`, `role` e `ativo` do principal do `SecurityContext`.
-
-## Auditoria e endpoints tecnicos
-
-Os eventos de cadastro, login, tentativas rejeitadas, acesso negado e provisionamento inicial sao persistidos com metadados tipados. O `X-Correlation-ID` e aceito apenas se for UUID canonico valido; caso contrario, o backend gera um UUID. Senhas, hashes, tokens, cabecalhos de autorizacao, corpos completos e dados privados nao sao registrados.
-
-Permanecem publicos:
-
-- Healthcheck: `http://localhost:8080/actuator/health`
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
-
-O OpenAPI anuncia o esquema Bearer para as rotas protegidas. Todas as outras rotas exigem autenticacao, salvo allowlist explicita.
-
-## Limites desta change
-
-O escopo termina na identidade, na carteira principal de saldo zero, na seguranca e na auditoria. Nenhuma capacidade adicional e inferida a partir desses contratos.
-
-## Testes
-
-No Windows, a partir de `backend/`:
+Valide a composição e crie/recrie as imagens:
 
 ```powershell
-.\mvnw.cmd test
-.\mvnw.cmd verify
-```
-
-`test` cobre testes unitarios e de integracao. `verify` tambem executa os testes `*IT`. Docker deve estar disponivel para o PostgreSQL `16.15-alpine3.24` iniciado por Testcontainers; nao ha fallback H2.
-
-## Execucao com Docker
-
-Na raiz do repositorio:
-
-```powershell
-docker compose config
+docker compose config --quiet
 docker compose up --build
 ```
 
-A sequencia de prontidao e PostgreSQL, Flyway e Hibernate validate, seguida de `/actuator/health` com status `UP`. Para encerrar sem remover o volume:
+O segundo comando mantém os logs no terminal. Para deixar os containers em segundo plano, use:
 
 ```powershell
+docker compose up --build -d
+```
+
+A ordem de prontidão é:
+
+```text
+PostgreSQL saudável
+  → backend executa Flyway e valida o Hibernate
+  → /actuator/health retorna UP
+  → frontend inicia
+```
+
+Após a prontidão, acesse:
+
+| Serviço | Endereço |
+| --- | --- |
+| Aplicação | http://localhost:3000 |
+| API | http://localhost:8080 |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
+| OpenAPI JSON | http://localhost:8080/v3/api-docs |
+| Healthcheck | http://localhost:8080/actuator/health |
+| PostgreSQL | `localhost:5432` (ou a porta definida em `POSTGRES_PORT`) |
+
+### Acompanhar e diagnosticar
+
+```powershell
+# Estado e saúde dos serviços
+docker compose ps
+
+# Logs de todos os serviços
+docker compose logs -f
+
+# Logs de um serviço específico
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f postgres-db
+
+# Confirmar a disponibilidade da API
+Invoke-RestMethod http://localhost:8080/actuator/health
+```
+
+### Parar ou encerrar
+
+Há três operações diferentes; escolha a que corresponde ao que deseja preservar:
+
+```powershell
+# Para os containers, mas mantém-nos para uma retomada rápida.
+docker compose stop
+
+# Inicia novamente containers que foram apenas parados.
+docker compose start
+
+# Encerra e remove containers e rede; o volume do PostgreSQL é preservado.
 docker compose down
 ```
+
+Para remover também os dados locais do PostgreSQL e começar do zero, execute o comando abaixo. Ele é destrutivo para os dados do ambiente Docker local:
+
+```powershell
+docker compose down -v
+```
+
+Depois de `down -v`, suba novamente com `docker compose up --build`; o Flyway recriará o schema a partir das migrations e o bootstrap criará o administrador definido no `.env`.
+
+## Capacidades da aplicação
+
+### Acesso e segurança
+
+- `POST /api/v1/auth/register` cria um `ROLE_USER` e sua carteira principal.
+- `POST /api/v1/auth/login` devolve um access token para o BFF; o navegador não armazena o token em JavaScript.
+- `GET /api/v1/auth/me` consulta o principal autenticado.
+- Rotas privadas exigem Bearer válido. `401` identifica ausência/falha de autenticação e `403` representa falta de permissão.
+
+### Carteira e operações financeiras
+
+- Caixa: `POST /api/v1/carteira/caixa/deposito`, `POST /api/v1/carteira/caixa/saque`, `GET /api/v1/carteira/caixa` e histórico paginado.
+- Investimentos: `POST /api/v1/carteira/transacoes`, listagem/consulta de transações e de posições.
+- Patrimônio: `GET /api/v1/carteira/resumo`, `POST /api/v1/carteira/resumo/atualizar` e `GET /api/v1/carteira/graficos/evolucao`.
+- Câmbio: `GET /api/v1/cambio/usd-brl` fornece uma observação USD/BRL rastreável.
+
+Operações que alteram caixa ou investimentos usam uma `Idempotency-Key`. O frontend gera e preserva essa chave durante recuperação de uma confirmação ambígua; clientes da API devem fazer o mesmo ao repetir uma solicitação.
+
+### Catálogos e administração
+
+- Ativos: `GET`/`POST /api/v1/acoes`, busca por ticker, discovery, edição limitada e ativação/desativação conforme a role.
+- Cotações: `GET /api/v1/acoes/{id}/cotacao`, histórico e atualização manual administrativa.
+- Corretoras: `/api/v1/corretoras` oferece consulta para usuários e administração completa para `ROLE_ADMIN`.
+- Conta: `/api/v1/account/profile`, `/password` e `/closure` permitem atualizar dados, alterar senha e encerrar a própria conta após as validações financeiras.
+
+Consulte o Swagger para contratos completos, payloads, paginação, códigos de erro e autorização de cada rota.
+
+## Integrações externas
+
+| Integração | Uso |
+| --- | --- |
+| Brapi | Cotações e metadata de ativos B3 |
+| Alpha Vantage | Cotações US e taxa USD/BRL configuráveis |
+| Twelve Data | Fallback para cotações US e câmbio USD/BRL |
+| BrasilAPI (CNPJ e CVM) | Validação cadastral e regulatória de corretoras |
+| ViaCEP | Complemento de endereço de corretoras |
+| Logo.dev | Identidade visual de corretoras e ativos US |
+
+As credenciais opcionais dessas integrações ficam no `.env`. Erros de provedores são tratados como falhas externas sanitizadas; informações financeiras não são inventadas quando uma fonte está indisponível.
+
+## Estrutura do repositório
+
+```text
+.
+├── backend/                  # API Spring Boot, domínio, migrations e testes
+├── frontend/                 # Aplicação Next.js, BFF, UI e testes
+├── openspec/                 # Especificações e histórico das changes concluídas
+├── docker-compose.yml        # PostgreSQL + backend + frontend
+├── .env.example              # Contrato de configuração local
+├── PRD.md                    # Fonte de verdade do produto
+└── README.md
+```
+
+## Testes e verificações
+
+Com Docker disponível para o PostgreSQL iniciado pelo Testcontainers:
+
+```powershell
+# Backend: a partir da pasta backend
+Set-Location backend
+.\mvnw.cmd test
+.\mvnw.cmd verify
+
+# Frontend: em outro terminal, a partir da pasta frontend
+Set-Location frontend
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run test
+npm.cmd run test:e2e
+```
+
+`test` executa a suíte unitária e `verify` inclui os testes de integração do backend (`*IT`). Os testes de integração dependem de PostgreSQL real via Testcontainers; não há fallback H2.
+
+## Notas de segurança e dados
+
+- Nunca versione `.env`, tokens, senhas ou chaves de APIs reais.
+- Não use os valores de exemplo fora do desenvolvimento local.
+- Migrations Flyway já aplicadas não devem ser editadas; alterações estruturais exigem nova migration.
+- Antes de usar `docker compose down -v`, confirme que não há dados locais que precise preservar.
