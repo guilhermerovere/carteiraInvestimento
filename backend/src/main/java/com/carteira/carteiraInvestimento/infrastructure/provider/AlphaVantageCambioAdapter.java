@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Component
+// Retained only for migration compatibility. It is deliberately not a Spring component.
 public class AlphaVantageCambioAdapter implements CambioProviderPort {
 	private static final Logger log = LoggerFactory.getLogger(AlphaVantageCambioAdapter.class);
 	private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

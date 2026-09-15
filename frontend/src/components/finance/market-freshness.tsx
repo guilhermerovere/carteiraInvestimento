@@ -9,7 +9,7 @@ export function MarketFreshness({ summary }: { summary: PortfolioSummary }) {
       <details>
         <summary>Ver origem e horários</summary>
         <div className="freshness__details">
-          {summary.posicoes.map((position) => (
+          {summary.posicoes.filter((position) => position.cotacaoDisponivel !== false).map((position) => (
             <p key={position.ativoId}>
               <strong>{position.ticker}</strong>: cotação de <DateTime value={position.instanteCotacao} /> · {position.providerCotacao.replaceAll("_", " ")}
             </p>

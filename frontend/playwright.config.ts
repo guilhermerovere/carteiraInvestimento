@@ -2,10 +2,11 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: "**/*.real.spec.ts",
   fullyParallel: false,
   workers: 1,
   use: {
-    baseURL: process.env.APP_ORIGIN ?? "http://127.0.0.1:3000",
+    baseURL: process.env.PLAYWRIGHT_APP_ORIGIN ?? "http://localhost:3100",
     trace: "retain-on-failure",
   },
   webServer: [
@@ -17,11 +18,11 @@ export default defineConfig({
       stderr: "ignore",
     },
     {
-      command: "npm.cmd run dev",
-      url: "http://127.0.0.1:3000",
+      command: "node node_modules/next/dist/bin/next dev --port 3100",
+      url: "http://localhost:3100",
       env: {
         BACKEND_API_URL: "http://127.0.0.1:18080",
-        APP_ORIGIN: "http://127.0.0.1:3000",
+        APP_ORIGIN: "http://localhost:3100",
       },
       reuseExistingServer: true,
       stdout: "ignore",

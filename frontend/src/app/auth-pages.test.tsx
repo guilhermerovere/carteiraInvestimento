@@ -32,9 +32,11 @@ describe("páginas Valore de autenticação", () => {
     expect(screen.getByLabelText("register-form")).toBeInTheDocument();
   });
 
-  it("mantém admin e acesso negado legíveis", () => {
+  it("mantém admin funcional e acesso negado legível", () => {
     render(<><AdminPage /><AccessDeniedPage /></>);
-    expect(screen.getByRole("heading", { name: "Administração" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Administração Valore" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Gerenciar corretoras" })).toHaveAttribute("href", "/admin/corretoras");
+    expect(screen.getByRole("link", { name: "Gerenciar ativos" })).toHaveAttribute("href", "/admin/ativos");
     expect(screen.getByText(/sessão permanece ativa/i)).toBeInTheDocument();
   });
 
@@ -43,8 +45,8 @@ describe("páginas Valore de autenticação", () => {
     expect(redirect).toHaveBeenCalledWith("/carteira");
   });
 
-  it("não expõe domínios financeiros na autenticação e administração", () => {
+  it("não mistura carteira pessoal com a administração", () => {
     render(<><AdminPage /><AccessDeniedPage /></>);
-    expect(document.body.textContent).not.toMatch(/patrimônio|saldo|ativos|cotação|transação|auditoria/i);
+    expect(document.body.textContent).not.toMatch(/patrimônio|saldo em caixa|comprar|vender|depositar|sacar/i);
   });
 });

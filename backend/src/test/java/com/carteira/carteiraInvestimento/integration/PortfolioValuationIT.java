@@ -108,11 +108,11 @@ class PortfolioValuationIT extends PostgreSqlContainerSupport {
         assertThat(fieldNames(root)).containsExactlyInAnyOrder("valuationInstant", "saldoCaixaBrl",
                 "totalInvestidoBrl", "valorPosicoesBrl", "lucroNaoRealizadoBrl",
                 "lucroRealizadoAcumuladoBrl", "patrimonioTotalBrl", "rentabilidadeNaoRealizadaPercentual",
-                "cambioAtual", "posicoes");
-        assertThat(fieldNames(root.get("posicoes").get(0))).hasSize(14).containsExactlyInAnyOrder("ativoId",
+                "cambioAtual", "posicoes", "cotacoesDisponiveis");
+        assertThat(fieldNames(root.get("posicoes").get(0))).hasSize(15).containsExactlyInAnyOrder("ativoId",
                 "ticker", "mercado", "moeda", "quantidade", "precoMedioBrl", "totalInvestidoBrl",
                 "cotacaoAtual", "providerCotacao", "instanteCotacao", "valorAtualOrigem", "valorAtualBrl",
-                "lucroNaoRealizadoBrl", "rentabilidadePercentual");
+                "lucroNaoRealizadoBrl", "rentabilidadePercentual", "cotacaoDisponivel");
         assertThat(root.get("valuationInstant").asText()).matches(".*\\.\\d{6}Z");
         assertThat(count("carteira_snapshots", fixture.wallet())).isZero();
         assertThat(version(fixture.wallet())).isZero();
@@ -153,13 +153,16 @@ class PortfolioValuationIT extends PostgreSqlContainerSupport {
         assertThat(exchange.calls.get()).isEqualTo(1);
         quotes.failure = new QuoteIntegrationException("unavailable");
         mvc.perform(post("/api/v1/carteira/resumo/atualizar").header(HttpHeaders.AUTHORIZATION, bearer(fixture)))
-                .andExpect(status().isBadGateway()).andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.cotacoesDisponiveis").value(false))
+                .andExpect(jsonPath("$.saldoCaixaBrl").value(10.0))
+                .andExpect(jsonPath("$.valorPosicoesBrl").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(header().exists("X-Correlation-ID"));
         assertThat(count("carteira_snapshots", fixture.wallet())).isZero();
         quotes.failure = null;
         exchange.failure = new CambioUnavailableException("unavailable", new IllegalStateException());
         mvc.perform(post("/api/v1/carteira/resumo/atualizar").header(HttpHeaders.AUTHORIZATION, bearer(fixture)))
-                .andExpect(status().isBadGateway()).andExpect(header().exists("X-Correlation-ID"));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.cotacoesDisponiveis").value(false))
+                .andExpect(header().exists("X-Correlation-ID"));
         assertThat(count("carteira_snapshots", fixture.wallet())).isZero();
     }
 

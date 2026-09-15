@@ -76,12 +76,7 @@ public class CambioApplicationService implements CambioUseCase {
 	}
 
 	private CambioExterno resolveExternal() {
-		try {
-			return provider(CambioProvider.ALPHA_VANTAGE).obterUsdBrl();
-		} catch (CambioProviderException primary) {
-			if (!primary.fallbackEligible()) throw primary;
-			return provider(CambioProvider.TWELVE_DATA).obterUsdBrl();
-		}
+		return provider(CambioProvider.TWELVE_DATA).obterUsdBrl();
 	}
 
 	private CambioProviderPort provider(CambioProvider provider) {

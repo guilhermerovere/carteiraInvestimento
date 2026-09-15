@@ -44,10 +44,11 @@ public class InvestmentApplicationService implements InvestmentUseCase {
     public InvestmentOperationResult execute(UUID userId, InvestmentTransactionCommand raw, String key,
             UUID correlationId, String endpoint) {
         Objects.requireNonNull(userId, "userId is required");
+        persistence.lockActiveUser(userId);
         if (raw == null || raw.assetId() == null || raw.brokerId() == null || raw.type() == null
                 || raw.tradeDate() == null) throw new IllegalArgumentException("missing transaction field");
         if (key == null || !KEY.matcher(key).matches()) throw new IllegalArgumentException("invalid idempotency key");
-        BigDecimal quantity = InvestmentNumbers.positiveInput(raw.quantity(), "quantity");
+        BigDecimal quantity = InvestmentNumbers.positiveIntegerInput(raw.quantity(), "quantity");
         BigDecimal unitPrice = InvestmentNumbers.positiveInput(raw.unitPrice(), "unit price");
         BigDecimal fees = InvestmentNumbers.nonNegativeInput(raw.fees(), "fees");
         Instant tradeInstant = micros(raw.tradeDate().toInstant());
@@ -111,7 +112,7 @@ public class InvestmentApplicationService implements InvestmentUseCase {
         persistence.complete(((NewReservation) reservation).id(), transactionView, sourceValue,
                 resultingBalance, resultingPosition);
         return new InvestmentOperationResult(transactionView, sourceValue, resultingBalance,
-                new PositionView(resultingPosition, asset.ticker()));
+                PositionView.from(resultingPosition, asset));
     }
 
     @Override @Transactional(readOnly = true)
@@ -149,7 +150,7 @@ public class InvestmentApplicationService implements InvestmentUseCase {
         if (fx.source() != MoedaCambio.USD || fx.target() != MoedaCambio.BRL)
             throw new InvestmentConflictException("invalid exchange-rate pair");
         if (operationInstant.isAfter(fx.registeredAt().plus(5, ChronoUnit.MINUTES)))
-            throw new InvestmentConflictException("expired exchange rate");
+            throw new FxExpiredException();
         return fx.rate().setScale(8);
     }
 

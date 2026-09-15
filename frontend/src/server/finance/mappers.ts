@@ -1,11 +1,11 @@
 import "server-only";
 import type {
   CashBalance, CashMovement, Currency, ExchangeProvider, Market, Page, PortfolioSummary,
-  Position, QuoteProvider, Transaction, TransactionType, ValuedPosition,
+  LogoProvider, Position, QuoteProvider, Transaction, TransactionType, ValuedPosition,
 } from "@/lib/finance/contracts";
 
 type Data = Record<string, unknown>;
-const DECIMAL = /^-?(?:0|[1-9]\d*)(?:\.\d+)?$/;
+const LOSSLESS_DECIMAL = /^(-?)(0|[1-9]\d*)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/;
 
 function object(value: unknown, field = "response"): Data {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new TypeError(field + " inválido");
@@ -16,14 +16,24 @@ function string(value: unknown, field: string): string {
   return value;
 }
 function nullableString(value: unknown, field: string): string | null {
-  return value === null ? null : string(value, field);
+  return value === null || value === undefined ? null : string(value, field);
 }
 function decimal(value: unknown, field: string): string {
-  if (typeof value !== "string" || !DECIMAL.test(value)) throw new TypeError(field + " decimal inválido");
-  return value;
+  if (typeof value !== "string") throw new TypeError(field + " decimal inválido");
+  const match = LOSSLESS_DECIMAL.exec(value);
+  if (!match) throw new TypeError(field + " decimal inválido");
+  if (match[4] === undefined) return value;
+  if (match[4].replace(/^[+-]/, "").length > 3) throw new TypeError(field + " decimal inválido");
+  const decimalPlaces = (match[3] ?? "").length - Number(match[4]);
+  if (decimalPlaces > 100 || decimalPlaces < -100) throw new TypeError(field + " decimal inválido");
+  const digits = match[2] + (match[3] ?? "");
+  if (decimalPlaces <= 0) return match[1] + digits + "0".repeat(-decimalPlaces);
+  const point = digits.length - decimalPlaces;
+  if (point > 0) return match[1] + digits.slice(0, point) + "." + digits.slice(point);
+  return match[1] + "0." + "0".repeat(-point) + digits;
 }
 function nullableDecimal(value: unknown, field: string): string | null {
-  return value === null ? null : decimal(value, field);
+  return value === null || value === undefined ? null : decimal(value, field);
 }
 function oneOf<T extends string>(value: unknown, values: readonly T[], field: string): T {
   if (typeof value !== "string" || !values.includes(value as T)) throw new TypeError(field + " inválido");
@@ -33,6 +43,7 @@ function array(value: unknown, field: string): unknown[] {
   if (!Array.isArray(value)) throw new TypeError(field + " inválido");
   return value;
 }
+function boolean(value: unknown, field: string): boolean { if (typeof value !== "boolean") throw new TypeError(field + " inválido"); return value; }
 function safeCounter(value: unknown, field: string): number {
   let parsed: number;
   if (typeof value === "string" && /^(0|[1-9]\d*)$/.test(value)) parsed = Number(value);
@@ -52,13 +63,14 @@ function mapValuedPosition(value: unknown): ValuedPosition {
     quantidade: decimal(d.quantidade, "quantidade"),
     precoMedioBrl: decimal(d.precoMedioBrl, "precoMedioBrl"),
     totalInvestidoBrl: decimal(d.totalInvestidoBrl, "totalInvestidoBrl"),
-    cotacaoAtual: decimal(d.cotacaoAtual, "cotacaoAtual"),
-    providerCotacao: oneOf<QuoteProvider>(d.providerCotacao, ["BRAPI", "ALPHA_VANTAGE", "TWELVE_DATA"], "providerCotacao"),
-    instanteCotacao: string(d.instanteCotacao, "instanteCotacao"),
-    valorAtualOrigem: decimal(d.valorAtualOrigem, "valorAtualOrigem"),
-    valorAtualBrl: decimal(d.valorAtualBrl, "valorAtualBrl"),
-    lucroNaoRealizadoBrl: decimal(d.lucroNaoRealizadoBrl, "lucroNaoRealizadoBrl"),
-    rentabilidadePercentual: decimal(d.rentabilidadePercentual, "rentabilidadePercentual"),
+    cotacaoAtual: decimal(d.cotacaoAtual ?? "0", "cotacaoAtual"),
+    providerCotacao: d.providerCotacao === null ? "TWELVE_DATA" : oneOf<QuoteProvider>(d.providerCotacao, ["BRAPI", "ALPHA_VANTAGE", "TWELVE_DATA"], "providerCotacao"),
+    instanteCotacao: d.instanteCotacao === null ? d.valuationInstant as string : string(d.instanteCotacao, "instanteCotacao"),
+    valorAtualOrigem: decimal(d.valorAtualOrigem ?? "0", "valorAtualOrigem"),
+    valorAtualBrl: decimal(d.valorAtualBrl ?? "0", "valorAtualBrl"),
+    lucroNaoRealizadoBrl: decimal(d.lucroNaoRealizadoBrl ?? "0", "lucroNaoRealizadoBrl"),
+    rentabilidadePercentual: decimal(d.rentabilidadePercentual ?? "0", "rentabilidadePercentual"),
+    cotacaoDisponivel: d.cotacaoDisponivel !== false,
   };
 }
 
@@ -69,10 +81,10 @@ export function mapSummary(value: unknown): PortfolioSummary {
     valuationInstant: string(d.valuationInstant, "valuationInstant"),
     saldoCaixaBrl: decimal(d.saldoCaixaBrl, "saldoCaixaBrl"),
     totalInvestidoBrl: decimal(d.totalInvestidoBrl, "totalInvestidoBrl"),
-    valorPosicoesBrl: decimal(d.valorPosicoesBrl, "valorPosicoesBrl"),
-    lucroNaoRealizadoBrl: decimal(d.lucroNaoRealizadoBrl, "lucroNaoRealizadoBrl"),
+    valorPosicoesBrl: decimal(d.valorPosicoesBrl ?? "0", "valorPosicoesBrl"),
+    lucroNaoRealizadoBrl: decimal(d.lucroNaoRealizadoBrl ?? "0", "lucroNaoRealizadoBrl"),
     lucroRealizadoAcumuladoBrl: decimal(d.lucroRealizadoAcumuladoBrl, "lucroRealizadoAcumuladoBrl"),
-    patrimonioTotalBrl: decimal(d.patrimonioTotalBrl, "patrimonioTotalBrl"),
+    patrimonioTotalBrl: decimal(d.patrimonioTotalBrl ?? "0", "patrimonioTotalBrl"),
     rentabilidadeNaoRealizadaPercentual: nullableDecimal(d.rentabilidadeNaoRealizadaPercentual, "rentabilidadeNaoRealizadaPercentual"),
     cambioAtual: exchange ? {
       taxaCambioBrl: decimal(exchange.taxaCambioBrl, "taxaCambioBrl"),
@@ -80,6 +92,7 @@ export function mapSummary(value: unknown): PortfolioSummary {
       instanteCambio: string(exchange.instanteCambio, "instanteCambio"),
     } : null,
     posicoes: array(d.posicoes, "posicoes").map(mapValuedPosition),
+    cotacoesDisponiveis: d.cotacoesDisponiveis !== false,
   };
 }
 
@@ -87,6 +100,10 @@ export function mapPosition(value: unknown): Position {
   const d = object(value, "posição");
   return {
     id: string(d.id, "id"), ativoId: string(d.ativoId, "ativoId"), ticker: string(d.ticker, "ticker"),
+    nome: string(d.nome, "nome"), mercado: oneOf<Market>(d.mercado, ["B3", "US"], "mercado"),
+    moeda: oneOf<Currency>(d.moeda, ["BRL", "USD"], "moeda"), ativo: boolean(d.ativo, "ativo"),
+    logoProvider: d.logoProvider === null ? null : oneOf<LogoProvider>(d.logoProvider, ["BRAPI", "LOGO_DEV"], "logoProvider"),
+    logoReference: nullableString(d.logoReference, "logoReference"),
     quantidade: decimal(d.quantidade, "quantidade"), precoMedioBrl: decimal(d.precoMedioBrl, "precoMedioBrl"),
     totalInvestidoBrl: decimal(d.totalInvestidoBrl, "totalInvestidoBrl"),
     lucroRealizadoAcumuladoBrl: decimal(d.lucroRealizadoAcumuladoBrl, "lucroRealizadoAcumuladoBrl"),
@@ -98,7 +115,11 @@ export function mapTransaction(value: unknown): Transaction {
   const d = object(value, "transação");
   return {
     id: string(d.id, "id"), ativoId: string(d.ativoId, "ativoId"), ticker: string(d.ticker, "ticker"),
+    nome: d.nome === undefined || d.nome === null ? undefined : string(d.nome, "nome"),
+    logoProvider: d.logoProvider === undefined || d.logoProvider === null ? null : oneOf<LogoProvider>(d.logoProvider, ["BRAPI", "LOGO_DEV"], "logoProvider"),
+    logoReference: d.logoReference === undefined || d.logoReference === null ? null : string(d.logoReference, "logoReference"),
     corretoraId: string(d.corretoraId, "corretoraId"), exchangeRateId: nullableString(d.exchangeRateId, "exchangeRateId"),
+    corretoraNome: d.corretoraNome === undefined || d.corretoraNome === null ? null : string(d.corretoraNome, "corretoraNome"),
     tipo: oneOf<TransactionType>(d.tipo, ["BUY", "SELL"], "tipo"),
     quantidade: decimal(d.quantidade, "quantidade"), moeda: oneOf<Currency>(d.moeda, ["BRL", "USD"], "moeda"),
     precoUnitario: decimal(d.precoUnitario, "precoUnitario"), taxas: decimal(d.taxas, "taxas"),

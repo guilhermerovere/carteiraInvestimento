@@ -52,7 +52,7 @@ class AssetCatalogSecurityIT extends PostgreSqlContainerSupport {
 	}
 
 	@Test
-	void anonymousIsUnauthorizedAndUserCanReadButCannotMutateWithAuditedForbidden() throws Exception {
+	void anonymousIsUnauthorizedAndUserCanReadRegisterShapeButCannotAdminister() throws Exception {
 		Usuario user = user(Role.ROLE_USER);
 		String bearer = bearer(user);
 		UUID correlationId = UUID.randomUUID();
@@ -61,8 +61,8 @@ class AssetCatalogSecurityIT extends PostgreSqlContainerSupport {
 		mvc.perform(post("/api/v1/acoes").header(HttpHeaders.AUTHORIZATION, bearer)
 				.header("X-Correlation-ID", correlationId).contentType(MediaType.APPLICATION_JSON)
 				.content("{\"ticker\":\"PETR4\",\"nome\":\"Petrobras\",\"tipo\":\"ACAO\",\"mercado\":\"B3\"}"))
-				.andExpect(status().isForbidden()).andExpect(header().string("X-Correlation-ID", correlationId.toString()));
-		assertThat(auditCount(user.id(), correlationId)).isEqualTo(1);
+				.andExpect(status().isBadRequest()).andExpect(header().string("X-Correlation-ID", correlationId.toString()));
+		assertThat(auditCount(user.id(), correlationId)).isZero();
 		UUID patchCorrelationId = UUID.randomUUID();
 		mvc.perform(patch("/api/v1/acoes/{id}", UUID.randomUUID()).header(HttpHeaders.AUTHORIZATION, bearer)
 				.header("X-Correlation-ID", patchCorrelationId).contentType(MediaType.APPLICATION_JSON)

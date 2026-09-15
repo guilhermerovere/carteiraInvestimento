@@ -14,7 +14,7 @@ public record PortfolioValuationResponse(Instant valuationInstant, BigDecimal sa
         BigDecimal totalInvestidoBrl, BigDecimal valorPosicoesBrl, BigDecimal lucroNaoRealizadoBrl,
         BigDecimal lucroRealizadoAcumuladoBrl, BigDecimal patrimonioTotalBrl,
         BigDecimal rentabilidadeNaoRealizadaPercentual, CambioAtualResponse cambioAtual,
-        List<ValuedPositionResponse> posicoes) {
+        List<ValuedPositionResponse> posicoes, boolean cotacoesDisponiveis) {
 
     public static PortfolioValuationResponse from(PortfolioValuationResult value) {
         CambioAtualResponse exchange = value.currentExchangeRate() == null ? null
@@ -22,7 +22,7 @@ public record PortfolioValuationResponse(Instant valuationInstant, BigDecimal sa
         return new PortfolioValuationResponse(value.valuationInstant(), value.cashBalanceBrl(), value.investedBrl(),
                 value.positionsValueBrl(), value.unrealizedProfitBrl(), value.accumulatedRealizedProfitBrl(),
                 value.totalEquityBrl(), value.unrealizedReturnPercentage(), exchange,
-                value.positions().stream().map(ValuedPositionResponse::from).toList());
+                value.positions().stream().map(ValuedPositionResponse::from).toList(), value.marketDataAvailable());
     }
 
     public record CambioAtualResponse(BigDecimal taxaCambioBrl, CambioProvider provider, Instant instanteCambio) {
@@ -35,12 +35,12 @@ public record PortfolioValuationResponse(Instant valuationInstant, BigDecimal sa
             BigDecimal quantidade, BigDecimal precoMedioBrl, BigDecimal totalInvestidoBrl,
             BigDecimal cotacaoAtual, QuoteProvider providerCotacao, Instant instanteCotacao,
             BigDecimal valorAtualOrigem, BigDecimal valorAtualBrl, BigDecimal lucroNaoRealizadoBrl,
-            BigDecimal rentabilidadePercentual) {
+            BigDecimal rentabilidadePercentual, boolean cotacaoDisponivel) {
         static ValuedPositionResponse from(PortfolioValuationResult.ValuedPosition value) {
             return new ValuedPositionResponse(value.assetId(), value.ticker(), value.market(), value.currency(),
                     value.quantity(), value.averagePriceBrl(), value.investedBrl(), value.currentQuote(),
                     value.quoteProvider(), value.quoteInstant(), value.currentValueSource(), value.currentValueBrl(),
-                    value.unrealizedProfitBrl(), value.returnPercentage());
+                    value.unrealizedProfitBrl(), value.returnPercentage(), value.marketDataAvailable());
         }
     }
 }

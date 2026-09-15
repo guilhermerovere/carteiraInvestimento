@@ -142,6 +142,42 @@ class AtivoControllerTest {
 				.andExpect(status().isConflict()).andExpect(content().string(not(containsString("uk_acoes_ticker"))));
 	}
 
+	@Test
+	void userCanOnlySubmitTickerAndMarket() throws Exception {
+		Ativo ativo = asset("PETR4", "Petrobras");
+		when(useCase.registrar(" petr4 ", Mercado.B3)).thenReturn(new com.carteira.carteiraInvestimento.application.service.AtivoRegistrationResult(ativo, "PETR4", true));
+		mvc.perform(post("/api/v1/acoes").principal(user).contentType(MediaType.APPLICATION_JSON)
+				.content("{\"ticker\":\" petr4 \",\"mercado\":\"B3\"}"))
+				.andExpect(status().isCreated()).andExpect(jsonPath("$.ticker").value("PETR4"));
+		for (String body : List.of(
+				"{\"ticker\":\"PETR4\",\"mercado\":\"B3\",\"nome\":\"fake\"}",
+				"{\"ticker\":\"PETR4\",\"mercado\":\"B3\",\"logoUrl\":\"https://evil.test\"}")) {
+			mvc.perform(post("/api/v1/acoes").principal(user).contentType(MediaType.APPLICATION_JSON).content(body))
+					.andExpect(status().isBadRequest());
+		}
+	}
+
+	@Test
+	void userAndAdminUseTheSameProviderBackedRegistrationPath() throws Exception {
+		Ativo ativo = asset("PETR4", "Petroleo Brasileiro SA Pfd");
+		when(useCase.registrar("PETR4", Mercado.B3)).thenReturn(
+				new com.carteira.carteiraInvestimento.application.service.AtivoRegistrationResult(ativo, "PETR4", true));
+		for (TestingAuthenticationToken principal : List.of(user, admin)) {
+			mvc.perform(post("/api/v1/acoes").principal(principal).contentType(MediaType.APPLICATION_JSON)
+					.content("{\"ticker\":\"PETR4\",\"mercado\":\"B3\"}"))
+					.andExpect(status().isCreated()).andExpect(jsonPath("$.nome").value("Petroleo Brasileiro SA Pfd"));
+		}
+		verify(useCase, Mockito.times(2)).registrar("PETR4", Mercado.B3);
+	}
+
+	@Test
+	void userCanUseB3DiscoveryBeforeRegistration() throws Exception {
+		when(useCase.descobrir("PETR", Mercado.B3)).thenReturn(List.of("PETR4", "PETR4F"));
+		mvc.perform(get("/api/v1/acoes/discovery?q=PETR&mercado=B3").principal(user))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].ticker").value("PETR4"))
+				.andExpect(jsonPath("$[1].ticker").value("PETR4F"));
+	}
+
 	private Ativo asset(String ticker, String nome) {
 		Mercado mercado = ticker.matches(".*\\d.*") ? Mercado.B3 : Mercado.US;
 		return Ativo.novo(ticker, nome, TipoAtivo.ACAO, mercado);

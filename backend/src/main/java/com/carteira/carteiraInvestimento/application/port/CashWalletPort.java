@@ -9,6 +9,8 @@ public interface CashWalletPort {
 
 	Optional<Wallet> findPrimaryByUserId(UUID userId);
 
+	void lockActiveUser(UUID userId);
+
 	BigDecimal balance(UUID walletId);
 
 	Optional<BigDecimal> credit(UUID walletId, BigDecimal amount);

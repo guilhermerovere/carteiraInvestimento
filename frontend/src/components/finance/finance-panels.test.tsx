@@ -67,31 +67,32 @@ describe("painéis financeiros isolados", () => {
     expect(document.body.textContent).not.toMatch(/comprar|depositar/i);
   });
 
-  it("prioriza patrimônio, contexto, métricas e freshness sem alegar simultaneidade", () => {
+  it("prioriza patrimônio, métricas e última atualização em composição compacta", () => {
     render(<SummaryPanel />);
     expect(screen.getByText("Patrimônio total")).toBeInTheDocument();
-    expect(screen.getByText("R$ 125.001.200,22345679")).toBeInTheDocument();
+    expect(screen.getByText("R$ 125.001.200,22")).toBeInTheDocument();
     expect(screen.getAllByText("Lucro").length).toBeGreaterThan(0);
     expect(screen.getByText("Saldo em caixa")).toBeInTheDocument();
-    expect(screen.getByText(/Carteira calculada em/)).toBeInTheDocument();
-    expect(screen.getByText(/podem ser diferentes/)).toBeInTheDocument();
+    expect(screen.getByText("Última atualização")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Minhas posições" })).toBeInTheDocument();
+    expect(screen.getAllByText("R$ 123.456.789,1235").length).toBeGreaterThan(0);
   });
 
   it("mantém o último resumo em falhas 409 e 502 de refresh e oferece retry", () => {
     hooks.refresh = { isPending: false, isError: true, error: new FinanceApiError(409, { status: 409, title: "Conflict" }), mutateAsync: vi.fn() };
     const { rerender } = render(<SummaryPanel />);
-    expect(screen.getByText("R$ 125.001.200,22345679")).toBeInTheDocument();
+    expect(screen.getByText("R$ 125.001.200,22")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Os dados da carteira mudaram durante a atualização");
     hooks.refresh = { isPending: false, isError: true, error: new FinanceApiError(502, { status: 502, title: "Bad gateway" }), mutateAsync: vi.fn() };
     rerender(<SummaryPanel />);
-    expect(screen.getByText("R$ 125.001.200,22345679")).toBeInTheDocument();
+    expect(screen.getByText("R$ 125.001.200,22")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível atualizar os dados de mercado agora");
   });
 
   it("impede refresh duplicado enquanto a primeira solicitação está em voo", async () => {
     hooks.refresh.mutateAsync = vi.fn(() => new Promise(() => undefined));
     render(<SummaryPanel />);
-    const button = screen.getByRole("button", { name: "Atualizar mercado" });
+    const button = screen.getByRole("button", { name: "Atualizar" });
     await userEvent.click(button);
     await userEvent.click(button);
     expect(hooks.refresh.mutateAsync).toHaveBeenCalledOnce();
@@ -101,27 +102,37 @@ describe("painéis financeiros isolados", () => {
   it("enriquece posições só por ativoId e mostra indisponível quando o valuation falta", () => {
     hooks.positions = successful({ ...pageOf(position), items: [position, { ...position, id: "77777777-7777-4777-8777-777777777777", ativoId: secondAssetId }] });
     render(<PositionsPanel />);
-    expect(screen.getByRole("table", { name: "Posições abertas" })).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
     expect(screen.getAllByText("ACME3").length).toBeGreaterThan(1);
-    expect(screen.getAllByText("Indisponível").length).toBeGreaterThan(0);
-    expect(screen.getByText(/Valuation não atualizado para este ativo/)).toBeInTheDocument();
-    expect(screen.getAllByText("Detalhes").length).toBeGreaterThan(1);
+    expect(screen.getAllByText("Cotação indisponível").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("R$ 123.456.789,1235").length).toBeGreaterThan(0);
+    expect(screen.getByText("Variação / Resultado")).toBeInTheDocument();
   });
 
   it("uma falha de posições não remove um resumo carregado", () => {
     hooks.positions = { ...successful(pageOf(position)), isError: true, error: new FinanceApiError(502, { status: 502, title: "Falha" }) };
     render(<><SummaryPanel /><PositionsPanel /></>);
-    expect(screen.getByText("R$ 125.001.200,22345679")).toBeInTheDocument();
+    expect(screen.getByText("R$ 125.001.200,22")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toBeInTheDocument();
   });
 
-  it("exibe transação textual e detalhes reais sem edição ou nome de corretora inventado", () => {
+  it("exibe histórico tabular persistido sem edição nem identificadores técnicos", () => {
     render(<TransactionsPanel />);
-    expect(screen.getByText("SELL · Venda")).toBeInTheDocument();
+    expect(screen.getByText("Venda")).toBeInTheDocument();
     expect(screen.getByText("Prejuízo realizado")).toBeInTheDocument();
-    expect(screen.getByText("Identificador da corretora")).toBeInTheDocument();
-    expect(screen.getByText(transaction.corretoraId)).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/editar|excluir/i);
+    expect(screen.getByText("XP Investimentos")).toBeInTheDocument();
+    expect(screen.getByText("ACME S.A.")).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(new RegExp(transaction.corretoraId));
+    expect(document.body.textContent).not.toMatch(/editar|excluir|uuid/i);
+  });
+
+  it("preserva o histórico persistido quando uma atualização complementar falha", () => {
+    hooks.transactions = { ...successful(pageOf(transaction)), isError: true, error: new FinanceApiError(502, { status: 502, title: "Falha externa" }) };
+    render(<TransactionsPanel />);
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByText("Venda")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Os dados exibidos foram preservados");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("dados de mercado");
   });
 
   it("isola saldo e histórico e nunca inventa saldo resultante por movimento", () => {

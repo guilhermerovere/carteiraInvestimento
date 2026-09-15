@@ -69,4 +69,7 @@ application:
       url: ${BRASIL_API_CVM_URL:https://brasilapi.com.br}
     via-cep:
       url: ${VIA_CEP_URL:https://viacep.com.br}
+  logo-dev:
+    url: ${LOGO_DEV_URL:https://api.logo.dev}
+    secret-key: ${LOGO_DEV_SECRET_KEY:}
 

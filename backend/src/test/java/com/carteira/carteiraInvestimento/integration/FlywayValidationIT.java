@@ -24,7 +24,7 @@ class FlywayValidationIT extends PostgreSqlContainerSupport {
 		migrations.migrate();
 
 		assertThat(migrations.validateWithResult().validationSuccessful).isTrue();
-		assertThat(migrations.info().current().getVersion().getVersion()).isEqualTo("10");
+		assertThat(migrations.info().current().getVersion().getVersion()).isEqualTo("11");
 	}
 
 	@Test

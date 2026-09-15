@@ -1,0 +1,2 @@
+import { financeErrorResponse, financeJson } from "@/server/finance/response";import { financeBackendRequest } from "@/server/finance/transport";import { safeCorrelationId,strictPagination } from "@/server/finance/validation";
+export async function GET(request:Request){const c=safeCorrelationId(request.headers.get("x-correlation-id"));try{const {page,size}=strictPagination(request);const r=await financeBackendRequest(`/api/v1/corretoras?page=${page}&size=${size}`,{correlationId:c});return financeJson(r.data,r.correlationId);}catch(e){return financeErrorResponse(e,c);}}

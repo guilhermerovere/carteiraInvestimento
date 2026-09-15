@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -43,7 +43,7 @@ describe("shell financeiro autenticado", () => {
     const expand = screen.getByRole("button", { name: "Expandir menu" });
     expect(expand).toHaveFocus();
     expect(expand.closest(".app-shell")).toHaveClass("app-shell--collapsed");
-    expect(screen.getAllByRole("tooltip").map((item) => item.textContent)).toEqual(["Carteira", "Posições", "Transações", "Movimentações", "Expandir menu"]);
+    expect(screen.getAllByRole("tooltip").map((item) => item.textContent)).toEqual(["Carteira", "Posições", "Ativos", "Transações", "Movimentações", "Operar", "Expandir menu"]);
     await interaction.keyboard(" ");
     const collapseAgain = screen.getByRole("button", { name: "Recolher menu" });
     expect(collapseAgain).toHaveFocus();
@@ -52,12 +52,55 @@ describe("shell financeiro autenticado", () => {
     expect(screen.getByRole("button", { name: "Expandir menu" })).toHaveFocus();
   });
 
-  it("usa o logout existente e não oferece operações financeiras", async () => {
+  it("usa o logout existente e oferece o launcher financeiro ROLE_USER", async () => {
     render(<AppShell user={user}><span>conteúdo</span></AppShell>);
     await userEvent.click(screen.getAllByRole("button", { name: "Sair" })[0]);
     expect(logout).toHaveBeenCalledOnce();
     expect(replace).toHaveBeenCalledWith("/login");
-    expect(document.body.textContent).not.toMatch(/comprar|vender|depositar|sacar/i);
+    expect(document.body.textContent).toMatch(/comprar|depositar|sacar/i);
+    expect(document.body.textContent).not.toMatch(/vender/i);
+  });
+
+  it("posiciona Operar no rodapé da sidebar, acima de Recolher, e o integra ao menu Mais móvel", async () => {
+    render(<AppShell user={user}><span>conteúdo</span></AppShell>);
+    const sidebar = screen.getByRole("complementary", { name: "Navegação financeira" });
+    await waitFor(() => expect(sidebar.querySelector('summary[aria-label="Operar"]')).not.toBeNull());
+    const operate = sidebar.querySelector<HTMLElement>('summary[aria-label="Operar"]');
+    const collapse = screen.getByRole("button", { name: "Recolher menu" });
+    expect(operate).not.toBeNull();
+    expect(operate!.compareDocumentPosition(collapse) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.querySelector(".shell-header")?.contains(operate)).toBe(false);
+    const more = screen.getByText("Mais").closest("details");
+    expect(more?.querySelector("#mobile-operation-slot summary[aria-label='Operar']")).not.toBeNull();
+  });
+
+  it("abre Operar recolhido como popover lateral compacto e mantém ações por teclado", async () => {
+    render(<AppShell user={user}><span>conteúdo</span></AppShell>);
+    const interaction = userEvent.setup();
+    await interaction.click(screen.getByRole("button", { name: "Recolher menu" }));
+    const operate = document.querySelector<HTMLElement>(".desktop-sidebar summary[aria-label='Operar']");
+    expect(operate).not.toBeNull();
+    await interaction.click(operate!);
+    const menu = within(operate!.parentElement!).getByRole("menu", { name: "Operações financeiras" });
+    expect(menu).toBeVisible();
+    expect(menu).toHaveClass("operation-launcher__menu");
+    expect(operate!.parentElement).toHaveAttribute("open");
+    expect(within(menu).getByRole("menuitem", { name: "Comprar" })).toBeVisible();
+    await interaction.keyboard("{Escape}");
+    expect(operate).toHaveFocus();
+    expect(operate!.parentElement).not.toHaveAttribute("open");
+  });
+
+  it("abre o perfil por teclado, oferece Configurações e fecha com Escape restaurando o foco", async () => {
+    render(<AppShell user={user}><span>conteúdo</span></AppShell>);
+    const interaction = userEvent.setup();
+    const summary = screen.getByText("Ada Lovelace", { selector: "summary strong" }).closest("summary")!;
+    summary.focus(); await interaction.keyboard("{Enter}");
+    const settings = within(summary.parentElement!).getByRole("link", { name: /Configurações/ });
+    expect(settings).toHaveAttribute("href", "/configuracoes");
+    await interaction.keyboard("{Escape}");
+    expect(summary.parentElement).not.toHaveAttribute("open");
+    expect(summary).toHaveFocus();
   });
 
   it("preserva boundaries do layout, tokens, foco, reduced motion e safe areas", () => {
@@ -75,6 +118,8 @@ describe("shell financeiro autenticado", () => {
     expect(css).toMatch(/:focus-visible/);
     expect(css).toMatch(/prefers-reduced-motion:\s*reduce/);
     expect(css).toContain("safe-area-inset-bottom");
+    expect(css).toMatch(/\.operation-dialog\s*\{[^}]*max-width:\s*38rem[^}]*margin:\s*auto/);
+    expect(css).toMatch(/@media\s*\(max-width:\s*720px\)[\s\S]*\.operation-dialog/);
     const financeComponents = readFileSync(join(process.cwd(), "src/components/finance/summary-panel.tsx"), "utf8") + readFileSync(join(process.cwd(), "src/components/finance/positions-panel.tsx"), "utf8");
     expect(financeComponents).not.toMatch(/#[0-9a-f]{3,8}|rgb\(/i);
   });

@@ -1,6 +1,7 @@
 import "server-only";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const OFFSET_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/;
 
 export class FinanceValidationError extends Error {
   readonly status = 400;
@@ -48,3 +49,26 @@ export function assertUuid(value: string): string {
 export function safeCorrelationId(value: string | null): string | undefined {
   return value && UUID.test(value) ? value : undefined;
 }
+
+export function assertIdempotencyKey(value: string | null): string {
+  if (!value || value.length > 128 || !UUID.test(value)) throw new FinanceValidationError("Idempotency-Key inválida.");
+  return value;
+}
+export function assertDecimal(value: unknown, precision: number, scale: number, positive = false): string {
+  if (typeof value !== "string" || !/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(value)) throw new FinanceValidationError("Decimal inválido.");
+  const [whole, fraction = ""] = value.split(".");
+  if (whole.length + fraction.length > precision || fraction.length > scale || (positive && /^0(?:\.0+)?$/.test(value))) throw new FinanceValidationError("Precisão ou escala inválida.");
+  return value;
+}
+export function assertOffsetDateTime(value: unknown): string {
+  if (typeof value !== "string" || !OFFSET_DATE_TIME.test(value) || Number.isNaN(Date.parse(value))) throw new FinanceValidationError("Data e hora com offset inválidas.");
+  return value;
+}
+export function strictObject(value: unknown, required: readonly string[], optional: readonly string[] = []): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new FinanceValidationError();
+  const object = value as Record<string, unknown>; const allowed = new Set([...required, ...optional]);
+  if (required.some((key) => !(key in object)) || Object.keys(object).some((key) => !allowed.has(key))) throw new FinanceValidationError("Campos inválidos.");
+  return object;
+}
+export async function strictJson(request: Request): Promise<unknown> { try { return JSON.parse(await request.text()); } catch { throw new FinanceValidationError("JSON inválido."); } }
+export function assertEnum<T extends string>(value: unknown, allowed: readonly T[]): T { if (typeof value !== "string" || !allowed.includes(value as T)) throw new FinanceValidationError("Enum inválido."); return value as T; }

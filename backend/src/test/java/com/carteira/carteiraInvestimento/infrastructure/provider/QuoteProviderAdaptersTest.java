@@ -3,14 +3,20 @@ package com.carteira.carteiraInvestimento.infrastructure.provider;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doThrow;
 
 import com.carteira.carteiraInvestimento.application.service.QuoteIntegrationException;
 import com.carteira.carteiraInvestimento.application.service.QuoteNotFoundException;
+import com.carteira.carteiraInvestimento.application.service.AssetValidationUnavailableException;
+import com.carteira.carteiraInvestimento.domain.asset.Mercado;
+import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import com.carteira.carteiraInvestimento.domain.asset.Moeda;
 import com.carteira.carteiraInvestimento.infrastructure.config.MarketQuoteProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import java.time.Instant;
 import java.math.BigDecimal;
@@ -22,15 +28,20 @@ import org.junit.jupiter.api.Test;
 
 class QuoteProviderAdaptersTest {
 	@Test
-	void brapiParsesIsoInstantDecimalCurrencyAndClassifiesFailures() {
+	void brapiParsesObservedV2PayloadAndClassifiesFailures() throws Exception {
 		BrapiClient client = mock(BrapiClient.class);
-		when(client.quote(anyString(), anyString())).thenReturn(new BrapiResponse(List.of(
-				new BrapiResult("PETR4", new BigDecimal("123.456789"), "BRL", "2026-09-08T18:30:00Z"))));
+		BrapiResponse observed = new ObjectMapper().readValue("""
+				{"results":[{"requestedSymbol":"PETR4","symbol":"PETR4","changed":false,"data":{
+				"shortName":"PETR4","longName":"Petroleo Brasileiro SA Pfd","currency":"BRL",
+				"regularMarketPrice":49,"logourl":"https://icons.brapi.dev/icons/PETR4.svg"}}]}
+				""", BrapiResponse.class);
+		when(client.quote(anyString(), anyString())).thenReturn(observed);
 		var adapter = new BrapiQuoteAdapter(client, properties("key", "key", "key"));
+		Instant before = Instant.now();
 		var quote = adapter.obter("PETR4");
-		assertThat(quote.preco()).isEqualByComparingTo("123.456789");
+		assertThat(quote.preco()).isEqualByComparingTo("49");
 		assertThat(quote.moeda()).isEqualTo(Moeda.BRL);
-		assertThat(quote.instanteCotacao()).isEqualTo(Instant.parse("2026-09-08T18:30:00Z"));
+		assertThat(quote.instanteCotacao()).isBetween(before, Instant.now());
 
 		when(client.quote(anyString(), anyString())).thenReturn(new BrapiResponse(List.of()));
 		assertThatThrownBy(() -> adapter.obter("PETR4")).isInstanceOf(QuoteIntegrationException.class);
@@ -93,15 +104,80 @@ class QuoteProviderAdaptersTest {
 	void twelveDataUsesUnixTimestampAndClassifiesProviderErrors() {
 		TwelveDataClient client = mock(TwelveDataClient.class);
 		when(client.quote(anyString(), anyString())).thenReturn(
-				new TwelveResponse("201.535", "USD", 1782923400L, "ok", null, null));
+				quote("AAPL", "Apple Inc.", "201.535"));
 		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
 		assertThat(adapter.obter("AAPL").instanteCotacao()).isEqualTo(Instant.ofEpochSecond(1782923400L));
 		when(client.quote(anyString(), anyString())).thenReturn(
-				new TwelveResponse(null, null, null, "error", 404, "symbol not found"));
+				new TwelveResponse(null, null, null, null, null, null, null, null, "error", 404, "symbol not found"));
 		assertThatThrownBy(() -> adapter.obter("BAD")).isInstanceOf(QuoteNotFoundException.class);
 		when(client.quote(anyString(), anyString())).thenReturn(
-				new TwelveResponse(null, null, null, "error", 429, "rate limit"));
+				new TwelveResponse(null, null, null, null, null, null, null, null, "error", 429, "rate limit"));
 		assertThatThrownBy(() -> adapter.obter("AAPL")).isInstanceOf(QuoteIntegrationException.class);
+	}
+
+	@Test
+	void twelveDataUsesExactQuoteForUsValidationAndAllQaTickersHaveUsdQuotes() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.quote(anyString(), anyString())).thenAnswer(invocation -> {
+			String ticker = invocation.getArgument(0);
+			return switch (ticker) {
+				case "AAPL" -> quote("AAPL", "Apple Inc.", "201.535");
+				case "NVDA" -> quote("NVDA", "NVIDIA Corporation", "143.220");
+				case "TSLA" -> quote("TSLA", "Tesla, Inc.", "248.980");
+				case "MSFT" -> quote("MSFT", "Microsoft Corporation", "503.120");
+				default -> throw new AssertionError("unexpected ticker " + ticker);
+			};
+		});
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		for (String ticker : List.of("AAPL", "NVDA", "TSLA", "MSFT")) {
+			var metadata = adapter.validate(ticker);
+			assertThat(metadata.ticker()).isEqualTo(ticker);
+			assertThat(metadata.name()).isNotBlank();
+			assertThat(metadata.market()).isEqualTo(Mercado.US);
+			assertThat(metadata.type()).isEqualTo(TipoAtivo.ACAO);
+			assertThat(adapter.obter(ticker).moeda()).isEqualTo(Moeda.USD);
+		}
+		verify(client, never()).stocks(anyString(), anyString());
+	}
+
+	@Test
+	void twelveDataDiscoverySelectsTheUsStockInsteadOfTheFirstSameTickerResult() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
+				new TwelveStockItem("AAPL", "Apple Inc.", "Austria", "EUR", "Vienna", "XWBO", "Common Stock"),
+				new TwelveStockItem("AAPL", "Apple Inc.", "Colombia", "COP", "BVC", "XBOG", "Common Stock"),
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock"),
+				new TwelveStockItem("AAPL", "Apple Fund", "United States", "USD", "NASDAQ", "XNGS", "Mutual Fund")),
+				"ok", null, null));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		assertThat(adapter.discover("AAPL")).containsExactly("AAPL");
+	}
+
+	@Test
+	void twelveDataValidationDoesNotReportProviderFailuresAsMissingAssets() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+		for (int status : List.of(401, 403, 429)) {
+			when(client.quote(anyString(), anyString())).thenReturn(
+					new TwelveResponse(null, null, null, null, null, null, null, null, "error", status, "provider failure"));
+			assertThatThrownBy(() -> adapter.validate("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
+		}
+		when(client.quote(anyString(), anyString())).thenReturn(
+				new TwelveResponse(null, null, null, null, null, null, null, null, "error", 404, "symbol not found"));
+		assertThatThrownBy(() -> adapter.validate("MISSING")).isInstanceOf(IllegalArgumentException.class);
+		when(client.quote(anyString(), anyString())).thenReturn(null);
+		assertThatThrownBy(() -> adapter.validate("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
+		when(client.stocks(anyString(), anyString())).thenReturn(new TwelveStocksResponse(null, "error", 429, "rate limit"));
+		assertThatThrownBy(() -> adapter.discover("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
+		when(client.stocks(anyString(), anyString())).thenReturn(new TwelveStocksResponse(null, "error", 404, "symbol not found"));
+		assertThatThrownBy(() -> adapter.discover("MISSING")).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	private TwelveResponse quote(String symbol, String name, String close) {
+		return new TwelveResponse(symbol, name, "NASDAQ", "XNGS", "USD", null, close, 1782923400L,
+				"ok", null, null);
 	}
 
 	private MarketQuoteProperties properties(String brapi, String alpha, String twelve) {

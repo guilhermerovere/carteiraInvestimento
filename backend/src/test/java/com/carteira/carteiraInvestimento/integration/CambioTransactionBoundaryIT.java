@@ -30,14 +30,14 @@ class CambioTransactionBoundaryIT extends PostgreSqlContainerSupport {
 	@Autowired HistoricoCambioPort history; @Autowired DataSource dataSource; @Autowired PlatformTransactionManager transactionManager;
 	@BeforeEach void clean()throws Exception{try(var c=dataSource.getConnection();var s=c.prepareStatement("DELETE FROM historico_cambio")){s.executeUpdate();}}
 	@Test void providerRunsOutsideTransactionAndSaveIsCommittedBeforeCaching()throws Exception{
-		CambioProviderPort alpha=new CambioProviderPort(){public CambioProvider provider(){return CambioProvider.ALPHA_VANTAGE;}public CambioExterno obterUsdBrl(){assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isFalse();return new CambioExterno(MoedaCambio.USD,MoedaCambio.BRL,new BigDecimal("5.2"),provider(),Instant.parse("2026-09-10T11:59:00Z"));}};
+		CambioProviderPort twelveData=new CambioProviderPort(){public CambioProvider provider(){return CambioProvider.TWELVE_DATA;}public CambioExterno obterUsdBrl(){assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isFalse();return new CambioExterno(MoedaCambio.USD,MoedaCambio.BRL,new BigDecimal("5.2"),provider(),Instant.parse("2026-09-10T11:59:00Z"));}};
 		com.github.benmanes.caffeine.cache.Cache<String,ObservacaoCambio> cache=Caffeine.newBuilder().build();
-		var service=new CambioApplicationService(history,event->{},List.of(alpha),cache,Clock.fixed(Instant.parse("2026-09-10T12:00:00Z"),ZoneOffset.UTC));
+		var service=new CambioApplicationService(history,event->{},List.of(twelveData),cache,Clock.fixed(Instant.parse("2026-09-10T12:00:00Z"),ZoneOffset.UTC));
 		ObservacaoCambio result=service.obterUsdBrl();
 		assertThat(count()).isOne(); assertThat(cache.getIfPresent(CambioApplicationService.CACHE_KEY)).isEqualTo(result);
 	}
 	@Test void transactionalPersistenceRollsBackAndFailedSaveNeverPopulatesServiceCache(){
-		var value=new ObservacaoCambio(java.util.UUID.randomUUID(),MoedaCambio.USD,MoedaCambio.BRL,new BigDecimal("5.2"),CambioProvider.ALPHA_VANTAGE,Instant.parse("2026-09-10T11:59:00Z"),Instant.parse("2026-09-10T12:00:00Z"));
+		var value=new ObservacaoCambio(java.util.UUID.randomUUID(),MoedaCambio.USD,MoedaCambio.BRL,new BigDecimal("5.2"),CambioProvider.TWELVE_DATA,Instant.parse("2026-09-10T11:59:00Z"),Instant.parse("2026-09-10T12:00:00Z"));
 		assertThatThrownBy(()->new TransactionTemplate(transactionManager).executeWithoutResult(status->{history.save(value);throw new IllegalStateException("force rollback");})).isInstanceOf(IllegalStateException.class);
 		assertThat(count()).isZero();
 	}

@@ -81,6 +81,14 @@ class InvestmentApplicationServiceTest {
     }
 
     @Test
+    void rejectsFractionalQuantityBeforeAnyFinancialStateChanges() {
+        assertThatThrownBy(() -> service.execute(user, command(TipoTransacao.BUY, "2.5", "100", "0", null),
+                "buy-fraction", UUID.randomUUID(), "/api/v1/carteira/transacoes"))
+                .isInstanceOf(IllegalArgumentException.class);
+        verify(persistence, never()).reserve(any(), any(), any(), any());
+    }
+
+    @Test
     void buyMaintainsTheGlobalLockAndCompletionOrder() {
         stubNew(Mercado.B3, true, null);
         when(clock.instant()).thenReturn(operation);
@@ -170,7 +178,7 @@ class InvestmentApplicationServiceTest {
         Clock late = Clock.fixed(registered.plusSeconds(300).plusNanos(1000), ZoneId.of("UTC"));
         var lateService = new InvestmentApplicationService(second, secondAudit, late, ZoneId.of("America/Sao_Paulo"));
         assertThatThrownBy(() -> lateService.execute(user, command(TipoTransacao.BUY, "1", "100", "0", fxId),
-                "expired", UUID.randomUUID(), "/transactions")).isInstanceOf(InvestmentConflictException.class);
+                "expired", UUID.randomUUID(), "/transactions")).isInstanceOf(FxExpiredException.class);
         verify(second, never()).lockWallet(any());
     }
 

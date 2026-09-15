@@ -9,7 +9,9 @@ import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1/acoes")
@@ -58,10 +65,44 @@ public class AtivoController {
 	}
 
 	@PostMapping
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<AtivoResponse> create(@Valid @RequestBody CreateAtivoRequest request) {
-		var ativo = useCase.criar(request.ticker(), request.nome(), request.tipo(), request.mercado());
-		return ResponseEntity.status(201).body(AtivoResponse.from(ativo));
+	@PreAuthorize("hasAnyRole('USER','ADMIN')")
+	@Operation(summary = "Cadastra ativo no catalogo canonico",
+			description = "ROLE_ADMIN usa ticker/nome/tipo/mercado. ROLE_USER usa somente ticker/mercado e recebe metadados derivados pelo servidor.",
+			requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+					content = @Content(schema = @Schema(oneOf = {CreateAtivoRequest.class, RegisterAtivoRequest.class}))))
+	@ApiResponses({@ApiResponse(responseCode = "201", description = "Ativo canonico criado"),
+		@ApiResponse(responseCode = "200", description = "Ticker renomeado reutilizou o ativo canonico atual"),
+		@ApiResponse(responseCode = "400", description = "Shape, ticker, mercado ou tipo financeiro invalido"),
+		@ApiResponse(responseCode = "409", description = "Ticker canonico duplicado ou inativo"),
+		@ApiResponse(responseCode = "502", description = "Validacao financeira indisponivel")})
+	public ResponseEntity<AtivoResponse> create(@RequestBody Map<String, Object> body, Authentication authentication) {
+		if (body == null) throw new IllegalArgumentException("invalid asset body");
+		if (isAdmin(authentication)) {
+			if (body.keySet().equals(Set.of("ticker", "mercado"))) {
+				var result = useCase.registrar(text(body, "ticker"),
+						enumValue(body, "mercado", com.carteira.carteiraInvestimento.domain.asset.Mercado.class));
+				return ResponseEntity.status(result.created() ? 201 : 200).body(AtivoResponse.from(result.ativo()));
+			}
+			ensureFields(body, Set.of("ticker", "nome", "tipo", "mercado"));
+			var ativo = useCase.criar(text(body, "ticker"), text(body, "nome"),
+					enumValue(body, "tipo", TipoAtivo.class), enumValue(body, "mercado", com.carteira.carteiraInvestimento.domain.asset.Mercado.class));
+			return ResponseEntity.status(201).body(AtivoResponse.from(ativo));
+		}
+		ensureFields(body, Set.of("ticker", "mercado"));
+		var result = useCase.registrar(text(body, "ticker"),
+				enumValue(body, "mercado", com.carteira.carteiraInvestimento.domain.asset.Mercado.class));
+		return ResponseEntity.status(result.created() ? 201 : 200).body(AtivoResponse.from(result.ativo()));
+	}
+
+	@GetMapping("/discovery")
+	@PreAuthorize("hasAnyRole('USER','ADMIN')")
+	public List<AssetDiscoveryResponse> discover(@RequestParam String q,
+			@RequestParam(defaultValue = "B3") com.carteira.carteiraInvestimento.domain.asset.Mercado mercado,
+			HttpServletRequest request) {
+		if (!Set.of("q", "mercado").containsAll(request.getParameterMap().keySet())) {
+			throw new IllegalArgumentException("unknown query parameter");
+		}
+		return useCase.descobrir(q, mercado).stream().map(ticker -> new AssetDiscoveryResponse(ticker, mercado)).toList();
 	}
 
 	@PatchMapping("/{id}")
@@ -108,5 +149,20 @@ public class AtivoController {
 			case "desc" -> SortDirection.DESC;
 			default -> throw new IllegalArgumentException("invalid direction");
 		};
+	}
+
+	private static void ensureFields(Map<String, Object> body, Set<String> expected) {
+		if (!body.keySet().equals(expected)) throw new IllegalArgumentException("invalid role-specific asset body");
+	}
+
+	private static String text(Map<String, Object> body, String name) {
+		Object value = body.get(name);
+		if (!(value instanceof String text) || text.isBlank()) throw new IllegalArgumentException("invalid " + name);
+		return text;
+	}
+
+	private static <T extends Enum<T>> T enumValue(Map<String, Object> body, String name, Class<T> type) {
+		try { return Enum.valueOf(type, text(body, name)); }
+		catch (RuntimeException invalid) { throw new IllegalArgumentException("invalid " + name); }
 	}
 }

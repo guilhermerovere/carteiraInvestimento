@@ -19,6 +19,14 @@ public final class InvestmentNumbers {
         return normalized;
     }
 
+    public static BigDecimal positiveIntegerInput(BigDecimal value, String field) {
+        BigDecimal normalized = positiveInput(value, field);
+        if (normalized.stripTrailingZeros().scale() > 0) {
+            throw new IllegalArgumentException("invalid integer " + field);
+        }
+        return normalized;
+    }
+
     public static BigDecimal nonNegativeInput(BigDecimal value, String field) {
         BigDecimal normalized = input(value, field);
         if (normalized.signum() < 0) throw new IllegalArgumentException("invalid " + field);
