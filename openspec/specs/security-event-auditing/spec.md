@@ -26,7 +26,7 @@ O sistema SHALL persistir cada evento de seguranca em `logs_auditoria` com `id` 
 - **THEN** o registro possui `endpoint` nulo e `correlation_id` UUID gerado
 
 ### Requirement: Eventos minimos de seguranca
-O sistema SHALL auditar cadastro de usuario, login bem sucedido, login falho, tentativa de usuario inativo, acesso negado e criacao do administrador inicial, registrando resultado, severidade, endpoint e data/hora coerentes com o evento. Cadastro e criacao do administrador MUST persistir a auditoria na mesma transacao da criacao; login bem sucedido MUST persistir a auditoria antes de retornar sucesso; login falho, usuario inativo e acesso negado MUST usar transacao isolada. Uma negacao de autorizacao que produza `403 Forbidden` para um principal autenticado MUST registrar automaticamente `ACESSO_NEGADO`, com resultado `NEGADO`, severidade `ALERTA`, UUID do usuario autenticado, endpoint da requisicao e o correlation ID ja associado a ela. A falha dessa persistencia isolada MUST NOT substituir ou alterar a resposta `403` original, propagar erro de infraestrutura ao cliente ou produzir efeito externo alem de diagnostico operacional sanitizado.
+In addition to existing events, successful email change, password change and account closure SHALL be audited transactionally for the current principal. Audit fields SHALL contain only event type/result/severity/endpoint/correlation/time and principal linkage needed for integrity. They MUST NOT contain old/new email, name values, password/hash, JWT, Authorization, request body, confirmation text, cash, positions or transaction values. Closure audit SHALL remain referentially linked while the identity is inactivated/anonymized.
 
 #### Scenario: Cadastro concluido
 - **WHEN** um usuario e cadastrado com sucesso
@@ -47,6 +47,10 @@ O sistema SHALL auditar cadastro de usuario, login bem sucedido, login falho, te
 #### Scenario: Administrador inicial criado
 - **WHEN** o provisionamento cria o administrador inicial
 - **THEN** um evento de criacao do administrador e persistido para ele na mesma transacao, com endpoint nulo e correlation ID gerado
+
+#### Scenario: Sensitive account mutation is audited
+- **WHEN** email/password change or account closure succeeds
+- **THEN** exactly one sanitized event is committed with the mutation and contains no sensitive payload or financial state
 
 ### Requirement: Sanitizacao obrigatoria
 Logs da aplicacao e auditoria persistida MUST NOT registrar senha, `senha_hash`, JWT, header `Authorization`, credenciais, corpo HTTP completo, saldo, posicoes, quantidades, valores de transacoes ou outros dados financeiros privados.

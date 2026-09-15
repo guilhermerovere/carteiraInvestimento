@@ -1,13 +1,13 @@
 ## MODIFIED Requirements
 
-### Requirement: APIs privadas, listagens e posicoes zeradas
+### Requirement: APIs privadas, listagens e posições zeradas
 The system SHALL expose exactly POST `/api/v1/carteira/transacoes`, GET `/api/v1/carteira/transacoes`, GET `/api/v1/carteira/transacoes/{id}`, GET `/api/v1/carteira/posicoes`, and GET `/api/v1/carteira/posicoes/{ativoId}`. All SHALL be exclusive to ROLE_USER and derive user/wallet from `SecurityContext`; anonymous receives 401 and ROLE_ADMIN 403. The public Transaction model SHALL retain exactly `id`, `ativoId`, `ticker`, persisted `nome`, optional system-owned `logoProvider`/`logoReference`, `corretoraId`, persisted `corretoraNome`, `exchangeRateId`, `tipo`, `quantidade`, `moeda`, `precoUnitario`, `taxas`, `taxaCambioBrl`, `valorTotalBrl`, `resultadoRealizadoBrl`, `dataNegociacao`, and `dataRegistro`, reused in POST response, GET detail, and list. Transaction history SHALL use only persisted joins and SHALL NOT invoke quote, FX, valuation, or external providers. The public Position model SHALL contain `id`, `ativoId`, `ticker`, `nome`, `mercado`, `moeda`, `ativo`, optional system-owned `logoProvider`/`logoReference`, `quantidade`, `precoMedioBrl`, `totalInvestidoBrl`, `lucroRealizadoAcumuladoBrl`, and `ultimaAtualizacao`; it SHALL be reused in POST response, GET detail, and list. Position responses SHALL NOT contain valuation data. The added market/currency/lifecycle/branding values SHALL come from the persisted canonical asset record, including when inactive, and MUST NOT be resolved through the active public catalog. Transaction pagination remains `{items,page,size,totalElements,totalPages}`, page 0/size 20 defaults, 1..100 size, fixed `dataRegistro DESC,id DESC`; positions retain the same envelope, no filters, `ticker ASC,ativoId ASC`, and only quantity greater than zero in the list. Unknown list query parameters SHALL return 400. Position detail MAY return a persisted zero-quantity position.
 
-#### Scenario: Listagem de custodia
+#### Scenario: Listagem de custódia
 - **WHEN** a user lists open and zero-quantity positions in storage
 - **THEN** the response contains only open positions, in ticker/asset-id order, with canonical asset metadata and no valuation
 
-#### Scenario: Consulta de posicao zerada
+#### Scenario: Consulta de posição zerada
 - **WHEN** a user queries an owned persisted zero-quantity position
 - **THEN** the response includes its zeroed current cost, historical realized profit, and current canonical asset metadata
 

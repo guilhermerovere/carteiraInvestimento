@@ -19,6 +19,8 @@ The authenticated principal SHALL be able to update only its own trimmed nonblan
 - **WHEN** password change supplies a current password that does not match BCrypt
 - **THEN** no hash changes and a safe conflict is returned without credential details
 
+## ADDED Requirements
+
 ### Requirement: Safe self-service account closure
 Account closure SHALL be logical, not physical. It SHALL require current password and explicit confirmation, lock/revalidate the principal wallet in one transaction, require `saldo_caixa_brl = 0`, and require no `posicoes.quantidade > 0`. Historical zero positions SHALL not block. On eligibility, the user SHALL become inactive, name/email SHALL be replaced by deterministic non-personal unique values derived from UUID, the credential SHALL be replaced by an unusable random BCrypt value, and financial/audit history SHALL remain referentially intact. Existing persisted-user authentication checks SHALL reject later login and previously issued JWT use. ROLE_ADMIN without a wallet MAY close its own account after password/confirmation because it has no personal cash or positions.
 

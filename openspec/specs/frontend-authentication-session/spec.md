@@ -36,7 +36,7 @@ O endpoint same-origin de usuário atual SHALL ler auth_session server-side, reu
 - **THEN** o frontend expõe somente dados seguros atuais
 
 ### Requirement: Proteção de rotas e autorização por role
-`/` SHALL resolver a sessão server-side pelo resolvedor de usuário atual: sem sessão confirmada SHALL redirecionar para `/login`, ROLE_USER confirmado SHALL redirecionar para `/carteira` e ROLE_ADMIN confirmado SHALL redirecionar para `/admin`. `/carteira` e suas subrotas SHALL exigir sessão confirmada e ROLE_USER. `/inicio` SHALL exigir sessão confirmada e ROLE_USER e, somente após o guard server-side confirmar o usuário, SHALL redirecionar para `/carteira` como compatibilidade. `/admin` SHALL exigir sessão confirmada e ROLE_ADMIN. Após login sem `returnTo` interno permitido para a role confirmada, ROLE_USER SHALL seguir para `/carteira` e ROLE_ADMIN SHALL seguir para `/admin`; um `returnTo` seguro permitido para a role SHALL ser preservado, enquanto destino inseguro ou incompatível SHALL usar a landing natural da role. `proxy.ts` SHALL ser somente pre-check de cookie ausente e poderá conhecer apenas nome do cookie, caminhos protegidos e sanitização de returnTo; MUST NOT chamar Spring, importar cliente backend/current user/Authorization/ProblemDetail, ler ou decodificar JWT, alterar sessão ou decidir autorização final. A role SHALL ser decidida pelo usuário atual confirmado, nunca por JWT lido no browser. Role insuficiente SHALL resultar em acesso negado/403 e preservar sessão.
+`/configuracoes` SHALL require a confirmed authenticated principal and allow ROLE_USER or ROLE_ADMIN to manage only that principal. `/admin` and subroutes SHALL remain ROLE_ADMIN-only; `/carteira` and subroutes SHALL remain ROLE_USER-only. Role mismatch SHALL preserve the valid session and render access denied. The profile menu SHALL expose Configuracoes immediately before Sair on desktop and mobile with keyboard, focus, Escape/outside-click and touch behavior.
 
 #### Scenario: Raiz sem sessão confirmada
 - **WHEN** uma pessoa sem sessão confirmada acessa `/`
@@ -73,6 +73,10 @@ O endpoint same-origin de usuário atual SHALL ler auth_session server-side, reu
 #### Scenario: ReturnTo malicioso
 - **WHEN** returnTo é URL absoluta, protocol-relative, javascript: ou outro destino não sanitizado
 - **THEN** o sistema usa somente o fallback interno seguro existente
+
+#### Scenario: Current principal opens settings
+- **WHEN** a confirmed ROLE_USER or ROLE_ADMIN activates Configuracoes from the profile menu
+- **THEN** `/configuracoes` opens for that same principal without becoming administrative user management
 
 ### Requirement: Retorno seguro após autenticação
 O frontend SHALL aceitar returnTo apenas como caminho interno absoluto e MUST rejeitar URL absoluta, `//host`, esquema externo e qualquer open redirect.
@@ -127,3 +131,14 @@ O cliente SHALL tratar usuário atual como `['auth', 'me']` e usar mutations sem
 #### Scenario: Cadastro sem sessão
 - **WHEN** cadastro retorna 201
 - **THEN** não altera me nem estabelece identidade e navega para login
+
+### Requirement: Current-user refresh and sensitive-session cleanup
+After name/email success, the frontend SHALL refresh `['auth','me']` so all profile displays use current values without exposing or replacing the JWT. After password change, the same-origin BFF SHALL delete the current `auth_session` and the client SHALL clear auth/personal caches and navigate to login. After account closure it SHALL additionally clear financial recovery state and prevent authenticated back/cache access. The UI MUST NOT claim global JWT revocation where no token-version/blacklist exists.
+
+#### Scenario: Profile data changes
+- **WHEN** name or email update succeeds
+- **THEN** the profile menu immediately shows the current server-confirmed identity
+
+#### Scenario: Password or account closure succeeds
+- **WHEN** password change or closure is confirmed
+- **THEN** the current browser session/caches are cleared and navigation returns to login

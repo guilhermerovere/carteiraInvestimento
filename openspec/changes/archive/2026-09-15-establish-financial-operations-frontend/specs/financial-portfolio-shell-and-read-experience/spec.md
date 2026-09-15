@@ -1,9 +1,9 @@
 ## MODIFIED Requirements
 
-### Requirement: Shell autenticado, rotas e navegacao financeira
+### Requirement: Shell autenticado, rotas e navegação financeira
 The system SHALL make `/carteira`, `/carteira/posicoes`, `/carteira/transacoes`, and `/carteira/movimentacoes` exclusive to a confirmed ROLE_USER. Desktop SHALL retain persistent Valore navigation for Carteira, Posicoes, Transacoes, and Movimentacoes, with a visible accessible collapse/expand control and no clipping/overflow. The ROLE_USER `Operar` launcher SHALL be in the lower sidebar immediately above Recolher/Expandir, aligned to the same grid/gutters; expanded mode shows icon and label, while collapsed mode keeps a centered icon, tooltip, accessible name and functional Comprar/Depositar/Sacar menu. It MUST NOT offer global SELL, which remains contextual to an open position. Mobile SHALL retain the compact header and bottom navigation for Carteira, Posicoes, Transacoes, and Mais, through which Movimentacoes and Operar remain reachable without a duplicate header launcher. The desktop/mobile header SHALL retain only page context, theme, profile and account actions. If sessionStorage contains an ambiguous financial POST, the shell SHALL show a persistent accessible recovery indicator and a `Revisar operacao` action that reopens a read-only intent with safe details and same-key/same-payload retry. It MUST NOT offer cancellation or editing. ROLE_ADMIN SHALL remain outside the personal wallet experience and SHALL NOT receive personal financial operations.
 
-#### Scenario: Navegacao de usuario autenticado
+#### Scenario: Navegação de usuário autenticado
 - **WHEN** a confirmed ROLE_USER opens a wallet route
 - **THEN** the responsive read shell remains available and lower-sidebar/mobile-Mais Operar starts BUY, deposit, or withdrawal without replacing navigation
 
@@ -26,6 +26,8 @@ The system SHALL make `/carteira`, `/carteira/posicoes`, `/carteira/transacoes`,
 #### Scenario: Recovery of ambiguous financial intent
 - **WHEN** ROLE_USER returns to the shell while an ambiguous POST intent remains in sessionStorage
 - **THEN** a persistent accessible indicator opens safe read-only operation details and manual retry with the original key and payload, without claiming cancellation
+
+## ADDED Requirements
 
 ### Requirement: User asset discovery route and compact operation controls
 The personal shell SHALL expose `/carteira/ativos` to every `ROLE_USER` in coherent desktop and mobile navigation. The page SHALL be a compact investment discovery surface rather than a CRUD form. A collapsed desktop Operar control SHALL use a small anchored popover for Comprar, Depositar and Sacar.

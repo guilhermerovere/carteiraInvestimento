@@ -157,28 +157,36 @@ Após BUY/SELL, o snapshot do dia SHALL atualizar saldo, recompor `totalInvestid
 - **THEN** o snapshot usa saldo real e total investido local, grava os três campos dependentes de valuation como NULL, não copia o dia anterior e não chama provider
 
 ### Requirement: APIs privadas, listagens e posições zeradas
-O sistema SHALL expor exatamente POST `/api/v1/carteira/transacoes`, GET `/api/v1/carteira/transacoes`, GET `/api/v1/carteira/transacoes/{id}`, GET `/api/v1/carteira/posicoes` e GET `/api/v1/carteira/posicoes/{ativoId}`. Todos SHALL ser exclusivos de ROLE_USER e derivar usuário/carteira do `SecurityContext`; anônimo SHALL receber 401 e ROLE_ADMIN 403. O modelo público único de Transacao SHALL conter exatamente `id`, `ativoId`, `ticker`, `corretoraId`, `exchangeRateId`, `tipo`, `quantidade`, `moeda`, `precoUnitario`, `taxas`, `taxaCambioBrl`, `valorTotalBrl`, `resultadoRealizadoBrl`, `dataNegociacao` e `dataRegistro`, e SHALL ser reutilizado em `POST response.transacao`, GET individual e items da listagem. O modelo público único de Posicao SHALL conter exatamente `id`, `ativoId`, `ticker`, `quantidade`, `precoMedioBrl`, `totalInvestidoBrl`, `lucroRealizadoAcumuladoBrl` e `ultimaAtualizacao`, e SHALL ser reutilizado em `POST response.posicao`, GET individual e items da listagem. Nenhum desses modelos SHALL conter valuation. Transações SHALL usar envelope `{items,page,size,totalElements,totalPages}`, defaults page 0/size 20, limites `page >= 0` e `1 <= size <= 100`, sem filtros e ordem fixa `dataRegistro DESC,id DESC`. Posições SHALL usar o mesmo envelope e paginação, sem filtros e ordem `ticker ASC,ativoId ASC`. Nas duas listagens, qualquer query param diferente de `page` e `size` MUST responder 400 conforme o contrato local estrito. A listagem de Posicao SHALL conter somente quantidade maior que zero; o detalhe por ativo MAY retornar a posição persistida zerada.
+The system SHALL expose exactly POST `/api/v1/carteira/transacoes`, GET `/api/v1/carteira/transacoes`, GET `/api/v1/carteira/transacoes/{id}`, GET `/api/v1/carteira/posicoes`, and GET `/api/v1/carteira/posicoes/{ativoId}`. All SHALL be exclusive to ROLE_USER and derive user/wallet from `SecurityContext`; anonymous receives 401 and ROLE_ADMIN 403. The public Transaction model SHALL retain exactly `id`, `ativoId`, `ticker`, persisted `nome`, optional system-owned `logoProvider`/`logoReference`, `corretoraId`, persisted `corretoraNome`, `exchangeRateId`, `tipo`, `quantidade`, `moeda`, `precoUnitario`, `taxas`, `taxaCambioBrl`, `valorTotalBrl`, `resultadoRealizadoBrl`, `dataNegociacao`, and `dataRegistro`, reused in POST response, GET detail, and list. Transaction history SHALL use only persisted joins and SHALL NOT invoke quote, FX, valuation, or external providers. The public Position model SHALL contain `id`, `ativoId`, `ticker`, `nome`, `mercado`, `moeda`, `ativo`, optional system-owned `logoProvider`/`logoReference`, `quantidade`, `precoMedioBrl`, `totalInvestidoBrl`, `lucroRealizadoAcumuladoBrl`, and `ultimaAtualizacao`; it SHALL be reused in POST response, GET detail, and list. Position responses SHALL NOT contain valuation data. The added market/currency/lifecycle/branding values SHALL come from the persisted canonical asset record, including when inactive, and MUST NOT be resolved through the active public catalog. Transaction pagination remains `{items,page,size,totalElements,totalPages}`, page 0/size 20 defaults, 1..100 size, fixed `dataRegistro DESC,id DESC`; positions retain the same envelope, no filters, `ticker ASC,ativoId ASC`, and only quantity greater than zero in the list. Unknown list query parameters SHALL return 400. Position detail MAY return a persisted zero-quantity position.
 
 #### Scenario: Listagem de custódia
-- **WHEN** usuário lista posições contendo estados abertos e zerados no banco
-- **THEN** recebe somente posições abertas, ordenadas por ticker e ativoId, sem valuation
+- **WHEN** a user lists open and zero-quantity positions in storage
+- **THEN** the response contains only open positions, in ticker/asset-id order, with canonical asset metadata and no valuation
 
 #### Scenario: Consulta de posição zerada
-- **WHEN** usuário consulta por ativo uma posição própria persistida com quantidade zero
-- **THEN** recebe 200 com custo corrente zerado e lucro realizado acumulado histórico
+- **WHEN** a user queries an owned persisted zero-quantity position
+- **THEN** the response includes its zeroed current cost, historical realized profit, and current canonical asset metadata
+
+#### Scenario: Position references inactive asset
+- **WHEN** an open position references an inactive catalog asset
+- **THEN** its response still includes ticker, name, market, currency, lifecycle status, and optional branding reference for contextual SELL
 
 ### Requirement: Ownership, erros e OpenAPI
-GET de Transacao individual pertencente a outro usuário MUST responder 403 e gerar `ACESSO_NEGADO` pelo mecanismo existente; Transacao inexistente SHALL responder 404. Posicao inexistente para o próprio usuário SHALL responder 404. JSON inválido/desconhecido, UUID/tipo/número inválido, input não representável exatamente em `NUMERIC(18,8)`, overflow do próprio input, quantidade/preço não positivos, taxas negativas, key inválida, query param não permitido em listagem, B3 com exchangeRateId e US sem exchangeRateId SHALL responder 400. Saldo insuficiente, oversell, SELL sem Posicao, Ativo inativo em BUY, Corretora inativa, FX inexistente/inadequado/expirado, fingerprint divergente, estado parcial inválido, overflow de lucro acumulado ou qualquer resultado derivado não representável, e taxas SELL maiores que bruto SHALL responder 409. Carteira principal ausente, persistência, auditoria transacional ou invariantes internas SHALL responder 500. O POST não SHALL produzir 502 por provider, e 422 não SHALL ser usado nesta capability. Todos os erros SHALL usar ProblemDetail sanitizado e `X-Correlation-ID`.
+GET Transaction detail for another user SHALL return 403 and use the existing `ACESSO_NEGADO` mechanism; missing Transaction returns 404. Missing own Position returns 404. Invalid/unknown JSON, UUID/type/number, fractional or nonpositive quantity, input not exactly representable in its contract numeric scale, own-input overflow, nonpositive price, negative fees, invalid key, forbidden list query, B3 with exchangeRateId, or US without exchangeRateId SHALL return 400. Insufficient cash, oversell, SELL without Position, inactive asset on BUY, inactive broker, unsuitable/missing/expired FX, fingerprint mismatch, invalid partial position, realized-profit overflow, any nonrepresentable derived result, or SELL fees exceeding gross SHALL return 409. A 409 caused specifically by an FX identifier whose `registradoEm + 5 minutes` deadline has passed SHALL include structured ProblemDetail property `code: "FX_EXPIRED"`; other conflicts SHALL NOT use that code. Missing primary wallet, persistence, transactional audit, or internal invariant failure SHALL return 500. Transaction POST SHALL not return 502 due to a provider and SHALL not use 422. All errors use sanitized ProblemDetail and `X-Correlation-ID`.
 
-OpenAPI SHALL documentar Bearer, ROLE_USER, cinco endpoints, Idempotency-Key, request estrito, schema exato de resposta, B3/US/FX, escalas, paginação, ownership, ausência de valuation e respostas 400/401/403/404/409/500.
+OpenAPI SHALL document Bearer, ROLE_USER, endpoints, Idempotency-Key, strict request, exact transaction response, expanded position metadata, B3/US/FX, scale, pagination, ownership, absence of valuation, and 400/401/403/404/409/500 responses including the `FX_EXPIRED` structured code.
 
 #### Scenario: Acesso cruzado
-- **WHEN** ROLE_USER solicita por id uma Transacao existente de outro usuário
-- **THEN** recebe 403 ProblemDetail correlacionado e um evento ACESSO_NEGADO sem dado financeiro privado
+- **WHEN** a ROLE_USER requests a Transaction owned by another user
+- **THEN** the system returns correlated sanitized 403 and records `ACESSO_NEGADO` without private financial data
 
 #### Scenario: POST não chama provider
-- **WHEN** qualquer BUY ou SELL é confirmada ou rejeitada
-- **THEN** nenhum provider de cotação, FX, Receita, CVM ou CEP é chamado e 502 não é produzido por esse fluxo
+- **WHEN** BUY or SELL is confirmed or rejected
+- **THEN** no quote, FX, Receita, CVM, or CEP provider is called and this flow does not produce 502 due to a provider
+
+#### Scenario: FX expirado tem codigo estruturado
+- **WHEN** a US transaction uses an observation after `registradoEm + 5 minutes`
+- **THEN** it returns 409 with `code=FX_EXPIRED`, without financial effects; unrelated 409 responses omit that code
 
 ### Requirement: Versão financeira e invalidação de valuation após negociação
 Cada BUY/SELL novo confirmado SHALL aplicar `novoEstadoVersao = estadoVersaoAnterior + 1` exatamente uma vez na mesma transação financeira. Replay idempotente e operação rejeitada/rollback MUST NOT incrementá-la. Se restar posição aberta, SHALL recompor `totalInvestidoBrl` e invalidar valor de posições, lucro não realizado, patrimônio e valuationInstant para nulo. Sem posição aberta, SHALL gravar investimento/valor/lucro não realizado em zero, patrimônio igual ao saldo e instant nulo. Posição zerada SHALL persistir e reter seu lucro realizado acumulado histórico.
@@ -198,3 +206,11 @@ Cada BUY/SELL novo confirmado SHALL aplicar `novoEstadoVersao = estadoVersaoAnte
 #### Scenario: Lucro realizado histórico após zeramento
 - **WHEN** SELL total zera uma posição
 - **THEN** seu lucro realizado acumulado permanece disponível para agregação histórica
+
+### Requirement: Transaction history survives a committed BUY and market-provider failures
+The transaction history SHALL read only the persisted ledger and persisted asset/broker joins. After a successful BUY/SELL, the client SHALL invalidate and refetch the transaction-history query through the same-origin BFF; nullable result, FX, and branding fields SHALL map safely. Quote, FX, valuation, or other market-provider failure MUST NOT block GET /api/v1/carteira/transacoes or the /carteira/transacoes page.
+
+#### Scenario: BUY appears in transaction history after refetch
+- **WHEN** a user opens transaction history, completes a BUY, and returns to/refetches transaction history
+- **THEN** the persisted BUY appears in the paginated response with HTTP 200 and renders without an error page
+- **AND** this remains true when a market-provider request fails
