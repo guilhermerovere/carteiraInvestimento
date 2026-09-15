@@ -52,6 +52,7 @@ public class PortfolioValuationApplicationService implements PortfolioValuationU
             if (local == null) throw new IllegalStateException("local valuation state unavailable");
             Instant valuationInstant = nextInstant(previousInstant);
             PortfolioValuationResult calculated = calculate(local, valuationInstant);
+            if (!calculated.marketDataAvailable()) return calculated;
             MaterializedTotals totals = new MaterializedTotals(calculated.investedBrl(),
                     calculated.positionsValueBrl(), calculated.unrealizedProfitBrl(), calculated.totalEquityBrl());
             Boolean valid = finalValidation.execute(status -> persistence.validateAndOptionallyMaterialize(
@@ -70,46 +71,42 @@ public class PortfolioValuationApplicationService implements PortfolioValuationU
     }
 
     private PortfolioValuationResult calculate(LocalState local, Instant valuationInstant) {
-        ObservacaoCambio fx = null;
+        ObservacaoCambio fx = null; boolean fxAvailable = true;
         if (local.openPositions().stream().anyMatch(position -> position.market() == Mercado.US)) {
-            try { fx = exchangeRates.obterUsdBrl(); }
-            catch (CambioUnavailableException exception) { throw new PortfolioValuationUpstreamException(exception); }
+            try { fx = exchangeRates.obterUsdBrl(); } catch (CambioUnavailableException exception) { fxAvailable = false; }
         }
         List<PortfolioValuationResult.ValuedPosition> valued = new ArrayList<>();
-        BigDecimal invested = InvestmentNumbers.ZERO_2;
-        BigDecimal positionsValue = InvestmentNumbers.ZERO_2;
-        BigDecimal unrealized = InvestmentNumbers.ZERO_2;
+        BigDecimal invested = InvestmentNumbers.ZERO_2, positionsValue = InvestmentNumbers.ZERO_2, unrealized = InvestmentNumbers.ZERO_2;
+        boolean marketDataAvailable = true;
         for (var position : local.openPositions()) {
+            invested = InvestmentNumbers.derivedMoney(invested.add(position.investedBrl()), "invested total");
+            if (position.market() == Mercado.US && !fxAvailable) { marketDataAvailable = false; valued.add(unavailable(position)); continue; }
             Cotacao quote;
             try { quote = quotes.cotacaoAtualParaCustodia(position.assetId(), true); }
-            catch (QuoteIntegrationException | QuoteNotFoundException exception) {
-                throw new PortfolioValuationUpstreamException(exception);
-            }
-            if (quote.moeda() != position.currency()) throw new PortfolioValuationUpstreamException(
-                    new IllegalStateException("quote currency mismatch"));
+            catch (QuoteIntegrationException | QuoteNotFoundException exception) { marketDataAvailable = false; valued.add(unavailable(position)); continue; }
+            if (quote.moeda() != position.currency()) { marketDataAvailable = false; valued.add(unavailable(position)); continue; }
             BigDecimal sourceValue = position.quantity().multiply(quote.preco());
             BigDecimal exactBrl = position.market() == Mercado.B3 ? sourceValue : sourceValue.multiply(fx.taxa());
             BigDecimal valueBrl = InvestmentNumbers.derivedMoney(exactBrl, "position valuation");
-            BigDecimal profit = InvestmentNumbers.derivedMoney(valueBrl.subtract(position.investedBrl()),
-                    "unrealized profit");
+            BigDecimal profit = InvestmentNumbers.derivedMoney(valueBrl.subtract(position.investedBrl()), "unrealized profit");
             BigDecimal percentage = percentage(profit, position.investedBrl());
-            invested = InvestmentNumbers.derivedMoney(invested.add(position.investedBrl()), "invested total");
             positionsValue = InvestmentNumbers.derivedMoney(positionsValue.add(valueBrl), "positions total");
             unrealized = InvestmentNumbers.derivedMoney(unrealized.add(profit), "unrealized total");
-            valued.add(new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(),
-                    position.market(), position.currency(), position.quantity(), position.averagePriceBrl(),
-                    position.investedBrl(), quote.preco(), quote.provider(), quote.instanteCotacao(), sourceValue,
-                    valueBrl, profit, percentage));
+            valued.add(new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(), position.market(),
+                    position.currency(), position.quantity(), position.averagePriceBrl(), position.investedBrl(), quote.preco(),
+                    quote.provider(), quote.instanteCotacao(), sourceValue, valueBrl, profit, percentage, true));
         }
-        BigDecimal realized = InvestmentNumbers.derivedMoney(local.accumulatedRealizedProfitBrl(),
-                "realized profit total");
-        BigDecimal equity = InvestmentNumbers.derivedMoney(local.cashBalanceBrl().add(positionsValue),
-                "total equity");
-        BigDecimal aggregatePercentage = invested.signum() == 0 ? null : percentage(unrealized, invested);
-        PortfolioValuationResult.CurrentExchangeRate currentFx = fx == null ? null
-                : new PortfolioValuationResult.CurrentExchangeRate(fx.taxa(), fx.provider(), fx.instanteCotacao());
-        return new PortfolioValuationResult(valuationInstant, local.cashBalanceBrl(), invested, positionsValue,
-                unrealized, realized, equity, aggregatePercentage, currentFx, List.copyOf(valued));
+        BigDecimal realized = InvestmentNumbers.derivedMoney(local.accumulatedRealizedProfitBrl(), "realized profit total");
+        BigDecimal equity = marketDataAvailable ? InvestmentNumbers.derivedMoney(local.cashBalanceBrl().add(positionsValue), "total equity") : null;
+        BigDecimal aggregatePercentage = marketDataAvailable && invested.signum() != 0 ? percentage(unrealized, invested) : null;
+        PortfolioValuationResult.CurrentExchangeRate currentFx = fx == null ? null : new PortfolioValuationResult.CurrentExchangeRate(fx.taxa(), fx.provider(), fx.instanteCotacao());
+        return new PortfolioValuationResult(valuationInstant, local.cashBalanceBrl(), invested, marketDataAvailable ? positionsValue : null,
+                marketDataAvailable ? unrealized : null, realized, equity, aggregatePercentage, currentFx, List.copyOf(valued), marketDataAvailable);
+    }
+
+    private static PortfolioValuationResult.ValuedPosition unavailable(PortfolioValuationPort.OpenPosition position) {
+        return new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(), position.market(), position.currency(),
+                position.quantity(), position.averagePriceBrl(), position.investedBrl(), null, null, null, null, null, null, null, false);
     }
 
     private static BigDecimal percentage(BigDecimal profit, BigDecimal invested) {

@@ -44,6 +44,6 @@ public class CorretoraPersistenceAdapter implements CorretoraPort {
             if (current instanceof ConstraintViolationException violation && UNIQUE.equals(violation.getConstraintName())) return true;
         return false;
     }
-    private CorretoraJpaEntity entity(Corretora b) { return new CorretoraJpaEntity(b.id(),b.cnpj(),b.razaoSocial(),b.nomeFantasia(),b.cep(),b.logradouro(),b.bairro(),b.cidade(),b.uf(),b.numero(),b.complemento(),b.ativo(),b.criadoEm(),b.atualizadoEm()); }
-    private Corretora domain(CorretoraJpaEntity b) { return new Corretora(b.getId(),b.getCnpj(),b.getRazaoSocial(),b.getNomeFantasia(),b.getCep(),b.getLogradouro(),b.getBairro(),b.getCidade(),b.getUf(),b.getNumero(),b.getComplemento(),b.isAtivo(),b.getCriadoEm(),b.getAtualizadoEm()); }
+    private CorretoraJpaEntity entity(Corretora b) { return new CorretoraJpaEntity(b.id(),b.cnpj(),b.razaoSocial(),b.nomeFantasia(),b.cep(),b.logradouro(),b.bairro(),b.cidade(),b.uf(),b.numero(),b.complemento(),b.ativo(),b.logoProvider(),b.logoReference(),b.criadoEm(),b.atualizadoEm()); }
+    private Corretora domain(CorretoraJpaEntity b) { return new Corretora(b.getId(),b.getCnpj(),b.getRazaoSocial(),b.getNomeFantasia(),b.getCep(),b.getLogradouro(),b.getBairro(),b.getCidade(),b.getUf(),b.getNumero(),b.getComplemento(),b.isAtivo(),b.getLogoProvider(),b.getLogoReference(),b.getCriadoEm(),b.getAtualizadoEm()); }
 }

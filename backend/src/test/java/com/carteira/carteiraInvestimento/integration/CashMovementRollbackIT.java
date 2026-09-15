@@ -80,7 +80,7 @@ class CashMovementRollbackIT extends PostgreSqlContainerSupport {
 	}
 
 	@Test
-	void contenderWaitingOnAnUncommittedReservationExecutesAfterTheWinnerRollsBack() throws Exception {
+	void contenderWaitingOnTheActiveUserLockExecutesAfterTheWinnerRollsBack() throws Exception {
 		UUID user = UUID.randomUUID();
 		UUID wallet = UUID.randomUUID();
 		jdbc.update("INSERT INTO usuarios (id,nome,email,senha_hash,role,ativo) VALUES (?,?,?,?,?,true)", user,
@@ -89,18 +89,15 @@ class CashMovementRollbackIT extends PostgreSqlContainerSupport {
 				"Carteira Principal");
 		CountDownLatch winnerReserved = new CountDownLatch(1);
 		CountDownLatch releaseWinner = new CountDownLatch(1);
-		CountDownLatch contenderEnteredReserve = new CountDownLatch(1);
 		CashMovementApplicationService winner = blockingFailureService(winnerReserved, releaseWinner);
-		CashMovementApplicationService contender = signalingService(contenderEnteredReserve);
 		TransactionTemplate transaction = new TransactionTemplate(transactionManager);
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			var failed = executor.submit(() -> runInTransaction(transaction, () -> winner.execute(user,
 					TipoMovimentacaoCaixa.DEPOSITO, BigDecimal.TEN, null, "rollback-race", UUID.randomUUID(), "/deposito")));
 			winnerReserved.await();
-			var waiting = executor.submit(() -> runInTransaction(transaction, () -> contender.execute(user,
+			var waiting = executor.submit(() -> runInTransaction(transaction, () -> cash.execute(user,
 					TipoMovimentacaoCaixa.DEPOSITO, BigDecimal.TEN, null, "rollback-race", UUID.randomUUID(), "/deposito")));
-			contenderEnteredReserve.await();
 			assertThatThrownBy(() -> waiting.get(200, TimeUnit.MILLISECONDS)).isInstanceOf(TimeoutException.class);
 			releaseWinner.countDown();
 			assertThat(failed.get()).isInstanceOf(IllegalStateException.class);
@@ -156,21 +153,6 @@ class CashMovementRollbackIT extends PostgreSqlContainerSupport {
 					int page, int size) { return persistence.history(wallet, page, size); }
 		};
 		return new CashMovementApplicationService(persistence, ledger, persistence, persistence, auditPersistence,
-				Clock.systemUTC(), ZoneId.of("America/Sao_Paulo"));
-	}
-
-	private CashMovementApplicationService signalingService(CountDownLatch entered) {
-		CashIdempotencyPort idempotency = new CashIdempotencyPort() {
-			@Override public Reservation reserve(UUID wallet, TipoMovimentacaoCaixa type, String key,
-					String fingerprint, java.time.Instant createdAt) {
-				entered.countDown();
-				return persistence.reserve(wallet, type, key, fingerprint, createdAt);
-			}
-			@Override public void complete(UUID reservation, UUID movement, BigDecimal balance) {
-				persistence.complete(reservation, movement, balance);
-			}
-		};
-		return new CashMovementApplicationService(persistence, persistence, idempotency, persistence, auditPersistence,
 				Clock.systemUTC(), ZoneId.of("America/Sao_Paulo"));
 	}
 

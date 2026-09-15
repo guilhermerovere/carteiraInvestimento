@@ -5,10 +5,11 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import com.carteira.carteiraInvestimento.domain.shared.LogoProvider;
 
 public record Corretora(UUID id, String cnpj, String razaoSocial, String nomeFantasia, String cep,
         String logradouro, String bairro, String cidade, String uf, String numero, String complemento,
-        boolean ativo, Instant criadoEm, Instant atualizadoEm) {
+        boolean ativo, LogoProvider logoProvider, String logoReference, Instant criadoEm, Instant atualizadoEm) {
 
     public Corretora {
         Objects.requireNonNull(id, "id is required");
@@ -25,7 +26,20 @@ public record Corretora(UUID id, String cnpj, String razaoSocial, String nomeFan
         if (!uf.matches("[A-Z]{2}")) throw new IllegalArgumentException("invalid uf");
         numero = normalizeNumero(numero);
         complemento = normalizeComplemento(complemento);
+        if ((logoProvider == null) != (logoReference == null)) throw new IllegalArgumentException("invalid branding");
+        if (logoReference != null) {
+            logoReference = logoReference.trim().toLowerCase(Locale.ROOT);
+            if (!logoReference.matches("(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}"))
+                throw new IllegalArgumentException("invalid logo reference");
+        }
         if (atualizadoEm.isBefore(criadoEm)) throw new IllegalArgumentException("invalid timestamps");
+    }
+
+    public Corretora(UUID id, String cnpj, String razaoSocial, String nomeFantasia, String cep,
+            String logradouro, String bairro, String cidade, String uf, String numero, String complemento,
+            boolean ativo, Instant criadoEm, Instant atualizadoEm) {
+        this(id, cnpj, razaoSocial, nomeFantasia, cep, logradouro, bairro, cidade, uf, numero,
+                complemento, ativo, null, null, criadoEm, atualizadoEm);
     }
 
     public static Corretora nova(String cnpj, String razaoSocial, String nomeFantasia, String cep,
@@ -33,7 +47,12 @@ public record Corretora(UUID id, String cnpj, String razaoSocial, String nomeFan
             Clock clock) {
         Instant now = clock.instant();
         return new Corretora(UUID.randomUUID(), cnpj, razaoSocial, nomeFantasia, cep, logradouro, bairro,
-                cidade, uf, numero, complemento, true, now, now);
+                cidade, uf, numero, complemento, true, null, null, now, now);
+    }
+
+    public Corretora withBranding(LogoProvider provider, String reference) {
+        return new Corretora(id, cnpj, razaoSocial, nomeFantasia, cep, logradouro, bairro, cidade, uf,
+                numero, complemento, ativo, provider, reference, criadoEm, atualizadoEm);
     }
 
     public Corretora editar(String novoNumero, String novoComplemento, Clock clock) {
@@ -41,13 +60,13 @@ public record Corretora(UUID id, String cnpj, String razaoSocial, String nomeFan
         String normalizedComplement = normalizeComplemento(novoComplemento);
         if (Objects.equals(numero, normalizedNumber) && Objects.equals(complemento, normalizedComplement)) return this;
         return new Corretora(id, cnpj, razaoSocial, nomeFantasia, cep, logradouro, bairro, cidade, uf,
-                normalizedNumber, normalizedComplement, ativo, criadoEm, nextInstant(clock));
+                normalizedNumber, normalizedComplement, ativo, logoProvider, logoReference, criadoEm, nextInstant(clock));
     }
 
     public Corretora definirAtivo(boolean novoEstado, Clock clock) {
         if (ativo == novoEstado) return this;
         return new Corretora(id, cnpj, razaoSocial, nomeFantasia, cep, logradouro, bairro, cidade, uf,
-                numero, complemento, novoEstado, criadoEm, nextInstant(clock));
+                numero, complemento, novoEstado, logoProvider, logoReference, criadoEm, nextInstant(clock));
     }
 
     public static String normalizeNumero(String value) { return optional(value, 20, "numero"); }

@@ -3,6 +3,7 @@
 import { AlertTriangle, Clipboard, Inbox, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { FinanceApiError } from "@/client/finance-api";
+import { ptBrError } from "@/client/presentation-errors";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,17 +38,17 @@ function messageFor(error: unknown): string {
   if (error.status === 403) return "Você não tem permissão para acessar estes dados.";
   if (error.status === 409) return "Os dados da carteira mudaram durante a atualização. Tente novamente.";
   if (error.status === 502) return "Não foi possível atualizar os dados de mercado agora.";
-  return error.problem.detail ?? error.problem.title;
+  return ptBrError(error);
 }
 
-export function ProblemDetailAlert({ error, onRetry, compact = false }: { error: unknown; onRetry?: () => void; compact?: boolean }) {
+export function ProblemDetailAlert({ error, onRetry, compact = false, message }: { error: unknown; onRetry?: () => void; compact?: boolean; message?: string }) {
   const [copied, setCopied] = useState(false);
   const correlationId = error instanceof FinanceApiError ? error.correlationId : undefined;
   return (
     <div className={compact ? "problem-alert problem-alert--compact" : "problem-alert"} role="alert" aria-live="polite">
       <AlertTriangle aria-hidden="true" />
       <div>
-        <strong>{messageFor(error)}</strong>
+        <strong>{message ?? messageFor(error)}</strong>
         {correlationId && (
           <div className="problem-alert__support">
             <span>Código de suporte: <code>{correlationId}</code></span>

@@ -201,6 +201,14 @@ A `201 Created` response SHALL be the authoritative operation result. After succ
 - **WHEN** a canonical asset is registered
 - **THEN** only asset catalog queries are invalidated and the new asset is selected without creating financial effects
 
+### Requirement: Persisted transaction history remains independent of market data
+`/carteira/transacoes` SHALL read its paginated history exclusively from the persisted transaction ledger route. Quote, FX, valuation, provider refresh, and other complementary market work MUST NOT be a prerequisite for rendering the page or its loaded rows. If such complementary work fails, the history table/list SHALL remain visible and the UI MAY show only a compact secondary notice. A failed history request itself SHALL retain any previously loaded page while it retries and otherwise show a recoverable local error without presenting it as a market-data failure.
+
+#### Scenario: Provider fails after transaction history is available
+- **WHEN** a ROLE_USER has loaded persisted transaction rows and a quote, FX, valuation, or provider refresh fails
+- **THEN** the Compra/Venda history remains visible with its friendly formatting
+- **AND** no full-page market error replaces the table
+
 ### Requirement: Automatic logos and safe visual fallback
 Asset and broker catalog capabilities SHALL remain normative for provider resolution, confidence rules, and persistence of `logoProvider` plus `logoReference`. The operation UI SHALL consume those system-owned references without searching during render. B3 references are validated public Brapi URLs; US ticker and broker domain references are rendered through Logo.dev's official image CDN. Alpha Vantage remains financial-only for this experience. `LOGO_DEV_PUBLISHABLE_KEY` MAY be client-visible solely as a token on `https://img.logo.dev`; `LOGO_DEV_SECRET_KEY`, Brapi and Alpha Vantage keys MUST remain server-side. Broker/asset requests SHALL reject manual logo URL, image, file, provider, reference or keys. Missing/ambiguous references, branding provider failure, or CDN failure MUST NOT invalidate a financially valid asset, broker registration, BUY, SELL, deposit, or withdrawal. Lists SHALL reuse persisted references and MUST NOT search once per rendered row. `EntityLogo` SHALL validate Brapi references, build explicit Logo.dev domain/ticker CDN paths, handle loading/errors/accessibility, and use deterministic ticker/name monogram fallback in Light/Dark and high contrast. Remote hosts SHALL be exact allowlist entries, never wildcard; use direct official CDN delivery rather than proxy/storage.
 
@@ -234,3 +242,52 @@ All operation controls SHALL have visible labels, descriptions, field-level erro
 #### Scenario: Visual and automated coverage
 - **WHEN** the operational experience is validated
 - **THEN** Vitest/RTL cover numeric parsing, payload, idempotency, recovery, selectors, forms, errors, and accessibility, while a focused Playwright set covers deposit, withdrawal, BUY B3, BUY US, contextual SELL, asset registration continuing BUY, and one recovery path; visual QA covers Light/Dark at desktop, tablet, and mobile
+
+### Requirement: Typed business results without raw technical payloads
+The operation UI SHALL transform authoritative responses into typed presentation models for deposit, withdrawal, BUY and SELL. It MUST NOT render `JSON.stringify`, raw request/response bodies, arbitrary object entries, raw ProblemDetail fields, stack traces, backend DTO dumps, correlation identifiers as business content, or technical UUIDs without a business need. Deposit and withdrawal SHALL announce operation-specific pt-BR success and show amount, resulting cash balance and optional description. BUY and SELL SHALL announce operation-specific pt-BR success and show recognizable asset/broker and financial result fields; SELL SHALL include realized result and remaining position values when returned. Query-refetch failure after success MUST NOT replace the friendly result.
+
+#### Scenario: Cash operation result
+- **WHEN** deposit or withdrawal returns success
+- **THEN** the UI announces the operation-specific pt-BR message and a labelled financial summary with no serialized object or raw movement
+
+#### Scenario: Trade operation result
+- **WHEN** BUY or SELL returns success
+- **THEN** the UI announces Compra/Venda registrada com sucesso and presents typed ticker, quantity, price, total, broker/balance/position fields when available without DTO dumping
+
+### Requirement: Safe pt-BR presentation error mapping
+The BFF MAY preserve safe status, allowlisted structured code and correlation id for internal logic, but the business UI SHALL map them to natural pt-BR text and MUST NOT display backend `title`, `detail`, `instance` or raw ProblemDetail automatically. Required mappings SHALL cover 400 field review, 401 expired session, 403 permission, quote 404/manual price, generic 409 conflict, structured `FX_EXPIRED`, 502 temporary market service failure and ambiguous network outcome. Structured codes, never detail-text parsing, SHALL drive specialized behavior.
+
+#### Scenario: Provider unavailable message
+- **WHEN** asset validation or market provider returns a technical English detail
+- **THEN** the UI displays a natural pt-BR temporary-unavailability message and no technical English detail
+
+#### Scenario: Ambiguous network result
+- **WHEN** a financial POST outcome cannot be confirmed
+- **THEN** the UI asks the user to review the pending operation before trying again and preserves recovery semantics without exposing transport details
+
+### Requirement: Asset-validation availability is distinct from confirmed absence
+The selector SHALL offer controlled registration only after exact lookup completes as absent while the mandatory financial-validation capability is operational. If lookup or required validation is unavailable, it SHALL preserve the typed ticker, explain that the asset cannot be validated now, provide Tentar novamente when appropriate, and MUST NOT present registration as ready or accept manual metadata as a workaround.
+
+#### Scenario: Exact absence with provider operational
+- **WHEN** exact lookup confirms no ticker and validation is available
+- **THEN** the ticker/market-only registration action may be offered
+
+#### Scenario: Provider unavailable
+- **WHEN** the mandatory provider or exact-validation path is unavailable
+- **THEN** ticker remains visible, retry is offered, and registration is unavailable until validation can run
+
+### Requirement: Strict lossless financial text inputs
+All editable BigDecimal values SHALL use locale-aware text inputs with `inputMode=decimal`, dot-decimal string canonical state, field-specific precision/scale validation and a distinct display formatter. Inputs SHALL reject letters, scientific notation, signs unless the domain explicitly permits them, a second decimal separator and ambiguous paste. They SHALL NOT silently round or use JavaScript Number as canonical financial state.
+
+#### Scenario: Exact locale parsing
+- **WHEN** a user enters `0,00000001` or `123456789,12345678` in a permitted scale-eight field
+- **THEN** outbound canonical values are exactly `0.00000001` and `123456789.12345678`
+- **AND** invalid `1e10`, `abc`, a second separator or excess scale is rejected in pt-BR.
+
+### Requirement: Automatic quote and average-price presentation
+BUY discovery and asset registration SHALL automatically request a current quote after canonical selection, prefill editable unit price when available, and preserve the form when unavailable. Position, BUY and SELL surfaces SHALL display average cost with a string-aware minimum-two/maximum-four display formatter while preserving scale-eight values.
+
+#### Scenario: Existing holding in BUY
+- **WHEN** a user selects an already-held asset
+- **THEN** the form and review show current average price and a clearly labeled estimated post-purchase average
+- **AND** a quote, when available, is loaded automatically but remains editable.

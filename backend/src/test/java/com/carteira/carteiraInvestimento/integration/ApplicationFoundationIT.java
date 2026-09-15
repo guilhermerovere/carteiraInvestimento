@@ -113,11 +113,11 @@ class ApplicationFoundationIT extends PostgreSqlContainerSupport {
 		assertThat(fieldNames(schema(api, "InvestmentOperationResponse"))).containsExactlyInAnyOrder(
 				"transacao", "valorOrigem", "saldoCaixaBrl", "posicao");
 		assertThat(fieldNames(schema(api, "TransactionResponse"))).containsExactlyInAnyOrder(
-				"id", "ativoId", "ticker", "corretoraId", "exchangeRateId", "tipo", "quantidade",
+				"id", "ativoId", "ticker", "nome", "logoProvider", "logoReference", "corretoraId", "corretoraNome", "exchangeRateId", "tipo", "quantidade",
 				"moeda", "precoUnitario", "taxas", "taxaCambioBrl", "valorTotalBrl",
 				"resultadoRealizadoBrl", "dataNegociacao", "dataRegistro");
 		assertThat(fieldNames(schema(api, "PositionResponse"))).containsExactlyInAnyOrder(
-				"id", "ativoId", "ticker", "quantidade", "precoMedioBrl", "totalInvestidoBrl",
+				"id", "ativoId", "ticker", "nome", "mercado", "moeda", "ativo", "logoProvider", "logoReference", "quantidade", "precoMedioBrl", "totalInvestidoBrl",
 				"lucroRealizadoAcumuladoBrl", "ultimaAtualizacao");
 		assertThat(fieldNames(schema(api, "TransactionPageResponse"))).containsExactlyInAnyOrder(
 				"items", "page", "size", "totalElements", "totalPages");

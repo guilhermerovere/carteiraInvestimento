@@ -11,10 +11,12 @@ import com.carteira.carteiraInvestimento.application.port.AtivoPort;
 import com.carteira.carteiraInvestimento.application.port.AtivoQuery;
 import com.carteira.carteiraInvestimento.application.port.AtivoReadScope;
 import com.carteira.carteiraInvestimento.application.port.AtivoSort;
+import com.carteira.carteiraInvestimento.application.port.AssetMetadataProviderPort;
 import com.carteira.carteiraInvestimento.application.port.SortDirection;
 import com.carteira.carteiraInvestimento.domain.asset.Ativo;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
 import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
+import com.carteira.carteiraInvestimento.domain.shared.LogoProvider;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,5 +83,48 @@ class AtivoApplicationServiceTest {
 		when(port.save(any())).thenThrow(new DuplicateTickerException());
 		assertThatThrownBy(() -> service.criar("AAPL", "Apple", TipoAtivo.ACAO, Mercado.US))
 				.isInstanceOf(DuplicateTickerException.class);
+	}
+
+	@Test
+	void userRegistrationDerivesFinancialMetadataAndBranding() {
+		AssetMetadataProviderPort provider = Mockito.mock(AssetMetadataProviderPort.class);
+		when(provider.market()).thenReturn(Mercado.B3);
+		when(provider.validate("PETR4")).thenReturn(new AssetMetadataProviderPort.AssetMetadata(
+				"PETR4", "PETR4", "Petróleo Brasileiro S.A.", TipoAtivo.ACAO, Mercado.B3,
+				LogoProvider.BRAPI, "https://icons.brapi.dev/icons/PETR4.svg"));
+		when(port.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+		AtivoRegistrationResult result = new AtivoApplicationService(port, List.of(provider)).registrar(" petr4 ", Mercado.B3);
+		assertThat(result.created()).isTrue();
+		assertThat(result.ativo().ticker()).isEqualTo("PETR4");
+		assertThat(result.ativo().nome()).isEqualTo("Petróleo Brasileiro S.A.");
+		assertThat(result.ativo().logoProvider()).isEqualTo(LogoProvider.BRAPI);
+	}
+
+	@Test
+	void renamedTickerReusesOnlyCurrentCanonicalAsset() {
+		AssetMetadataProviderPort provider = Mockito.mock(AssetMetadataProviderPort.class);
+		when(provider.market()).thenReturn(Mercado.B3);
+		when(provider.validate("VVAR3")).thenReturn(new AssetMetadataProviderPort.AssetMetadata(
+				"VVAR3", "BHIA3", "Grupo Casas Bahia", TipoAtivo.ACAO, Mercado.B3, null, null));
+		Ativo canonical = Ativo.novo("BHIA3", "Grupo Casas Bahia", TipoAtivo.ACAO, Mercado.B3);
+		when(port.findByTicker("BHIA3", AtivoReadScope.ALL)).thenReturn(Optional.of(canonical));
+		AtivoRegistrationResult result = new AtivoApplicationService(port, List.of(provider)).registrar("VVAR3", Mercado.B3);
+		assertThat(result.created()).isFalse();
+		assertThat(result.requestedTicker()).isEqualTo("VVAR3");
+		assertThat(result.ativo()).isSameAs(canonical);
+		verify(port, Mockito.never()).save(any());
+	}
+
+	@Test
+	void invalidMarketAndInactiveDuplicateNeverInvokeProvider() {
+		AssetMetadataProviderPort provider = Mockito.mock(AssetMetadataProviderPort.class);
+		when(provider.market()).thenReturn(Mercado.B3);
+		assertThatThrownBy(() -> new AtivoApplicationService(port, List.of(provider)).registrar("AAPL", Mercado.B3))
+				.isInstanceOf(IllegalArgumentException.class);
+		Ativo inactive = Ativo.novo("PETR4", "Petrobras", TipoAtivo.ACAO, Mercado.B3).definirAtivo(false);
+		when(port.findByTicker("PETR4", AtivoReadScope.ALL)).thenReturn(Optional.of(inactive));
+		assertThatThrownBy(() -> new AtivoApplicationService(port, List.of(provider)).registrar("PETR4", Mercado.B3))
+				.isInstanceOf(DuplicateTickerException.class);
+		verify(provider, Mockito.never()).validate(any());
 	}
 }

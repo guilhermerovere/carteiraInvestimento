@@ -93,11 +93,12 @@ public class AtivoPersistenceAdapter implements AtivoPort {
 
 	private AtivoJpaEntity toEntity(Ativo ativo) {
 		return new AtivoJpaEntity(ativo.id(), ativo.ticker(), ativo.nome(), ativo.tipo(), ativo.mercado(),
-				ativo.moeda(), ativo.ativo(), ativo.criadoEm(), ativo.atualizadoEm());
+				ativo.moeda(), ativo.ativo(), ativo.logoProvider(), ativo.logoReference(), ativo.criadoEm(), ativo.atualizadoEm());
 	}
 
 	private Ativo toDomain(AtivoJpaEntity entity) {
 		return new Ativo(entity.getId(), entity.getTicker(), entity.getNome(), entity.getTipo(), entity.getMercado(),
-				entity.getMoeda(), entity.isAtivo(), entity.getCriadoEm(), entity.getAtualizadoEm());
+				entity.getMoeda(), entity.isAtivo(), entity.getLogoProvider(), entity.getLogoReference(),
+				entity.getCriadoEm(), entity.getAtualizadoEm());
 	}
 }

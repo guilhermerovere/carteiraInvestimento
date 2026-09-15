@@ -38,6 +38,14 @@ public class CashPersistenceAdapter implements CashWalletPort, CashLedgerPort, C
 	}
 
 	@Override
+	public void lockActiveUser(UUID userId) {
+		if (jdbc.query("SELECT id FROM usuarios WHERE id = ? AND ativo = true FOR UPDATE",
+				(rs, row) -> rs.getObject(1, UUID.class), userId).isEmpty()) {
+			throw new IllegalStateException("active principal unavailable");
+		}
+	}
+
+	@Override
 	public BigDecimal balance(UUID walletId) {
 		return jdbc.queryForObject("SELECT saldo_caixa_brl FROM carteiras WHERE id = ?", BigDecimal.class, walletId);
 	}

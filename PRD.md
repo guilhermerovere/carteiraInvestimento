@@ -22,8 +22,8 @@ Estas decisoes eliminam ambiguidades que nao devem ser redefinidas durante a imp
 - Ativos dos EUA possuem cotacao em USD.
 - BUY e SELL devem suportar ativos `B3` com moeda `BRL` e ativos `US_MARKET` com moeda `USD`; a moeda da `Transacao` deve ser coerente com o mercado e a moeda definidos no ativo.
 - Para ativos em USD, o sistema deve obter a taxa real atual `USD/BRL` antes da confirmacao da transacao.
-- AlphaVantage e o provedor primario para cotacoes dos EUA e cambio `USD/BRL`.
-- TwelveData e o fallback quando o provedor primario estiver indisponivel.
+- Twelve Data e o provedor ativo para cotacoes dos EUA e cambio `USD/BRL`.
+- Alpha Vantage nao participa do fluxo ativo de discovery, cotacao ou cambio.
 - Para ativos B3, nao existe conversao externa de moeda e a taxa de cambio considerada e `1.00000000`.
 - O patrimonio consolidado, valor investido e lucro/prejuizo do dashboard devem ser apresentados em BRL.
 - A capability completa de compras e vendas depende da capability de cambio `USD/BRL` e deve habilitar negociacao efetiva de ativos B3/BRL e US/USD. Ativos US nao ficam limitados ao catalogo ou a market quotes.
@@ -58,9 +58,12 @@ Usuario
 `ROLE_USER` pode:
 - consultar corretoras ativas;
 - consultar ativos;
+- cadastrar um novo ativo financeiramente valido no catalogo canonico informando somente ticker e mercado;
 - selecionar corretora ativa pelo identificador permitido ao registrar futura transacao;
 - usar esses catalogos em suas proprias operacoes;
-- nunca cadastrar, editar, ativar, desativar ou excluir itens dos catalogos globais.
+- nunca editar, ativar, desativar ou excluir ativos, administrar metadata ou cadastrar e administrar corretoras.
+
+O cadastro controlado de ativo por `ROLE_USER` nao cria Posicao, nao cria Transacao, nao executa BUY e nao altera caixa.
 
 ### 2.4. Evolucao patrimonial
 
@@ -280,12 +283,16 @@ Pode:
 - consultar o proprio perfil;
 - consultar catalogo de corretoras ativas;
 - consultar catalogo de ativos;
+- cadastrar novo ativo financeiramente valido no catalogo canonico informando somente ticker e mercado;
 - visualizar somente sua propria carteira;
 - realizar depositos e saques;
 - registrar compras e vendas;
 - consultar suas posicoes;
 - consultar seus graficos;
 - consultar seus proprios logs.
+- alterar o proprio nome e e-mail;
+- alterar a propria senha mediante confirmacao da senha atual;
+- encerrar a propria conta somente com saldo em caixa zero e nenhuma posicao aberta.
 
 ### ROLE_ADMIN
 
@@ -447,7 +454,21 @@ Tentativa de acesso cruzado:
 
 A tentativa deve gerar auditoria.
 
-### 7.10. Escopo desta etapa
+### 7.10. Configuracoes e encerramento da propria conta
+
+- usuario autenticado pode alterar somente o proprio nome e e-mail;
+- nome deve ser trimado, obrigatorio e limitado ao contrato persistido;
+- e-mail deve ser trimado, lowercase, valido e unico de forma case-insensitive;
+- alteracao de senha exige a senha atual correta e aplica a politica da secao 7.4;
+- alteracoes sensiveis devem gerar auditoria sanitizada, sem senha, hash, JWT, Authorization, payload cru ou valores financeiros;
+- a UX de exclusao usa encerramento logico, pois FKs e historico financeiro/auditoria impedem exclusao fisica segura;
+- encerramento exige senha atual, confirmacao explicita, saldo em caixa igual a zero e nenhuma posicao com quantidade maior que zero, revalidados transacionalmente pelo backend;
+- posicoes historicas zeradas, transacoes, movimentacoes, lucro realizado, snapshots e auditoria permanecem preservados;
+- a identidade encerrada fica inativa, tem dados pessoais anonimizados de modo unico e nao pode voltar a autenticar ou operar;
+- a sessao frontend atual e limpa apos troca de senha ou encerramento; sem token-version/blacklist, a aplicacao nao declara revogacao global de outros JWTs apos troca de senha;
+- JWT de conta encerrada deixa de funcionar pela validacao obrigatoria do usuario persistido ativo em toda requisicao protegida.
+
+### 7.11. Escopo inicial historico
 
 Esta etapa cobre somente identidade, autenticacao, autorizacao, criacao minima da carteira principal e auditoria de seguranca.
 
@@ -457,8 +478,6 @@ Permanecem fora do escopo desta etapa:
 - refresh token;
 - logout server-side;
 - recuperacao de senha;
-- alteracao de senha;
-- edicao de perfil;
 - endpoint de ativacao ou desativacao de usuarios;
 - depositos;
 - saques;
@@ -556,8 +575,8 @@ CNPJ
 ### Regras
 
 - CNPJ pode ser recebido formatado, mas a aplicacao deve remover a formatacao, validar formalmente os digitos verificadores e persistir exatamente 14 digitos.
-- CNPJ e obrigatorio, globalmente unico, imutavel depois da criacao e persistido como `CHAR(14)` ou equivalente que preserve exatamente o contrato canonico.
-- PATCH de Corretora nao pode alterar CNPJ. Instituicao com outro CNPJ e outro registro.
+- CNPJ e obrigatorio, globalmente unico, imutavel depois da criacao e persistido como `CHAR(14)` ou equivalente que preserve exatamente o contrato canonico regulatorio retornado pela CVM.
+- PATCH de Corretora nao pode alterar CNPJ. Matriz e estabelecimentos/filiais com a mesma raiz de oito digitos representam a mesma instituicao regulada e nao podem gerar registros distintos.
 - Corretora deve estar `ATIVA` na Receita Federal.
 - Corretora deve possuir registro ativo na CVM.
 - `razaoSocial` deve ser obtida da Receita, e obrigatoria para concluir o cadastro. `nomeFantasia`, quando fornecido pela Receita, deve ser persistido como opcional.
@@ -568,7 +587,7 @@ CNPJ
 - Depois do cadastro, `ROLE_ADMIN` pode editar manualmente somente `numero` e `complemento`. CNPJ, razaoSocial, nomeFantasia, cep, logradouro, bairro, cidade, uf e informacoes de compliance da Receita/CVM nao aceitam PATCH manual.
 - Falha de validacao CVM deve retornar `422 Unprocessable Entity`.
 - Reprovacao regulatoria, inclusive situacao cadastral da Receita nao aceita ou registro CVM inativo, nao persiste Corretora e retorna `422 Unprocessable Entity`.
-- Falha tecnica de Receita, CVM ou CEP nao persiste cadastro parcial e retorna `502 Bad Gateway` sanitizado.
+- A consulta regulatoria usa exclusivamente o cadastro publico oficial de intermediarios da CVM. Apos normalizar o CNPJ, procura primeiro os 14 digitos exatos; somente se nao houver esse registro procura exatamente um intermediario/corretora suportado e ativo com a mesma raiz de oito digitos. Match de raiz ausente, inativo ou ambiguo e rejeitado. O CNPJ retornado pela CVM e a identidade regulatoria canonica persistida e usada na duplicidade, enquanto o endereco pode continuar vindo do estabelecimento informado. Ela mantem um snapshot em memoria de ultima leitura valida, com TTL de refresh de 6 horas, e carrega no cold start um baseline versionado derivado do formato oficial. Refresh remoto bem-sucedido substitui o snapshot; falha remota preserva o baseline ou a ultima leitura valida. Assim, indisponibilidade temporaria nao deve ser confundida com CNPJ ausente da CVM; somente sem qualquer snapshot uma falha tecnica de CVM retorna `502 Bad Gateway` sanitizado. CNPJ confirmado ausente ou ambiguo retorna `422` com a mensagem `Este CNPJ não está cadastrado na CVM.`
 - Nao persistir payload bruto completo recebido de provider, nem retornar esse payload em contrato publico.
 - Falhas de compliance devem gerar auditoria sanitizada.
 - Corretora ativa pode ser usada em nova Transacao.
@@ -601,7 +620,7 @@ Listagens devem possuir paginacao.
 
 ## 10. Ativos e Cotacoes
 
-Ativos formam um catalogo global administrado por `ROLE_ADMIN`.
+Ativos formam um catalogo global. `ROLE_ADMIN` preserva sua administracao e `ROLE_USER` pode somente registrar novo ativo financeiramente valido pelo fluxo controlado.
 
 ### Cadastro
 
@@ -610,7 +629,10 @@ POST /api/v1/acoes
 ```
 
 Acesso:
-- somente `ROLE_ADMIN`.
+- `ROLE_ADMIN` cadastra com ticker, nome, tipo e mercado;
+- `ROLE_USER` cadastra com ticker e mercado somente; nome, tipo, moeda e metadata sao derivados pelo servidor apos validacao financeira.
+
+`ROLE_USER` nao pode editar, excluir, ativar, desativar ou administrar metadata de ativo. O cadastro de ativo nao cria Posicao, nao cria Transacao, nao executa BUY e nao altera caixa. Corretoras continuam administradas somente por `ROLE_ADMIN`.
 
 O sistema deve identificar o mercado pelo ticker.
 
@@ -709,7 +731,7 @@ Uma alteracao posterior do dolar nao modifica uma `Transacao` historica. A estra
 | Servico | Uso |
 |---|---|
 | BrasilAPI CNPJ | Dados cadastrais |
-| BrasilAPI CVM | Validacao regulatoria |
+| Cadastro publico oficial de intermediarios da CVM | Validacao regulatoria |
 | ViaCEP | Endereco |
 | Brapi | Cotacoes B3 |
 | AlphaVantage | Cotacoes US e USD/BRL |
@@ -1686,6 +1708,8 @@ O `README.md` deve conter:
 - CVM invalida;
 - falha tecnica de Receita, CVM ou CEP sem cadastro parcial;
 - cadastro valido.
+- matriz CVM `02.332.886/0001-04` valida e estabelecimento `02.332.886/0016-82` resolve para a mesma identidade regulatoria canonica;
+- matriz ja cadastrada mais tentativa pela filial retorna `409` com `Esta corretora já está cadastrada.`, e match de raiz ambiguo e rejeitado sem persistencia;
 - razao social obrigatoria obtida da Receita e dados externos nao editaveis manualmente;
 - CEP/endereco canonicos e numero/complemento opcionais normalizados;
 - `ROLE_USER` consulta somente corretoras ativas e nao altera o catalogo;
@@ -1848,7 +1872,7 @@ Quando um comportamento depender de PostgreSQL, H2 nao deve substituir o teste d
 7. Nao utilizar `float` ou `double` para calculos financeiros.
 8. Nao permitir venda a descoberto.
 9. Nao cadastrar corretora sem validacao ativa na CVM.
-10. Nao permitir `ROLE_USER` alterar catalogos globais.
+10. Nao permitir `ROLE_USER` administrar catalogos globais. Como excecao controlada, todo `ROLE_USER` pode adicionar ao catalogo global um ativo valido exclusivamente por `ticker` e `mercado`, apos validacao/canonicalizacao server-side pelo provider; essa acao nao cria posicao, transacao ou movimentacao de caixa e nao permite editar, ativar, desativar ou excluir ativos.
 11. Nao permitir `ROLE_USER` acessar rotas administrativas.
 12. Nao criar relacionamento fixo entre `Acao` e `Corretora`.
 13. Nao permitir `ROLE_USER` enviar corretora textual livre em Transacao.

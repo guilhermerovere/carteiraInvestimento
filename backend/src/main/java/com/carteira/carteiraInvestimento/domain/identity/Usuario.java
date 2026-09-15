@@ -32,4 +32,23 @@ public record Usuario(
 		Instant now = Instant.now();
 		return new Usuario(UUID.randomUUID(), nome.trim(), email, senhaHash, role, true, now, now);
 	}
+
+	public Usuario comNome(String novoNome, Instant instante) {
+		if (novoNome == null || novoNome.trim().isEmpty() || novoNome.trim().length() > 255) {
+			throw new IllegalArgumentException("nome must contain between 1 and 255 characters");
+		}
+		return new Usuario(id, novoNome.trim(), email, senhaHash, role, ativo, criadoEm, instante);
+	}
+
+	public Usuario comEmail(String novoEmail, Instant instante) {
+		return new Usuario(id, nome, novoEmail, senhaHash, role, ativo, criadoEm, instante);
+	}
+
+	public Usuario comSenhaHash(String novoHash, Instant instante) {
+		return new Usuario(id, nome, email, novoHash, role, ativo, criadoEm, instante);
+	}
+
+	public Usuario encerrar(String nomeAnonimo, String emailAnonimo, String hashInutilizavel, Instant instante) {
+		return new Usuario(id, nomeAnonimo, emailAnonimo, hashInutilizavel, role, false, criadoEm, instante);
+	}
 }

@@ -21,7 +21,7 @@ class PortfolioValuationSchemaIT extends PostgreSqlContainerSupport {
     @BeforeAll
     static void migrateV1ThroughV10() {
         Flyway flyway = Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-                .schemas(SCHEMA).defaultSchema(SCHEMA).cleanDisabled(false).load();
+                .schemas(SCHEMA).defaultSchema(SCHEMA).target("10").cleanDisabled(false).load();
         flyway.clean();
         assertThat(flyway.migrate().migrationsExecuted).isEqualTo(10);
         assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("10");
@@ -73,7 +73,7 @@ class PortfolioValuationSchemaIT extends PostgreSqlContainerSupport {
                     """, UUID.randomUUID(), wallet);
         }
         Flyway latest = Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-                .schemas(schema).defaultSchema(schema).cleanDisabled(false).load();
+                .schemas(schema).defaultSchema(schema).target("10").cleanDisabled(false).load();
         assertThat(latest.migrate().migrationsExecuted).isEqualTo(1);
         try (Connection connection = POSTGRES.createConnection("")) {
             connection.setSchema(schema);

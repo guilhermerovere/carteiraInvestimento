@@ -61,3 +61,15 @@ export async function logout(): Promise<void> {
 export function isUnauthorized(error: unknown): error is AuthFormError {
   return error instanceof AuthFormError && error.status === 401;
 }
+
+export function authErrorMessage(error: unknown, action: "login" | "register"): string {
+  if (!(error instanceof AuthFormError)) return "Não foi possível concluir a solicitação. Tente novamente.";
+  if (error.kind === "network") return "Não foi possível conectar ao serviço. Verifique sua conexão e tente novamente.";
+  if (error.status === 400) return "Revise os campos informados.";
+  if (error.status === 401 && action === "login") return "E-mail ou senha incorretos.";
+  if (error.status === 403) return "Você não tem permissão para realizar esta ação.";
+  if (error.status === 409 && action === "register") return "Este email já está em uso.";
+  if (error.status === 429) return "Muitas tentativas em pouco tempo. Aguarde e tente novamente.";
+  if (error.status === 502 || error.status === 503) return "O serviço está temporariamente indisponível. Tente novamente em alguns instantes.";
+  return action === "login" ? "Não foi possível iniciar a sessão." : "Não foi possível criar a conta.";
+}

@@ -3,13 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useLogin } from "@/client/auth";
-import { AuthFormError } from "@/client/auth-form-api";
+import { AuthFormError, authErrorMessage } from "@/client/auth-form-api";
 import { safeReturnToForRole } from "@/lib/return-to";
 
 function messageFor(error: unknown): string {
-  return error instanceof AuthFormError && error.kind === "http"
-    ? error.problem?.detail ?? error.problem?.title ?? "Não foi possível iniciar a sessão."
-    : "Não foi possível iniciar a sessão.";
+  return authErrorMessage(error, "login");
 }
 
 export function LoginForm() {

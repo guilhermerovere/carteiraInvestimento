@@ -13,11 +13,11 @@ public record PortfolioValuationResult(Instant valuationInstant, BigDecimal cash
         BigDecimal investedBrl, BigDecimal positionsValueBrl, BigDecimal unrealizedProfitBrl,
         BigDecimal accumulatedRealizedProfitBrl, BigDecimal totalEquityBrl,
         BigDecimal unrealizedReturnPercentage, CurrentExchangeRate currentExchangeRate,
-        List<ValuedPosition> positions) {
+        List<ValuedPosition> positions, boolean marketDataAvailable) {
     public record CurrentExchangeRate(BigDecimal rateBrl, CambioProvider provider, Instant exchangeInstant) { }
     public record ValuedPosition(UUID assetId, String ticker, Mercado market, Moeda currency,
             BigDecimal quantity, BigDecimal averagePriceBrl, BigDecimal investedBrl,
             BigDecimal currentQuote, QuoteProvider quoteProvider, Instant quoteInstant,
             BigDecimal currentValueSource, BigDecimal currentValueBrl, BigDecimal unrealizedProfitBrl,
-            BigDecimal returnPercentage) { }
+            BigDecimal returnPercentage, boolean marketDataAvailable) { }
 }

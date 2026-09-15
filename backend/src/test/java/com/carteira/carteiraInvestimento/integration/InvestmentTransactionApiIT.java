@@ -93,7 +93,16 @@ class InvestmentTransactionApiIT extends PostgreSqlContainerSupport {
 
         mvc.perform(get("/api/v1/carteira/transacoes").header(HttpHeaders.AUTHORIZATION, bearer(f)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items.length()").value(1))
-                .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(20));
+                .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.totalElements").value(1)).andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.items[0].id").value(jdbc.queryForObject("SELECT id FROM transacoes", UUID.class).toString()))
+                .andExpect(jsonPath("$.items[0].ticker").value("TSTX4"))
+                .andExpect(jsonPath("$.items[0].nome").value("Test Asset"))
+                .andExpect(jsonPath("$.items[0].corretoraNome").value("Broker Test"))
+                .andExpect(jsonPath("$.items[0].logoProvider").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.items[0].logoReference").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.items[0].exchangeRateId").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.items[0].resultadoRealizadoBrl").value(org.hamcrest.Matchers.nullValue()));
         mvc.perform(get("/api/v1/carteira/transacoes/" + transactionId)
                 .header(HttpHeaders.AUTHORIZATION, bearer(f))).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(transactionId.toString()));
@@ -195,7 +204,8 @@ class InvestmentTransactionApiIT extends PostgreSqlContainerSupport {
         assertThat(replay).isEqualTo(first);
         mvc.perform(post("/api/v1/carteira/transacoes").header(HttpHeaders.AUTHORIZATION, bearer(f))
                 .header("Idempotency-Key", "us-expired").contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isConflict()).andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON));
+                .andExpect(status().isConflict()).andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.code").value("FX_EXPIRED"));
         assertThat(jdbc.queryForObject("SELECT count(*) FROM transacoes_idempotencia WHERE idempotency_key='us-expired'",
                 Long.class)).isZero();
         assertThat(jdbc.queryForObject("SELECT count(*) FROM historico_cotacoes",Long.class)).isEqualTo(quoteRows);

@@ -13,9 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class BrokerApplicationService implements BrokerUseCase {
     private final CorretoraPort brokers; private final ReceitaFederalPort receita; private final CvmPort cvm;
     private final ViaCepPort viaCep; private final BrokerLocalTransactionService local; private final AuditoriaIsoladaPort isolatedAudit; private final Clock clock;
+    private final BrokerBrandingPort branding;
     public BrokerApplicationService(CorretoraPort brokers, ReceitaFederalPort receita, CvmPort cvm, ViaCepPort viaCep,
             BrokerLocalTransactionService local, AuditoriaIsoladaPort isolatedAudit, Clock clock) {
-        this.brokers=brokers; this.receita=receita; this.cvm=cvm; this.viaCep=viaCep; this.local=local; this.isolatedAudit=isolatedAudit; this.clock=clock;
+        this(brokers, receita, cvm, viaCep, local, isolatedAudit, clock, (legal, trade) -> java.util.Optional.empty());
+    }
+    @org.springframework.beans.factory.annotation.Autowired
+    public BrokerApplicationService(CorretoraPort brokers, ReceitaFederalPort receita, CvmPort cvm, ViaCepPort viaCep,
+            BrokerLocalTransactionService local, AuditoriaIsoladaPort isolatedAudit, Clock clock, BrokerBrandingPort branding) {
+        this.brokers=brokers; this.receita=receita; this.cvm=cvm; this.viaCep=viaCep; this.local=local; this.isolatedAudit=isolatedAudit; this.clock=clock; this.branding=branding;
     }
     @Override
     public Corretora criar(String input, String numero, String complemento, UUID actor, UUID correlation) {
@@ -36,7 +42,13 @@ public class BrokerApplicationService implements BrokerUseCase {
             if (!officialCep.equals(canonicalCep(address.cep()))) throw new BrokerUpstreamException("Inconsistent upstream address");
             Corretora broker = Corretora.nova(cnpj, company.razaoSocial(), company.nomeFantasia(), officialCep,
                     address.logradouro(), address.bairro(), address.cidade(), address.uf(), numero, complemento, clock);
-            return local.create(broker, actor, correlation);
+            Corretora saved = local.create(broker, actor, correlation);
+            try {
+                return branding.resolve(saved.razaoSocial(), saved.nomeFantasia())
+                        .map(domain -> local.applyBranding(saved.id(), domain)).orElse(saved);
+            } catch (RuntimeException ignored) {
+                return saved;
+            }
         } catch (BrokerUpstreamException exception) { throw exception; }
         catch (IllegalArgumentException exception) { throw new BrokerUpstreamException("Invalid upstream payload", exception); }
     }

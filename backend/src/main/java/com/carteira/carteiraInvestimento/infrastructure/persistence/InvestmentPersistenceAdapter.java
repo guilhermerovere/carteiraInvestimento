@@ -10,6 +10,7 @@ import com.carteira.carteiraInvestimento.domain.investment.InvestmentNumbers;
 import com.carteira.carteiraInvestimento.domain.investment.Posicao;
 import com.carteira.carteiraInvestimento.domain.investment.TipoTransacao;
 import com.carteira.carteiraInvestimento.domain.investment.Transacao;
+import com.carteira.carteiraInvestimento.domain.shared.LogoProvider;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,9 +56,13 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
                        t.id, t.carteira_id, t.usuario_id, t.acao_id, t.corretora_id,
                        t.exchange_rate_id, t.tipo, t.quantidade, t.moeda, t.preco_unitario,
                        t.taxas, t.taxa_cambio_brl, t.valor_total_brl, t.resultado_realizado_brl,
-                       t.data_negociacao, t.data_registro
+                       t.data_negociacao, t.data_registro,
+                       a.nome AS asset_nome,a.mercado AS asset_mercado,a.moeda AS asset_moeda,
+                       a.ativo AS asset_ativo,a.logo_provider AS asset_logo_provider,
+                       a.logo_reference AS asset_logo_reference
                 FROM transacoes_idempotencia i
                 LEFT JOIN transacoes t ON t.id = i.transacao_id
+                LEFT JOIN acoes a ON a.id = t.acao_id
                 WHERE i.carteira_id = ? AND i.idempotency_key = ?
                 """, (rs, n) -> existing(rs), walletId, key).stream().findFirst()
                 .orElseThrow(() -> new IllegalStateException("idempotency reservation unavailable"));
@@ -65,10 +70,11 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
 
     @Override
     public ProtectedAsset lockAsset(UUID id) {
-        return jdbc.query("SELECT id,ticker,mercado,moeda,ativo FROM acoes WHERE id=? FOR SHARE",
-                (rs, n) -> new ProtectedAsset(rs.getObject("id", UUID.class), rs.getString("ticker"),
+        return jdbc.query("SELECT id,ticker,nome,mercado,moeda,ativo,logo_provider,logo_reference FROM acoes WHERE id=? FOR SHARE",
+                (rs, n) -> new ProtectedAsset(rs.getObject("id", UUID.class), rs.getString("ticker"), rs.getString("nome"),
                         Mercado.valueOf(rs.getString("mercado")), Moeda.valueOf(rs.getString("moeda")),
-                        rs.getBoolean("ativo")), id).stream().findFirst().orElseThrow(InvestmentNotFoundException::new);
+                        rs.getBoolean("ativo"), enumValue(rs.getString("logo_provider"), LogoProvider.class),
+                        rs.getString("logo_reference")), id).stream().findFirst().orElseThrow(InvestmentNotFoundException::new);
     }
 
     @Override
@@ -169,14 +175,16 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
     @Override public Page<TransactionView> transactions(UUID walletId, int page, int size) {
         long total = jdbc.queryForObject("SELECT count(*) FROM transacoes WHERE carteira_id=?", Long.class, walletId);
         List<TransactionView> items = jdbc.query("""
-                SELECT t.*,a.ticker FROM transacoes t JOIN acoes a ON a.id=t.acao_id
+                SELECT t.*,a.ticker,a.nome AS asset_nome,a.logo_provider AS asset_logo_provider,
+                       a.logo_reference AS asset_logo_reference,COALESCE(c.nome_fantasia,c.razao_social) AS broker_nome
+                FROM transacoes t JOIN acoes a ON a.id=t.acao_id JOIN corretoras c ON c.id=t.corretora_id
                 WHERE t.carteira_id=? ORDER BY t.data_registro DESC,t.id DESC LIMIT ? OFFSET ?
                 """, (rs, n) -> transactionView(rs), walletId, size, (long) page * size);
         return page(items, page, size, total);
     }
 
     @Override public Optional<TransactionView> transaction(UUID id) {
-        return jdbc.query("SELECT t.*,a.ticker FROM transacoes t JOIN acoes a ON a.id=t.acao_id WHERE t.id=?",
+        return jdbc.query("SELECT t.*,a.ticker,a.nome AS asset_nome,a.logo_provider AS asset_logo_provider,a.logo_reference AS asset_logo_reference,COALESCE(c.nome_fantasia,c.razao_social) AS broker_nome FROM transacoes t JOIN acoes a ON a.id=t.acao_id JOIN corretoras c ON c.id=t.corretora_id WHERE t.id=?",
                 (rs, n) -> transactionView(rs), id).stream().findFirst();
     }
 
@@ -184,18 +192,20 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
         long total = jdbc.queryForObject("SELECT count(*) FROM posicoes WHERE carteira_id=? AND quantidade>0",
                 Long.class, walletId);
         List<PositionView> items = jdbc.query("""
-                SELECT p.*,a.ticker FROM posicoes p JOIN acoes a ON a.id=p.acao_id
+                SELECT p.*,a.ticker,a.nome,a.mercado,a.moeda,a.ativo,a.logo_provider,a.logo_reference
+                FROM posicoes p JOIN acoes a ON a.id=p.acao_id
                 WHERE p.carteira_id=? AND p.quantidade>0 ORDER BY a.ticker ASC,a.id ASC LIMIT ? OFFSET ?
-                """, (rs, n) -> new PositionView(position(rs), rs.getString("ticker")), walletId, size,
+                """, (rs, n) -> positionView(rs), walletId, size,
                 (long) page * size);
         return page(items, page, size, total);
     }
 
     @Override public Optional<PositionView> position(UUID walletId, UUID assetId) {
         return jdbc.query("""
-                SELECT p.*,a.ticker FROM posicoes p JOIN acoes a ON a.id=p.acao_id
+                SELECT p.*,a.ticker,a.nome,a.mercado,a.moeda,a.ativo,a.logo_provider,a.logo_reference
+                FROM posicoes p JOIN acoes a ON a.id=p.acao_id
                 WHERE p.carteira_id=? AND p.acao_id=?
-                """, (rs, n) -> new PositionView(position(rs), rs.getString("ticker")), walletId, assetId)
+                """, (rs, n) -> positionView(rs), walletId, assetId)
                 .stream().findFirst();
     }
 
@@ -212,11 +222,36 @@ public class InvestmentPersistenceAdapter implements InvestmentPersistencePort {
         String ticker = rs.getString("ticker_resultante");
         return new ExistingReservation(rs.getString("fingerprint"), new TransactionView(transaction, ticker),
                 rs.getBigDecimal("valor_origem"), rs.getBigDecimal("saldo_caixa_brl_resultante"),
-                new PositionView(snapshot, ticker));
+                new PositionView(snapshot, ticker, rs.getString("asset_nome"),
+                        enumValue(rs.getString("asset_mercado"), Mercado.class),
+                        enumValue(rs.getString("asset_moeda"), Moeda.class), rs.getBoolean("asset_ativo"),
+                        enumValue(rs.getString("asset_logo_provider"), LogoProvider.class),
+                        rs.getString("asset_logo_reference")));
     }
 
     private TransactionView transactionView(ResultSet rs) throws SQLException {
-        return new TransactionView(transaction(rs), rs.getString("ticker"));
+        return new TransactionView(transaction(rs), rs.getString("ticker"), rs.getString("asset_nome"),
+                enumValue(rs.getString("asset_logo_provider"), LogoProvider.class),
+                rs.getString("asset_logo_reference"), rs.getString("broker_nome"));
+    }
+
+    @Override
+    public void lockActiveUser(UUID userId) {
+        if (jdbc.query("SELECT id FROM usuarios WHERE id=? AND ativo=true FOR UPDATE",
+                (rs, row) -> rs.getObject(1, UUID.class), userId).isEmpty()) {
+            throw new IllegalStateException("active principal unavailable");
+        }
+    }
+
+    private PositionView positionView(ResultSet rs) throws SQLException {
+        return new PositionView(position(rs), rs.getString("ticker"), rs.getString("nome"),
+                Mercado.valueOf(rs.getString("mercado")), Moeda.valueOf(rs.getString("moeda")),
+                rs.getBoolean("ativo"), enumValue(rs.getString("logo_provider"), LogoProvider.class),
+                rs.getString("logo_reference"));
+    }
+
+    private static <E extends Enum<E>> E enumValue(String value, Class<E> type) {
+        return value == null ? null : Enum.valueOf(type, value);
     }
 
     private Transacao transaction(ResultSet rs) throws SQLException {

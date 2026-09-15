@@ -128,3 +128,19 @@ Asset branding SHALL be system-resolved and optional. Brapi SHALL be the priorit
 #### Scenario: Existing catalog is listed
 - **WHEN** a page of assets is read
 - **THEN** stored branding references are returned without external per-item lookup
+
+### Requirement: Administrative asset presentation reuses canonical contracts
+The ROLE_ADMIN frontend SHALL list assets and create them with exactly ticker, name, type and market; it SHALL edit only name and set lifecycle through the existing idempotent `ativo` request. Structural identity fields SHALL remain read-only after creation, physical DELETE and manual branding inputs MUST NOT appear, and EntityLogo SHALL consume only system-owned branding with fallback.
+
+#### Scenario: Admin maintains an asset
+- **WHEN** ROLE_ADMIN creates, renames, activates or deactivates an asset in the administrative UI
+- **THEN** the UI submits only the existing role-appropriate DTO fields and presents a friendly pt-BR result without raw JSON
+
+### Requirement: Provider-backed user asset discovery and controlled registration
+Every `ROLE_USER` SHALL discover supported B3 and US instruments by ticker or issuer name and register a valid canonical asset using only `ticker` and `mercado`. Discovery responses SHALL be normalized, provider metadata SHALL remain server-derived, and registration SHALL NOT create a position, transaction or cash movement. Discovery, validation and quotation failures SHALL be independently classified so a missing optional Brapi token does not prevent a provider-supported public B3 search.
+
+#### Scenario: User finds and adds a B3 asset
+- **WHEN** a user searches for `Banco do Brasil` or `BBAS3`
+- **THEN** the result provides canonical ticker, provider-derived name, supported type, market, currency, optional logo and current price
+- **AND** adding it sends only ticker and market
+- **AND** persisted catalog metadata is validated and canonical.

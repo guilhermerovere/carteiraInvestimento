@@ -66,14 +66,14 @@ class MarketQuoteApplicationServiceTest {
 	}
 
 	@Test
-	void appliesCompleteUsFallbackMatrix() {
-		assertMatrix(new QuoteNotFoundException(), new QuoteNotFoundException(), QuoteNotFoundException.class);
-		assertMatrix(new QuoteNotFoundException(), new QuoteIntegrationException("x"), QuoteIntegrationException.class);
-		assertMatrix(new QuoteIntegrationException("x"), new QuoteNotFoundException(), QuoteIntegrationException.class);
-		assertMatrix(new QuoteIntegrationException("x"), new QuoteIntegrationException("y"), QuoteIntegrationException.class);
+	void usesTwelveDataForUsAndPreservesProviderFailureSemanticsWithoutFallback() {
+		assertTwelveFailure(new QuoteNotFoundException(), QuoteNotFoundException.class);
+		assertTwelveFailure(new QuoteIntegrationException("rate limited"), QuoteIntegrationException.class);
+		assertTwelveFailure(new QuoteIntegrationException("timeout"), QuoteIntegrationException.class);
 		Fixture success = new Fixture(Mercado.US);
-		success.alpha.failure = new QuoteIntegrationException("x");
 		assertThat(success.service.cotacaoAtual(success.asset.id()).provider()).isEqualTo(QuoteProvider.TWELVE_DATA);
+		assertThat(success.twelve.calls()).isOne();
+		assertThat(success.alpha.calls()).isZero();
 	}
 
 	@Test
@@ -139,10 +139,12 @@ class MarketQuoteApplicationServiceTest {
 		assertThat(f.brapi.transactionActive).isFalse();
 	}
 
-	private void assertMatrix(RuntimeException alpha, RuntimeException twelve, Class<? extends Throwable> expected) {
+	private void assertTwelveFailure(RuntimeException failure, Class<? extends Throwable> expected) {
 		Fixture f = new Fixture(Mercado.US);
-		f.alpha.failure = alpha; f.twelve.failure = twelve;
+		f.twelve.failure = failure;
 		assertThatThrownBy(() -> f.service.cotacaoAtual(f.asset.id())).isInstanceOf(expected);
+		assertThat(f.twelve.calls()).isOne();
+		assertThat(f.alpha.calls()).isZero();
 	}
 
 	private static final class Fixture {

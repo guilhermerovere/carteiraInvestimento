@@ -24,6 +24,11 @@ public class BrokerLocalTransactionService {
         return saved;
     }
     @Transactional
+    public Corretora applyBranding(UUID id, String domain) {
+        Corretora current = brokers.findById(id, CorretoraReadScope.ALL).orElseThrow(BrokerNotFoundException::new);
+        return brokers.saveAndFlush(current.withBranding(com.carteira.carteiraInvestimento.domain.shared.LogoProvider.LOGO_DEV, domain));
+    }
+    @Transactional
     public Corretora edit(UUID id, BrokerPatch patch, UUID actorId, UUID correlationId) {
         Corretora current = brokers.findById(id, CorretoraReadScope.ALL).orElseThrow(BrokerNotFoundException::new);
         String number = patch.numeroPresent() ? patch.numero() : current.numero();

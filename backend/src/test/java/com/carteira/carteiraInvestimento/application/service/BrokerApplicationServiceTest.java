@@ -39,4 +39,10 @@ class BrokerApplicationServiceTest {
         reset(cvm,audit);when(cvm.consultar(c)).thenReturn(Optional.of(new RegistroCvm(c,false)));assertThatThrownBy(()->service.criar(c,null,null,null,UUID.randomUUID())).isInstanceOf(BrokerComplianceException.class);verifyNoInteractions(cep,local);
     }
     @Test void missingRequiredUpstreamFieldIsTechnical(){String c="19131243000197";when(receita.consultar(c)).thenReturn(Optional.of(new CadastroCnpj(c,"XP",null,"ATIVA","01310100")));when(cvm.consultar(c)).thenReturn(Optional.of(new RegistroCvm(c,true)));when(cep.consultar("01310100")).thenReturn(new EnderecoPostal("01310100",null,"Bairro","Cidade","SP"));assertThatThrownBy(()->service.criar(c,null,null,null,UUID.randomUUID())).isInstanceOf(BrokerUpstreamException.class);verifyNoInteractions(local);}
+    @Test void brandingFailureDoesNotPreventAnOtherwiseCompliantBrokerFromBeingCreated(){
+        BrokerBrandingPort branding=mock(BrokerBrandingPort.class);service=new BrokerApplicationService(brokers,receita,cvm,cep,local,audit,clock,branding);String c="19131243000197";
+        when(receita.consultar(c)).thenReturn(Optional.of(new CadastroCnpj(c,"XP",null,"ATIVA","01310100")));when(cvm.consultar(c)).thenReturn(Optional.of(new RegistroCvm(c,true)));when(cep.consultar("01310100")).thenReturn(new EnderecoPostal("01310100","Rua","Bairro","Cidade","SP"));
+        when(local.create(any(),isNull(),any())).thenAnswer(i->i.getArgument(0));when(branding.resolve(any(),any())).thenThrow(new BrokerUpstreamException("branding down"));
+        assertThat(service.criar(c,null,null,null,UUID.randomUUID()).cnpj()).isEqualTo(c);verify(local).create(any(),isNull(),any());verify(local,never()).applyBranding(any(),any());
+    }
 }

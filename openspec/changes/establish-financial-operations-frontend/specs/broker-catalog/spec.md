@@ -47,3 +47,41 @@ Broker registration SHALL remain exclusively ADMIN-only and the existing POST bo
 #### Scenario: Branding provider failure does not affect operations
 - **WHEN** a broker's stored logo is missing or its image endpoint fails
 - **THEN** broker selection falls back visually and financial operation rules remain unchanged
+
+### Requirement: Provider-backed CVM validation
+Broker registration SHALL normalize a canonical 14-digit CNPJ and validate the regulated institution against the public official CVM intermediary registry. Resolution SHALL first use an exact 14-digit match. Only when no exact record exists, it SHALL search the snapshot for active supported intermediary/corretora records with the same eight-digit CNPJ root and accept only one unambiguous candidate. Zero candidates, inactive-only candidates, or multiple compatible root candidates SHALL be rejected safely; an exact inactive record SHALL NOT fall through to root matching. The CVM-returned CNPJ SHALL be the canonical regulatory identity persisted and used for duplication, while Receita/CEP data may describe the submitted establishment. Headquarters and branches of the same root SHALL NOT create separate broker records. The implementation SHALL retain a bounded in-memory last-known-good snapshot with a six-hour refresh TTL. A successful official `cad_intermed.zip` refresh SHALL atomically replace that snapshot; a failed refresh SHALL keep it. Cold start SHALL load a documented, versioned local baseline derived from the official registry format before attempting a best-effort remote refresh. The baseline and a successful remote snapshot are the only fallback data; the implementation SHALL NOT use another provider or invent entries. A matching active broker SHALL be admitted; a confirmed absent or ambiguous CNPJ SHALL return `422` with code `BROKER_CVM_NOT_REGISTERED` and detail `Este CNPJ não está cadastrado na CVM.`; only a missing snapshot combined with timeout, 5xx, download, archive, or parsing failure SHALL return safe `502` with code `BROKER_VALIDATION_UNAVAILABLE`.
+
+#### Scenario: Official registry contains the CNPJ while a proxy is unavailable
+- **WHEN** a canonical CNPJ is active in the official CVM registry and a third-party CVM proxy is unavailable
+- **THEN** the compliant broker is created without depending on that proxy
+
+#### Scenario: Official registry is temporarily unavailable
+- **WHEN** the official registry cannot be obtained or parsed after a baseline or prior successful snapshot is available
+- **THEN** registration continues from that snapshot without treating the CNPJ as absent
+
+#### Scenario: Cold start is temporarily offline
+- **WHEN** the application starts while the official registry is unavailable
+- **THEN** the versioned baseline is loaded, remote refresh is best-effort, and a CNPJ known by the baseline can be registered
+
+#### Scenario: No snapshot exists while the official registry is unavailable
+- **WHEN** neither the baseline nor a successful remote snapshot is available
+- **THEN** no broker is persisted and the UI receives only the friendly temporary-validation message with `BROKER_VALIDATION_UNAVAILABLE`
+
+#### Scenario: Establishment resolves to canonical CVM headquarters
+- **WHEN** `02.332.886/0016-82` has no exact registry row and the snapshot contains only the active supported XP intermediary `02.332.886/0001-04` for root `02.332.886`
+- **THEN** validation succeeds and the broker identity is persisted as canonical CNPJ `02332886000104`
+
+#### Scenario: Headquarters already exists when a branch is submitted
+- **WHEN** canonical XP `02332886000104` is already registered and an administrator submits `02332886001682`
+- **THEN** no second broker is created and the response is `409` with `BROKER_ALREADY_REGISTERED`
+
+#### Scenario: Root match is ambiguous
+- **WHEN** no exact CNPJ exists and more than one active supported registry record shares the submitted eight-digit root
+- **THEN** root fallback is rejected with `422` and no broker is persisted
+
+### Requirement: Administrative broker presentation reuses compliance contracts
+The ROLE_ADMIN frontend SHALL list/consult brokers, create with exactly CNPJ plus optional numero/complemento, edit only numero/complemento, and set lifecycle through the existing idempotent `ativo` request. Official identity/address fields SHALL be presented as read-only, physical DELETE and manual branding inputs MUST NOT appear, and EntityLogo SHALL consume only system-owned branding with fallback. Provider/compliance errors SHALL be mapped to safe pt-BR presentation without raw detail.
+
+#### Scenario: Admin maintains a broker
+- **WHEN** ROLE_ADMIN creates, edits, activates or deactivates a broker in the administrative UI
+- **THEN** the UI submits only existing allowed fields and presents a friendly pt-BR result without raw provider or JSON payload

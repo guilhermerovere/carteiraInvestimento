@@ -1,6 +1,6 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { decimalSign, formatDateTime, formatMoney, formatPercentage, formatQuantity } from "@/lib/finance/format";
+import { decimalSign, formatAveragePrice, formatDateTime, formatMoney, formatPercentage, formatQuantity } from "@/lib/finance/format";
 
 export function Money({ value, className }: { value: string; className?: string }) {
   return <span className={cn("financial-number", className)}>{formatMoney(value)}</span>;
@@ -10,6 +10,9 @@ export function Percentage({ value, className }: { value: string; className?: st
 }
 export function Quantity({ value, className }: { value: string; className?: string }) {
   return <span className={cn("financial-number", className)}>{formatQuantity(value)}</span>;
+}
+export function AveragePrice({ value, currency = "BRL", className }: { value: string; currency?: "BRL" | "USD"; className?: string }) {
+  return <span className={cn("financial-number", className)}>{formatAveragePrice(value, currency)}</span>;
 }
 export function DateTime({ value, className }: { value: string; className?: string }) {
   return <time className={className} dateTime={value}>{formatDateTime(value)}</time>;

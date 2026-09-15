@@ -8,6 +8,7 @@ export const portfolioKeys = {
   summary: ["portfolio", "summary"] as const,
   positions: (page: number, size: number) => ["portfolio", "positions", page, size] as const,
   position: (assetId: string) => ["portfolio", "position", assetId] as const,
+  transactionPages: ["portfolio", "transactions"] as const,
   transactions: (page: number, size: number) => ["portfolio", "transactions", page, size] as const,
   transaction: (id: string) => ["portfolio", "transaction", id] as const,
   cashBalance: ["portfolio", "cash"] as const,

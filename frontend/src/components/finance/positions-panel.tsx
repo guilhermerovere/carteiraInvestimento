@@ -1,80 +1,25 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { usePortfolioSummary, usePositions } from "@/client/portfolio-queries";
-import { enrichPositionsByAssetId } from "@/lib/finance/enrichment";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { EntityLogo } from "./entity-logo";
 import { EmptyState, FinancialSkeleton, ProblemDetailAlert } from "./states";
 import { Pagination } from "./pagination";
-import { FinancialPageIntro } from "./page-intro";
-import { DateTime, GainLoss, Money, Quantity } from "./values";
-
-function Unavailable() { return <span className="unavailable">Indisponível</span>; }
-
-function PositionDetails({ position }: { position: ReturnType<typeof enrichPositionsByAssetId>[number] }) {
-  return (
-    <details className="row-disclosure">
-      <summary>Detalhes <ChevronDown aria-hidden="true" /></summary>
-      <dl>
-        <div><dt>Preço médio</dt><dd><Money value={position.precoMedioBrl} /></dd></div>
-        <div><dt>Total investido</dt><dd><Money value={position.totalInvestidoBrl} /></dd></div>
-        <div><dt>Cotação atual</dt><dd>{position.valuation ? <><span>{position.valuation.moeda}</span> <Quantity value={position.valuation.cotacaoAtual} /></> : <Unavailable />}</dd></div>
-        <div><dt>Provider</dt><dd>{position.valuation?.providerCotacao.replaceAll("_", " ") ?? <Unavailable />}</dd></div>
-        <div><dt>Custódia atualizada</dt><dd><DateTime value={position.ultimaAtualizacao} /></dd></div>
-        <div><dt>Cotação observada</dt><dd>{position.valuation ? <DateTime value={position.valuation.instanteCotacao} /> : <Unavailable />}</dd></div>
-      </dl>
-    </details>
-  );
-}
+import { AveragePrice, GainLoss, Money, Quantity } from "./values";
+import { formatCurrency } from "@/lib/finance/format";
 
 export function PositionsPanel() {
-  const [page, setPage] = useState(0);
-  const positions = usePositions(page, 20);
-  const summary = usePortfolioSummary();
-
-  if (positions.isPending) return <FinancialSkeleton rows={7} label="Carregando posições" />;
+  const [page, setPage] = useState(0); const positions = usePositions(page, 20); const summary = usePortfolioSummary();
+  if (positions.isPending || summary.isPending) return <FinancialSkeleton rows={7} label="Carregando posições" />;
   if (positions.isError) return <ProblemDetailAlert error={positions.error} onRetry={() => positions.refetch()} />;
-  if (positions.data.items.length === 0) return <section aria-labelledby="positions-title"><FinancialPageIntro titleId="positions-title" title="Suas posições" description="Custódia aberta, enriquecida pela última avaliação disponível." /><EmptyState title="Sem posições abertas" description="Não há ativos em custódia para exibir." /></section>;
+  // A market outage must not hide persisted positions; unavailable market cells are rendered below.
+  if (summary.isError) return <PersistedPositions positions={positions.data.items} />;
+  if (!positions.data.items.length) return <section className="reference-page"><header className="reference-page__header"><div><h2>Minhas posições</h2><p>Visualize os ativos que compõem sua carteira.</p></div></header><EmptyState title="Sem posições abertas" description="Não há ativos em custódia para exibir." /></section>;
+  const valuation = new Map((summary.data?.posicoes ?? []).map((item) => [item.ativoId, item])); const totalPositions = positions.data.totalElements;
+  return <section className="reference-page positions-page" aria-labelledby="positions-title"><header className="reference-page__header"><div><h2 id="positions-title">Minhas posições</h2><p>Visualize os ativos que compõem sua carteira, com preços atualizados e desempenho.</p></div></header><div className="positions-metrics"><div className="wealth-hero"><span>Patrimônio total</span><Money value={summary.data.patrimonioTotalBrl} className="wealth-hero__value" /><GainLoss value={summary.data.lucroNaoRealizadoBrl} percentage={summary.data.rentabilidadeNaoRealizadaPercentual} /></div><div className="portfolio-metric"><span>Total investido</span><Money value={summary.data.totalInvestidoBrl} /></div><div className="portfolio-metric portfolio-metric--positive"><span>Resultado / Rentabilidade</span><GainLoss value={summary.data.lucroNaoRealizadoBrl} percentage={summary.data.rentabilidadeNaoRealizadaPercentual} /></div><div className="portfolio-metric"><span>Quantidade de posições</span><strong className="positions-count">{totalPositions}</strong></div></div><section className="reference-table-card"><div className="reference-table-card__heading"><div><h2>Minhas posições <small>({totalPositions})</small></h2><p>Confira seus ativos e acompanhe a performance.</p></div></div><div className="reference-table-wrap"><table className="reference-table"><thead><tr><th>Ativo</th><th>Quantidade</th><th>Preço médio</th><th>Preço atual</th><th>Variação / Resultado</th><th>Valor da posição</th><th>Ação</th></tr></thead><tbody>{positions.data.items.map((position) => { const quote = valuation.get(position.ativoId); return <tr key={position.id}><td><span className="table-asset"><EntityLogo provider={position.logoProvider} reference={position.logoReference} label={position.ticker} /><span><strong>{position.ticker}</strong><small>{position.nome}</small></span></span></td><td><Quantity value={position.quantidade} /></td><td><AveragePrice value={position.precoMedioBrl} /></td><td>{quote ? formatCurrency(quote.cotacaoAtual, position.moeda) : "—"}</td><td>{quote ? <GainLoss value={quote.lucroNaoRealizadoBrl} percentage={quote.rentabilidadePercentual} /> : "Cotação indisponível"}</td><td>{quote ? <Money value={quote.valorAtualBrl} /> : "—"}</td><td><Button variant="secondary" size="sm" onClick={() => window.dispatchEvent(new CustomEvent("valore:sell", { detail: position }))}>Vender</Button></td></tr>; })}</tbody></table></div><footer className="reference-table-card__footer"><span>Total de posições <strong>{totalPositions}</strong></span><span>Valor total das posições <Money value={summary.data.valorPosicoesBrl} /></span></footer></section><Pagination page={positions.data.page} totalPages={positions.data.totalPages} onPageChange={setPage} disabled={positions.isFetching} /></section>;
+}
 
-  const enriched = enrichPositionsByAssetId(positions.data.items, summary.data);
-  return (
-    <section aria-labelledby="positions-title">
-      <FinancialPageIntro titleId="positions-title" title="Suas posições" description="Custódia aberta e valuation atual são exibidos como fontes distintas." />
-      {summary.isError && <ProblemDetailAlert compact error={summary.error} onRetry={() => summary.refetch()} />}
-
-      <Card className="desktop-position-table">
-        <Table aria-label="Posições abertas">
-          <TableHeader><TableRow><TableHead>Ativo</TableHead><TableHead>Mercado</TableHead><TableHead>Quantidade</TableHead><TableHead>Valor atual</TableHead><TableHead>Resultado</TableHead><TableHead>Detalhes</TableHead></TableRow></TableHeader>
-          <TableBody>
-            {enriched.map((position) => (
-              <TableRow key={position.id}>
-                <TableCell><strong className="ticker">{position.ticker}</strong></TableCell>
-                <TableCell>{position.valuation?.mercado ?? <Unavailable />}</TableCell>
-                <TableCell><Quantity value={position.quantidade} /></TableCell>
-                <TableCell>{position.valuation ? <Money value={position.valuation.valorAtualBrl} /> : <Unavailable />}</TableCell>
-                <TableCell>{position.valuation ? <GainLoss value={position.valuation.lucroNaoRealizadoBrl} percentage={position.valuation.rentabilidadePercentual} /> : <Unavailable />}</TableCell>
-                <TableCell><PositionDetails position={position} /></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-
-      <div className="mobile-position-list">
-        {enriched.map((position) => (
-          <Card key={position.id} className="position-card">
-            <CardContent>
-              <div className="position-card__header"><div><strong>{position.ticker}</strong><span>{position.valuation?.mercado ?? "Mercado indisponível"}</span></div><span><Quantity value={position.quantidade} /> un.</span></div>
-              <div className="position-card__value"><span>Valor atual</span>{position.valuation ? <Money value={position.valuation.valorAtualBrl} /> : <Unavailable />}</div>
-              {position.valuation ? <GainLoss value={position.valuation.lucroNaoRealizadoBrl} percentage={position.valuation.rentabilidadePercentual} /> : <p className="position-card__notice">Valuation não atualizado para este ativo.</p>}
-              <PositionDetails position={position} />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Pagination page={positions.data.page} totalPages={positions.data.totalPages} onPageChange={setPage} disabled={positions.isFetching} />
-    </section>
-  );
+function PersistedPositions({ positions }: { positions: import("@/lib/finance/contracts").Position[] }) {
+  return <section className="reference-page positions-page"><header className="reference-page__header"><div><h2>Minhas posições</h2><p>Custódia e preço médio confirmados.</p></div></header><p role="status" className="operation-message">Não foi possível atualizar as cotações agora.</p><section className="reference-table-card"><div className="reference-table-wrap"><table className="reference-table"><thead><tr><th>Ativo</th><th>Quantidade</th><th>Preço médio</th><th>Preço atual</th></tr></thead><tbody>{positions.map(position => <tr key={position.id}><td><strong>{position.ticker}</strong></td><td><Quantity value={position.quantidade} /></td><td><AveragePrice value={position.precoMedioBrl} currency={position.moeda} /></td><td>Indisponível</td></tr>)}</tbody></table></div></section></section>;
 }

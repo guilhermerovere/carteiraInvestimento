@@ -1,7 +1,6 @@
 package com.carteira.carteiraInvestimento.presentation.error;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
 import com.carteira.carteiraInvestimento.application.service.AuthenticationFailedException;
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
 import com.carteira.carteiraInvestimento.application.service.DuplicateTickerException;
@@ -19,6 +18,10 @@ import com.carteira.carteiraInvestimento.application.service.BrokerAuditExceptio
 import com.carteira.carteiraInvestimento.application.service.CambioUnavailableException;
 import com.carteira.carteiraInvestimento.application.service.InvestmentConflictException;
 import com.carteira.carteiraInvestimento.application.service.InvestmentNotFoundException;
+import com.carteira.carteiraInvestimento.application.service.FxExpiredException;
+import com.carteira.carteiraInvestimento.application.service.AssetValidationUnavailableException;
+import com.carteira.carteiraInvestimento.application.service.AccountClosureConflictException;
+import com.carteira.carteiraInvestimento.application.service.IncorrectCurrentPasswordException;
 import com.carteira.carteiraInvestimento.application.service.PortfolioValuationConflictException;
 import com.carteira.carteiraInvestimento.application.service.PortfolioValuationUpstreamException;
 import com.carteira.carteiraInvestimento.domain.investment.FinancialStateException;
@@ -48,7 +51,11 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	ProblemDetail handleInvalidArgument(IllegalArgumentException exception, HttpServletRequest request) {
-		return problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+		ProblemDetail problem = problem(HttpStatus.BAD_REQUEST, "Invalid request", "The request is invalid.", request);
+		if ("invalid cnpj".equals(exception.getMessage()) || "cnpj is required".equals(exception.getMessage())) {
+			problem.setProperty("code", "BROKER_CNPJ_INVALID");
+		}
+		return problem;
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -64,7 +71,25 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(DuplicateEmailException.class)
 	ProblemDetail handleDuplicateEmail(DuplicateEmailException exception, HttpServletRequest request) {
-		return problem(HttpStatus.CONFLICT, "Email already registered", "An account with this email already exists.", request);
+		ProblemDetail problem = problem(HttpStatus.CONFLICT, "Email already registered", "An account with this email already exists.", request);
+		problem.setProperty("code", "EMAIL_IN_USE");
+		return problem;
+	}
+
+	@ExceptionHandler(IncorrectCurrentPasswordException.class)
+	ProblemDetail handleIncorrectCurrentPassword(IncorrectCurrentPasswordException exception, HttpServletRequest request) {
+		ProblemDetail problem = problem(HttpStatus.CONFLICT, "Current password is incorrect",
+				"The current password could not be verified.", request);
+		problem.setProperty("code", "CURRENT_PASSWORD_INCORRECT");
+		return problem;
+	}
+
+	@ExceptionHandler(AccountClosureConflictException.class)
+	ProblemDetail handleAccountClosureConflict(AccountClosureConflictException exception, HttpServletRequest request) {
+		ProblemDetail problem = problem(HttpStatus.CONFLICT, "Account cannot be closed",
+				"The account does not satisfy the closure requirements.", request);
+		problem.setProperty("code", exception.reason().name());
+		return problem;
 	}
 
 	@ExceptionHandler(DuplicateTickerException.class)
@@ -94,6 +119,12 @@ public class GlobalExceptionHandler {
 				"The market quote service is temporarily unavailable.", request);
 	}
 
+	@ExceptionHandler(AssetValidationUnavailableException.class)
+	ProblemDetail handleAssetValidationUnavailable(AssetValidationUnavailableException exception, HttpServletRequest request) {
+		return problem(HttpStatus.BAD_GATEWAY, "Asset validation unavailable",
+				"The financial asset validation service is temporarily unavailable.", request);
+	}
+
 	@ExceptionHandler(CambioUnavailableException.class)
 	ProblemDetail handleCambioUnavailable(CambioUnavailableException exception, HttpServletRequest request) {
 		return problem(HttpStatus.BAD_GATEWAY, "Exchange-rate provider unavailable",
@@ -113,6 +144,14 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({InvestmentConflictException.class, FinancialStateException.class})
 	ProblemDetail handleInvestmentConflict(RuntimeException exception, HttpServletRequest request) {
 		return problem(HttpStatus.CONFLICT, "Financial conflict", "The financial operation cannot be completed.", request);
+	}
+
+	@ExceptionHandler(FxExpiredException.class)
+	ProblemDetail handleFxExpired(FxExpiredException exception, HttpServletRequest request) {
+		ProblemDetail problem = problem(HttpStatus.CONFLICT, "Exchange rate expired",
+				"The selected USD/BRL observation expired before confirmation.", request);
+		problem.setProperty("code", "FX_EXPIRED");
+		return problem;
 	}
 
 	@ExceptionHandler(PortfolioValuationConflictException.class)
@@ -145,17 +184,27 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(DuplicateBrokerException.class)
 	ProblemDetail handleDuplicateBroker(DuplicateBrokerException exception, HttpServletRequest request) {
-		return problem(HttpStatus.CONFLICT, "CNPJ already registered", "A broker with this CNPJ already exists.", request);
+		ProblemDetail problem = problem(HttpStatus.CONFLICT, "CNPJ already registered", "Esta corretora já está cadastrada.", request);
+		problem.setProperty("code", "BROKER_ALREADY_REGISTERED");
+		return problem;
 	}
 
 	@ExceptionHandler(BrokerComplianceException.class)
 	ProblemDetail handleBrokerCompliance(BrokerComplianceException exception, HttpServletRequest request) {
-		return problem(HttpStatus.UNPROCESSABLE_CONTENT, "Broker rejected", "The broker did not pass regulatory validation.", request);
+		String detail = "cvm-not-found".equals(exception.getMessage())
+				? "Este CNPJ não está cadastrado na CVM."
+				: "Este CNPJ não corresponde a uma corretora válida.";
+		ProblemDetail problem = problem(HttpStatus.UNPROCESSABLE_CONTENT, "Broker rejected", detail, request);
+		if ("cvm-not-found".equals(exception.getMessage())) problem.setProperty("code", "BROKER_CVM_NOT_REGISTERED");
+		else if ("cvm-inactive".equals(exception.getMessage())) problem.setProperty("code", "BROKER_CVM_NOT_APPROVED");
+		return problem;
 	}
 
 	@ExceptionHandler(BrokerUpstreamException.class)
 	ProblemDetail handleBrokerUpstream(BrokerUpstreamException exception, HttpServletRequest request) {
-		return problem(HttpStatus.BAD_GATEWAY, "Broker provider unavailable", "An upstream broker service returned an unusable response.", request);
+		ProblemDetail problem = problem(HttpStatus.BAD_GATEWAY, "Broker validation unavailable", "Broker validation is temporarily unavailable.", request);
+		problem.setProperty("code", "BROKER_VALIDATION_UNAVAILABLE");
+		return problem;
 	}
 
 	@ExceptionHandler(BrokerAuditException.class)

@@ -94,22 +94,7 @@ public class MarketQuoteApplicationService implements MarketQuoteUseCase {
 
 	private CotacaoExterna obterExterna(Ativo ativo) {
 		if (ativo.mercado() == Mercado.B3) return provider(QuoteProvider.BRAPI).obter(ativo.ticker());
-		boolean primaryIntegrationFailure = false;
-		try {
-			return provider(QuoteProvider.ALPHA_VANTAGE).obter(ativo.ticker());
-		} catch (QuoteNotFoundException exception) {
-			// A semantic miss is still eligible for the US fallback.
-		} catch (QuoteIntegrationException exception) {
-			primaryIntegrationFailure = true;
-		}
-		try {
-			return provider(QuoteProvider.TWELVE_DATA).obter(ativo.ticker());
-		} catch (QuoteNotFoundException exception) {
-			if (!primaryIntegrationFailure) throw exception;
-			throw new QuoteIntegrationException("US provider chain was inconclusive", exception);
-		} catch (QuoteIntegrationException exception) {
-			throw new QuoteIntegrationException("US provider chain failed", exception);
-		}
+		return provider(QuoteProvider.TWELVE_DATA).obter(ativo.ticker());
 	}
 
 	private CotacaoProviderPort provider(QuoteProvider provider) {

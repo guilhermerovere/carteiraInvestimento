@@ -71,7 +71,7 @@ class PortfolioValuationApplicationServiceTest {
                 position(b3, "PETR4", Mercado.B3, Moeda.BRL, "2.00000000", "20.00000000", "40.00"),
                 position(us, "AAPL", Mercado.US, Moeda.USD, "3.00000000", "25.00000000", "75.00")), "12.34"));
         when(quotes.cotacaoAtualParaCustodia(b3, true)).thenReturn(quote(b3, Moeda.BRL, "20.0025", QuoteProvider.BRAPI));
-        when(quotes.cotacaoAtualParaCustodia(us, true)).thenReturn(quote(us, Moeda.USD, "10.0000", QuoteProvider.ALPHA_VANTAGE));
+        when(quotes.cotacaoAtualParaCustodia(us, true)).thenReturn(quote(us, Moeda.USD, "10.0000", QuoteProvider.TWELVE_DATA));
         when(exchange.obterUsdBrl()).thenReturn(fx("5.00000000"));
         var result = service.refresh(USER);
         assertThat(result.positions()).hasSize(2);
@@ -114,13 +114,43 @@ class PortfolioValuationApplicationServiceTest {
     }
 
     @Test
-    void requiredQuoteFailureAbortsWithoutFinalValidationOrSnapshot() {
+    void quoteFailureReturnsPartialPersistedSummaryAndRecoversOnRefetch() {
         UUID asset = UUID.randomUUID();
-        persistence.states.add(state("10.00", 1, List.of(position(asset, "PETR4", Mercado.B3, Moeda.BRL,
-                "1.00000000", "10.00000000", "10.00")), "0.00"));
-        when(quotes.cotacaoAtualParaCustodia(asset, true)).thenThrow(new QuoteNotFoundException());
-        assertThatThrownBy(() -> service.refresh(USER)).isInstanceOf(PortfolioValuationUpstreamException.class);
+        var local = state("10.00", 1, List.of(position(asset, "PETR4", Mercado.B3, Moeda.BRL,
+                "1.00000000", "10.00000000", "10.00")), "0.00");
+        persistence.states.add(local); persistence.states.add(local);
+        when(quotes.cotacaoAtualParaCustodia(asset, true)).thenThrow(new QuoteNotFoundException())
+                .thenReturn(quote(asset, Moeda.BRL, "12.0000", QuoteProvider.BRAPI));
+
+        var partial = service.refresh(USER);
+        assertThat(partial.marketDataAvailable()).isFalse();
+        assertThat(partial.cashBalanceBrl()).isEqualByComparingTo("10.00");
+        assertThat(partial.investedBrl()).isEqualByComparingTo("10.00");
+        assertThat(partial.positionsValueBrl()).isNull();
+        assertThat(partial.unrealizedProfitBrl()).isNull();
+        assertThat(partial.totalEquityBrl()).isNull();
+        assertThat(partial.positions()).singleElement().satisfies(position -> {
+            assertThat(position.assetId()).isEqualTo(asset);
+            assertThat(position.quantity()).isEqualByComparingTo("1.00000000");
+            assertThat(position.averagePriceBrl()).isEqualByComparingTo("10.00000000");
+            assertThat(position.investedBrl()).isEqualByComparingTo("10.00");
+            assertThat(position.marketDataAvailable()).isFalse();
+            assertThat(position.currentQuote()).isNull();
+            assertThat(position.quoteProvider()).isNull();
+            assertThat(position.currentValueBrl()).isNull();
+        });
         assertThat(persistence.instants).isEmpty();
+
+        var recovered = service.summarize(USER);
+        assertThat(recovered.marketDataAvailable()).isTrue();
+        assertThat(recovered.positions()).singleElement().satisfies(position -> {
+            assertThat(position.currentQuote()).isEqualByComparingTo("12.0000");
+            assertThat(position.quoteProvider()).isEqualTo(QuoteProvider.BRAPI);
+            assertThat(position.currentValueBrl()).isEqualByComparingTo("12.00");
+        });
+        assertThat(recovered.totalEquityBrl()).isEqualByComparingTo("22.00");
+        assertThat(persistence.materializeFlags).containsExactly(false);
+        verify(quotes, times(2)).cotacaoAtualParaCustodia(asset, true);
     }
 
     @Test
@@ -149,7 +179,7 @@ class PortfolioValuationApplicationServiceTest {
     }
     private ObservacaoCambio fx(String rate) {
         return new ObservacaoCambio(UUID.randomUUID(), MoedaCambio.USD, MoedaCambio.BRL, new BigDecimal(rate),
-                CambioProvider.ALPHA_VANTAGE, now.minusSeconds(1), now);
+                CambioProvider.TWELVE_DATA, now.minusSeconds(1), now);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

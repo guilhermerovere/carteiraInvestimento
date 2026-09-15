@@ -47,6 +47,7 @@ public class CashMovementApplicationService implements CashMovementUseCase {
 			String rawDescription, String key, UUID correlationId, String endpoint) {
 		Objects.requireNonNull(userId, "userId must not be null");
 		Objects.requireNonNull(type, "type must not be null");
+		wallets.lockActiveUser(userId);
 		var wallet = wallet(userId);
 		BigDecimal amount = CashMovementNormalizer.amount(rawAmount);
 		String description = CashMovementNormalizer.description(rawDescription);

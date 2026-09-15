@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.carteira.carteiraInvestimento.application.service.DuplicateEmailException;
+import com.carteira.carteiraInvestimento.application.service.IncorrectCurrentPasswordException;
+import com.carteira.carteiraInvestimento.application.service.AccountClosureConflictException;
 import com.carteira.carteiraInvestimento.application.service.InvestmentConflictException;
 import com.carteira.carteiraInvestimento.application.service.InvestmentNotFoundException;
 import com.carteira.carteiraInvestimento.infrastructure.security.AccessDeniedAuditingService;
@@ -77,6 +79,46 @@ class GlobalExceptionHandlerTest {
 				.andExpect(status().isNotFound()).andExpect(jsonPath("$.status").value(404));
 	}
 
+	@Test
+	void returnsSafeAccountCodesWithoutLeakingPasswordOrFinancialState() throws Exception {
+		mockMvc.perform(get("/test/current-password"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("CURRENT_PASSWORD_INCORRECT"))
+				.andExpect(content().string(not(containsString("Atual123!"))));
+		mockMvc.perform(get("/test/cash-not-zero"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("CASH_NOT_ZERO"))
+				.andExpect(content().string(not(containsString("12345.67"))));
+		mockMvc.perform(get("/test/open-positions"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("OPEN_POSITIONS"));
+	}
+
+	@Test
+	void returnsSafeBrokerCodesOnlyForKnownCnpjAndCvmOutcomes() throws Exception {
+		mockMvc.perform(get("/test/invalid-cnpj"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value("BROKER_CNPJ_INVALID"));
+		mockMvc.perform(get("/test/duplicate-broker"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("BROKER_ALREADY_REGISTERED"))
+				.andExpect(jsonPath("$.detail").value("Esta corretora já está cadastrada."));
+		mockMvc.perform(get("/test/cvm-not-found"))
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.code").value("BROKER_CVM_NOT_REGISTERED"))
+				.andExpect(jsonPath("$.detail").value("Este CNPJ não está cadastrado na CVM."));
+		mockMvc.perform(get("/test/cvm-not-approved"))
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.code").value("BROKER_CVM_NOT_APPROVED"));
+		mockMvc.perform(get("/test/broker-compliance-other"))
+				.andExpect(status().isUnprocessableEntity())
+				.andExpect(jsonPath("$.code").doesNotExist());
+		mockMvc.perform(get("/test/broker-upstream"))
+				.andExpect(status().isBadGateway())
+				.andExpect(jsonPath("$.code").value("BROKER_VALIDATION_UNAVAILABLE"))
+				.andExpect(content().string(not(containsString("provider secret"))));
+	}
+
 	@AfterEach
 	void clearSecurityContext() {
 		SecurityContextHolder.clearContext();
@@ -123,5 +165,32 @@ class GlobalExceptionHandlerTest {
 
 		@GetMapping("/test/investment-not-found")
 		void investmentNotFound() { throw new InvestmentNotFoundException(); }
+
+		@GetMapping("/test/current-password")
+		void currentPassword() { throw new IncorrectCurrentPasswordException(); }
+
+		@GetMapping("/test/cash-not-zero")
+		void cashNotZero() { throw new AccountClosureConflictException(AccountClosureConflictException.Reason.CASH_NOT_ZERO); }
+
+		@GetMapping("/test/open-positions")
+		void openPositions() { throw new AccountClosureConflictException(AccountClosureConflictException.Reason.OPEN_POSITIONS); }
+
+		@GetMapping("/test/invalid-cnpj")
+		void invalidCnpj() { throw new IllegalArgumentException("invalid cnpj"); }
+
+		@GetMapping("/test/duplicate-broker")
+		void duplicateBroker() { throw new com.carteira.carteiraInvestimento.application.service.DuplicateBrokerException(); }
+
+		@GetMapping("/test/cvm-not-found")
+		void cvmNotFound() { throw new com.carteira.carteiraInvestimento.application.service.BrokerComplianceException("cvm-not-found"); }
+
+		@GetMapping("/test/cvm-not-approved")
+		void cvmNotApproved() { throw new com.carteira.carteiraInvestimento.application.service.BrokerComplianceException("cvm-inactive"); }
+
+		@GetMapping("/test/broker-compliance-other")
+		void brokerComplianceOther() { throw new com.carteira.carteiraInvestimento.application.service.BrokerComplianceException("receita-inactive"); }
+
+		@GetMapping("/test/broker-upstream")
+		void brokerUpstream() { throw new com.carteira.carteiraInvestimento.application.service.BrokerUpstreamException("provider secret"); }
 	}
 }

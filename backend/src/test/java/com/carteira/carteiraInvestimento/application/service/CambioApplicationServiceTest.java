@@ -29,11 +29,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 class CambioApplicationServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-10T12:00:00Z");
 
-	@Test void alphaObservationCacheHitPreservesUuidProviderAndTimestampsWithoutNewCallOrHistory() {
+	@Test void twelveDataObservationCacheHitPreservesUuidProviderAndTimestampsWithoutNewCallOrHistory() {
 		Fixture f = new Fixture();
 		ObservacaoCambio first = f.service.obterUsdBrl();
 		ObservacaoCambio second = f.service.obterUsdBrl();
-		assertThat(first.provider()).isEqualTo(CambioProvider.ALPHA_VANTAGE);
+		assertThat(first.provider()).isEqualTo(CambioProvider.TWELVE_DATA);
 		assertThat(second).isSameAs(first);
 		assertThat(second.id()).isEqualTo(first.id());
 		assertThat(second.moedaOrigem()).isEqualTo(first.moedaOrigem());
@@ -42,7 +42,7 @@ class CambioApplicationServiceTest {
 		assertThat(second.provider()).isEqualTo(first.provider());
 		assertThat(second.instanteCotacao()).isEqualTo(first.instanteCotacao());
 		assertThat(second.registradoEm()).isEqualTo(first.registradoEm());
-		assertThat(f.alpha.calls()).isEqualTo(1); assertThat(f.twelve.calls()).isZero();
+		assertThat(f.twelve.calls()).isOne(); assertThat(f.alpha.calls()).isZero();
 		assertThat(f.history.saved).containsExactly(first); assertThat(f.audit.events).isEmpty();
 	}
 
@@ -54,9 +54,9 @@ class CambioApplicationServiceTest {
 		f.clock.set(NOW.plusSeconds(300).plusNanos(1));
 		ObservacaoCambio renewed = f.service.obterUsdBrl();
 		assertThat(renewed.id()).isNotEqualTo(first.id());
-		assertThat(f.alpha.calls()).isEqualTo(2); assertThat(f.history.saved).hasSize(2);
+		assertThat(f.twelve.calls()).isEqualTo(2); assertThat(f.alpha.calls()).isZero(); assertThat(f.history.saved).hasSize(2);
 
-		f.clock.set(NOW.plusSeconds(601)); f.alpha.failure = new CambioProviderException(true, "down");
+		f.clock.set(NOW.plusSeconds(601));
 		f.twelve.failure = new CambioProviderException(true, "down");
 		assertThatThrownBy(f.service::obterUsdBrl).isInstanceOf(CambioUnavailableException.class);
 		assertThat(f.cache.getIfPresent(CambioApplicationService.CACHE_KEY)).isNull();
@@ -73,31 +73,26 @@ class CambioApplicationServiceTest {
 		assertThat(f.service.obterUsdBrl().id()).isEqualTo(first.id());
 		f.clock.set(NOW.plusSeconds(300).plusNanos(1));
 		assertThat(f.service.obterUsdBrl().id()).isNotEqualTo(first.id());
-		assertThat(f.alpha.calls()).isEqualTo(2);
+		assertThat(f.twelve.calls()).isEqualTo(2); assertThat(f.alpha.calls()).isZero();
 		assertThat(f.history.saved).hasSize(2);
 	}
 
-	@Test void eligiblePrimaryFailureFallsBackAndSuccessfulFallbackIsNotAudited() {
-		Fixture f = new Fixture(); f.alpha.failure = new CambioProviderException(true, "temporary");
-		ObservacaoCambio result = f.service.obterUsdBrl();
-		assertThat(result.provider()).isEqualTo(CambioProvider.TWELVE_DATA);
-		assertThat(f.alpha.calls()).isOne(); assertThat(f.twelve.calls()).isOne();
-		assertThat(f.audit.events).isEmpty(); assertThat(f.history.saved).containsExactly(result);
+	@Test void twelveDataFailureIsReportedWithoutCallingLegacyAlphaVantage() {
+		Fixture f = new Fixture(); f.twelve.failure = new CambioProviderException(true, "temporary");
+		assertThatThrownBy(f.service::obterUsdBrl).isInstanceOf(CambioUnavailableException.class);
+		assertThat(f.twelve.calls()).isOne(); assertThat(f.alpha.calls()).isZero();
+		assertThat(f.audit.events).hasSize(1); assertThat(f.history.saved).isEmpty();
 	}
 
-	@Test void nonEligiblePrimaryStopsFallbackAndFinalFailuresAreAuditedBestEffort() {
-		Fixture f = new Fixture(); f.alpha.failure = new CambioProviderException(false, "credential");
+	@Test void twelveDataFinalFailureIsAuditedBestEffortWithoutFallback() {
+		Fixture f = new Fixture(); f.twelve.failure = new CambioProviderException(false, "credential"); f.audit.fail = true;
 		assertThatThrownBy(f.service::obterUsdBrl).isInstanceOf(CambioUnavailableException.class);
-		assertThat(f.twelve.calls()).isZero(); assertThat(f.audit.events).hasSize(1); assertThat(f.history.saved).isEmpty();
-
-		Fixture both = new Fixture(); both.alpha.failure = new CambioProviderException(true, "timeout");
-		both.twelve.failure = new CambioProviderException(true, "connection"); both.audit.fail = true;
-		assertThatThrownBy(both.service::obterUsdBrl).isInstanceOf(CambioUnavailableException.class);
-		assertThat(both.history.saved).isEmpty(); assertThat(both.cache.asMap()).isEmpty();
+		assertThat(f.twelve.calls()).isOne(); assertThat(f.alpha.calls()).isZero();
+		assertThat(f.history.saved).isEmpty(); assertThat(f.cache.asMap()).isEmpty();
 	}
 
 	@Test void normalizationFailureIs502AndPersistenceFailureIs500WithNoCache() {
-		Fixture invalid = new Fixture(); invalid.alpha.rate = new BigDecimal("0.000000004");
+		Fixture invalid = new Fixture(); invalid.twelve.rate = new BigDecimal("0.000000004");
 		assertThatThrownBy(invalid.service::obterUsdBrl).isInstanceOf(CambioUnavailableException.class);
 		assertThat(invalid.audit.events).hasSize(1); assertThat(invalid.cache.asMap()).isEmpty();
 
@@ -108,14 +103,14 @@ class CambioApplicationServiceTest {
 
 	@Test void concurrentMissUsesOneExternalResolutionPersistenceAndUuid() throws Exception {
 		Fixture f = new Fixture(); CountDownLatch entered = new CountDownLatch(1); CountDownLatch release = new CountDownLatch(1);
-		f.alpha.entered=entered; f.alpha.release=release;
+		f.twelve.entered=entered; f.twelve.release=release;
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			List<java.util.concurrent.Future<ObservacaoCambio>> futures = new ArrayList<>();
 			for (int i=0;i<20;i++) futures.add(executor.submit(f.service::obterUsdBrl));
 			assertThat(entered.await(2, TimeUnit.SECONDS)).isTrue(); release.countDown();
 			var ids = new java.util.HashSet<java.util.UUID>();
 			for (var future : futures) ids.add(future.get(5, TimeUnit.SECONDS).id());
-			assertThat(ids).hasSize(1); assertThat(f.alpha.calls()).isOne(); assertThat(f.history.saved).hasSize(1);
+			assertThat(ids).hasSize(1); assertThat(f.twelve.calls()).isOne(); assertThat(f.alpha.calls()).isZero(); assertThat(f.history.saved).hasSize(1);
 		}
 	}
 

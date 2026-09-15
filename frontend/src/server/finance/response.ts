@@ -11,6 +11,13 @@ export function financeJson(data: unknown, correlationId?: string): NextResponse
   });
 }
 
+export function financeNoContent(correlationId?: string): NextResponse {
+  return new NextResponse(null, {
+    status: 204,
+    headers: { ...HEADERS, ...(correlationId ? { "X-Correlation-ID": correlationId } : {}) },
+  });
+}
+
 export function financeErrorResponse(error: unknown, requestCorrelationId?: string): NextResponse {
   const correlationId = error instanceof FinanceHttpError ? error.correlationId ?? requestCorrelationId : requestCorrelationId;
   const headers = { ...HEADERS, ...(correlationId ? { "X-Correlation-ID": correlationId } : {}) };

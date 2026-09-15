@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@io.swagger.v3.oas.annotations.media.Schema(name = "AdminAssetCreateRequest", description = "ROLE_ADMIN: contrato administrativo existente.")
 public final class CreateAtivoRequest {
 	@NotBlank
 	private final String ticker;

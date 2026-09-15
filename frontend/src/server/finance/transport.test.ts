@@ -55,4 +55,14 @@ describe("transporte financeiro server-only", () => {
     expect(error.correlationId).toBe(correlationId);
     expect(JSON.stringify(error.problem)).not.toMatch(/spring\.internal|hunter2|Bearer-secret/);
   });
+
+  it("preserva somente códigos seguros para distinguir os resultados de CNPJ da corretora", async () => {
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ status: 422, title: "Broker rejected", code: "BROKER_CVM_NOT_REGISTERED" }), { status: 422 }));
+    const cvmError = await financeBackendRequest("/api/v1/corretoras", { method: "POST", body: "{}" }).catch((caught) => caught) as FinanceHttpError;
+    expect(cvmError.problem.code).toBe("BROKER_CVM_NOT_REGISTERED");
+
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ status: 422, title: "Broker rejected", code: "PRIVATE_PROVIDER_REASON" }), { status: 422 }));
+    const otherError = await financeBackendRequest("/api/v1/corretoras", { method: "POST", body: "{}" }).catch((caught) => caught) as FinanceHttpError;
+    expect(otherError.problem.code).toBeUndefined();
+  });
 });
