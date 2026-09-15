@@ -17,7 +17,7 @@ const summary = () => `{
   "patrimonioTotalBrl":${refreshed ? "125001500.22345679" : "125001200.22345679"},
   "rentabilidadeNaoRealizadaPercentual":1.25781234,
   "cambioAtual":{"taxaCambioBrl":5.12345678,"provider":"ALPHA_VANTAGE","instanteCambio":"2026-09-12T13:29:00Z"},
-  "posicoes":[{"ativoId":"11111111-1111-4111-8111-111111111111","ticker":"ACME3","mercado":"B3","moeda":"BRL","quantidade":0.10000001,"precoMedioBrl":123456789.12345678,"totalInvestidoBrl":12345678.91234567,"cotacaoAtual":125000000.12345678,"providerCotacao":"BRAPI","instanteCotacao":"2026-09-12T13:28:00Z","valorAtualOrigem":12500000.26250001,"valorAtualBrl":12500000.26250001,"lucroNaoRealizadoBrl":154321.35015434,"rentabilidadePercentual":1.25000001}]
+  "posicoes":[{"ativoId":"11111111-1111-4111-8111-111111111111","ticker":"ACME3","tipo":"ACAO","mercado":"B3","moeda":"BRL","quantidade":0.10000001,"precoMedioBrl":123456789.12345678,"totalInvestidoBrl":12345678.91234567,"cotacaoAtual":125000000.12345678,"providerCotacao":"BRAPI","instanteCotacao":"2026-09-12T13:28:00Z","valorAtualOrigem":12500000.26250001,"valorAtualBrl":12500000.26250001,"lucroNaoRealizadoBrl":154321.35015434,"rentabilidadePercentual":1.25000001}]
 }`;
 
 const positions = `{"items":[{"id":"33333333-3333-4333-8333-333333333333","ativoId":"11111111-1111-4111-8111-111111111111","ticker":"ACME3","nome":"Acme Brasil S.A.","mercado":"B3","moeda":"BRL","ativo":false,"logoProvider":null,"logoReference":null,"quantidade":0.10000001,"precoMedioBrl":123456789.12345678,"totalInvestidoBrl":12345678.91234567,"lucroRealizadoAcumuladoBrl":-123456789.12345678,"ultimaAtualizacao":"2026-09-12T12:00:00Z"}],"page":0,"size":20,"totalElements":1,"totalPages":1}`;
@@ -84,6 +84,7 @@ const server = http.createServer(async (request, response) => {
     return json(response, 403, { status: 403, title: "Acesso negado" }, "application/problem+json");
   }
   if (url.pathname === "/api/v1/carteira/resumo" && request.method === "GET") return json(response, 200, summary());
+  if (url.pathname === "/api/v1/carteira/graficos/evolucao" && request.method === "GET") return json(response, 200, [{dataReferencia:"2026-09-10",totalInvestidoBrl:120000000.00,resultadoNaoRealizadoBrl:1200000.00,valorPosicoesBrl:121200000.00,patrimonioTotalBrl:121201200.00},{dataReferencia:"2026-09-12",totalInvestidoBrl:123456789.12345678,resultadoNaoRealizadoBrl:1553211.00,valorPosicoesBrl:125000000.00,patrimonioTotalBrl:125001200.00}]);
   if (url.pathname === "/api/v1/carteira/resumo/atualizar" && request.method === "POST") {
     await new Promise((resolve) => setTimeout(resolve, 300));
     refreshed = true;

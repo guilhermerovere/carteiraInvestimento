@@ -3,6 +3,7 @@ package com.carteira.carteiraInvestimento.presentation.valuation;
 import com.carteira.carteiraInvestimento.application.service.PortfolioValuationResult;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
 import com.carteira.carteiraInvestimento.domain.asset.Moeda;
+import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import com.carteira.carteiraInvestimento.domain.fx.CambioProvider;
 import com.carteira.carteiraInvestimento.domain.quote.QuoteProvider;
 import java.math.BigDecimal;
@@ -31,13 +32,13 @@ public record PortfolioValuationResponse(Instant valuationInstant, BigDecimal sa
         }
     }
 
-    public record ValuedPositionResponse(UUID ativoId, String ticker, Mercado mercado, Moeda moeda,
+    public record ValuedPositionResponse(UUID ativoId, String ticker, TipoAtivo tipo, Mercado mercado, Moeda moeda,
             BigDecimal quantidade, BigDecimal precoMedioBrl, BigDecimal totalInvestidoBrl,
             BigDecimal cotacaoAtual, QuoteProvider providerCotacao, Instant instanteCotacao,
             BigDecimal valorAtualOrigem, BigDecimal valorAtualBrl, BigDecimal lucroNaoRealizadoBrl,
             BigDecimal rentabilidadePercentual, boolean cotacaoDisponivel) {
         static ValuedPositionResponse from(PortfolioValuationResult.ValuedPosition value) {
-            return new ValuedPositionResponse(value.assetId(), value.ticker(), value.market(), value.currency(),
+            return new ValuedPositionResponse(value.assetId(), value.ticker(), value.type(), value.market(), value.currency(),
                     value.quantity(), value.averagePriceBrl(), value.investedBrl(), value.currentQuote(),
                     value.quoteProvider(), value.quoteInstant(), value.currentValueSource(), value.currentValueBrl(),
                     value.unrealizedProfitBrl(), value.returnPercentage(), value.marketDataAvailable());

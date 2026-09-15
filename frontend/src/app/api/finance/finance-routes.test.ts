@@ -8,6 +8,7 @@ vi.mock("@/server/finance/transport", async (loadOriginal) => {
 
 import { GET as getSummary } from "./portfolio/summary/route";
 import { POST as refreshSummary } from "./portfolio/summary/refresh/route";
+import { GET as getEvolution } from "./portfolio/charts/evolution/route";
 import { GET as getPositions } from "./positions/route";
 import { GET as getTransactions } from "./transactions/route";
 import { GET as getCash } from "./cash/route";
@@ -65,5 +66,15 @@ describe("Route Handlers financeiros same-origin", () => {
     backendRequest.mockResolvedValue({ data: cashBalance });
     const response = await getCash(new Request("https://app.test/api/finance/cash"));
     expect(await response.json()).toEqual({ saldoCaixaBrl: "1200.10000001" });
+  });
+
+  it("encaminha evolução com decimais string e correlation ID", async () => {
+    backendRequest.mockResolvedValue({ data: [{ dataReferencia: "2026-09-10", totalInvestidoBrl: "123.45000000", resultadoNaoRealizadoBrl: "-2.00000000", valorPosicoesBrl: "121.45000000", patrimonioTotalBrl: "122.45000000" }], correlationId });
+    const response = await getEvolution(new Request("https://app.test/api/finance/portfolio/charts/evolution", { headers: { "X-Correlation-ID": correlationId } }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("x-correlation-id")).toBe(correlationId);
+    expect(await response.json()).toEqual([{ dataReferencia: "2026-09-10", totalInvestidoBrl: "123.45000000", resultadoNaoRealizadoBrl: "-2.00000000", valorPosicoesBrl: "121.45000000", patrimonioTotalBrl: "122.45000000" }]);
+    expect(backendRequest).toHaveBeenCalledWith("/api/v1/carteira/graficos/evolucao", { correlationId });
   });
 });

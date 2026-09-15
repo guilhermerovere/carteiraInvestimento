@@ -109,8 +109,8 @@ class PortfolioValuationIT extends PostgreSqlContainerSupport {
                 "totalInvestidoBrl", "valorPosicoesBrl", "lucroNaoRealizadoBrl",
                 "lucroRealizadoAcumuladoBrl", "patrimonioTotalBrl", "rentabilidadeNaoRealizadaPercentual",
                 "cambioAtual", "posicoes", "cotacoesDisponiveis");
-        assertThat(fieldNames(root.get("posicoes").get(0))).hasSize(15).containsExactlyInAnyOrder("ativoId",
-                "ticker", "mercado", "moeda", "quantidade", "precoMedioBrl", "totalInvestidoBrl",
+        assertThat(fieldNames(root.get("posicoes").get(0))).hasSize(16).containsExactlyInAnyOrder("ativoId",
+                "ticker", "tipo", "mercado", "moeda", "quantidade", "precoMedioBrl", "totalInvestidoBrl",
                 "cotacaoAtual", "providerCotacao", "instanteCotacao", "valorAtualOrigem", "valorAtualBrl",
                 "lucroNaoRealizadoBrl", "rentabilidadePercentual", "cotacaoDisponivel");
         assertThat(root.get("valuationInstant").asText()).matches(".*\\.\\d{6}Z");
@@ -118,6 +118,27 @@ class PortfolioValuationIT extends PostgreSqlContainerSupport {
         assertThat(version(fixture.wallet())).isZero();
         assertThat(quotes.transactionObserved).isFalse();
         assertThat(exchange.calls.get()).isZero();
+    }
+
+    @Test
+    void evolutionReturnsOnlyOwnMaterializedSnapshotsChronologicallyAndEnforcesRole() throws Exception {
+        Fixture owner = user("ROLE_USER", "0.00");
+        Fixture other = user("ROLE_USER", "0.00");
+        Fixture admin = user("ROLE_ADMIN", "0.00");
+        snapshot(owner.wallet(), "2026-09-12", "10.00", "15.00", "5.00", "15.00", Instant.parse("2026-09-12T12:00:00Z"));
+        snapshot(owner.wallet(), "2026-09-10", "8.00", "10.00", "2.00", "10.00", Instant.parse("2026-09-10T12:00:00Z"));
+        snapshot(owner.wallet(), "2026-09-11", "9.00", null, null, null, null);
+        snapshot(other.wallet(), "2026-09-09", "99.00", "99.00", "0.00", "99.00", Instant.parse("2026-09-09T12:00:00Z"));
+
+        mvc.perform(get("/api/v1/carteira/graficos/evolucao").header(HttpHeaders.AUTHORIZATION, bearer(owner)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].dataReferencia").value("2026-09-10"))
+                .andExpect(jsonPath("$[0].totalInvestidoBrl").value(8.0))
+                .andExpect(jsonPath("$[0].valorPosicoesBrl").value(10.0))
+                .andExpect(jsonPath("$[0].patrimonioTotalBrl").value(10.0))
+                .andExpect(jsonPath("$[1].resultadoNaoRealizadoBrl").value(5.0));
+        mvc.perform(get("/api/v1/carteira/graficos/evolucao")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/v1/carteira/graficos/evolucao").header(HttpHeaders.AUTHORIZATION, bearer(admin))).andExpect(status().isForbidden());
     }
 
     @Test
@@ -344,6 +365,14 @@ class PortfolioValuationIT extends PostgreSqlContainerSupport {
     private void position(UUID wallet, UUID asset, String quantity, String invested, String average, String realized) {
         jdbc.update("INSERT INTO posicoes VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP)", UUID.randomUUID(), wallet, asset,
                 new BigDecimal(quantity), new BigDecimal(average), new BigDecimal(invested), new BigDecimal(realized));
+    }
+    private void snapshot(UUID wallet, String date, String invested, String positions, String profit, String equity, Instant instant) {
+        jdbc.update("""
+                INSERT INTO carteira_snapshots(id,carteira_id,data_referencia,saldo_caixa_brl,
+                total_investido_brl,valor_posicoes_brl,lucro_nao_realizado_brl,patrimonio_total_brl,valuation_instant)
+                VALUES (?,?,?,?,?,?,?,?,?)""", UUID.randomUUID(), wallet, java.time.LocalDate.parse(date), BigDecimal.ZERO,
+                new BigDecimal(invested), positions == null ? null : new BigDecimal(positions),
+                profit == null ? null : new BigDecimal(profit), equity == null ? null : new BigDecimal(equity), instant == null ? null : java.sql.Timestamp.from(instant));
     }
     private Cotacao quote(UUID asset, Moeda currency, String price, QuoteProvider provider) {
         Instant instant = Instant.parse("2026-09-12T10:00:00Z");

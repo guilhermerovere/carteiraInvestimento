@@ -23,8 +23,12 @@ POST `/api/v1/acoes` SHALL document and accept exactly one role-specific body us
 - **WHEN** administrador envia o mesmo valor `ativo` já persistido
 - **THEN** o sistema responde 200 com a representação atual, mantendo o estado
 
-### Requirement: Responses de mutação
+### Requirement: Respostas de mutação
 ADMIN asset POST and both ADMIN PATCH routes SHALL preserve their existing statuses (POST 201, PATCH 200) and ADMIN POST response contract. USER asset POST SHALL return 201 for a newly created canonical asset, 200 with the canonical active `AtivoResponse` when trusted provider resolution maps a historical requested ticker to an already-existing current ticker, and a recoverable 409 for an exact canonical duplicate/race or inactive canonical asset. Responses SHALL contain the existing `AtivoResponse` fields and optional system-owned `logoProvider` and `logoReference`; these fields MUST NOT contain credentials or keys and MUST NOT be accepted in a request. A USER duplicate conflict SHALL be safely resolvable through exact active catalog lookup without creating a second asset. OpenAPI SHALL document both request schemas, role restrictions, forbidden cross-shape fields, statuses, and response fields.
+
+#### Scenario: Mutação bem-sucedida
+- **WHEN** administrador cria, altera nome ou define lifecycle válido
+- **THEN** a resposta tem o status previsto e somente os campos de `AtivoResponse`
 
 #### Scenario: Mutation success by role
 - **WHEN** ADMIN creates/updates an authorized field or USER creates a valid new asset

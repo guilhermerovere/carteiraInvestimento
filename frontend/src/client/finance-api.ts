@@ -1,4 +1,4 @@
-import type { Asset, AssetDiscovery, Broker, CashBalance, CashMovement, CashOperationResponse, CashPayload, ExchangeRate, InvestmentOperationResponse, MarketQuote, Page, PortfolioSummary, Position, SafeProblemCode, SafeProblemDetail, Transaction, TransactionPayload } from "@/lib/finance/contracts";
+import type { Asset, AssetDiscovery, Broker, CashBalance, CashMovement, CashOperationResponse, CashPayload, ExchangeRate, InvestmentOperationResponse, MarketQuote, Page, PortfolioEvolutionPoint, PortfolioSummary, Position, SafeProblemCode, SafeProblemDetail, Transaction, TransactionPayload } from "@/lib/finance/contracts";
 
 export class FinanceApiError extends Error {
   constructor(
@@ -50,6 +50,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 export const financeApi = {
   summary: () => request<PortfolioSummary>("/api/finance/portfolio/summary"),
   refreshSummary: () => request<PortfolioSummary>("/api/finance/portfolio/summary/refresh", { method: "POST" }),
+  evolution: () => request<PortfolioEvolutionPoint[]>("/api/finance/portfolio/charts/evolution"),
   positions: (page: number, size: number) => request<Page<Position>>("/api/finance/positions?page=" + page + "&size=" + size),
   position: (assetId: string) => request<Position>("/api/finance/positions/" + encodeURIComponent(assetId)),
   transactions: (page: number, size: number) => request<Page<Transaction>>("/api/finance/transactions?page=" + page + "&size=" + size),

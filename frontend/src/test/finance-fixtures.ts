@@ -21,6 +21,7 @@ export const summary: PortfolioSummary = {
   posicoes: [{
     ativoId: assetId,
     ticker: "ACME3",
+    tipo: "ACAO",
     mercado: "B3",
     moeda: "BRL",
     quantidade: "0.10000001",
