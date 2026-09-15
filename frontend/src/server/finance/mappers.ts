@@ -1,7 +1,7 @@
 import "server-only";
 import type {
   CashBalance, CashMovement, Currency, ExchangeProvider, Market, Page, PortfolioSummary,
-  LogoProvider, Position, QuoteProvider, Transaction, TransactionType, ValuedPosition,
+  LogoProvider, PortfolioEvolutionPoint, Position, QuoteProvider, Transaction, TransactionType, ValuedPosition,
 } from "@/lib/finance/contracts";
 
 type Data = Record<string, unknown>;
@@ -58,20 +58,34 @@ function mapValuedPosition(value: unknown): ValuedPosition {
   return {
     ativoId: string(d.ativoId, "ativoId"),
     ticker: string(d.ticker, "ticker"),
+    tipo: oneOf(d.tipo, ["ACAO", "FII", "ETF"] as const, "tipo"),
     mercado: oneOf<Market>(d.mercado, ["B3", "US"], "mercado"),
     moeda: oneOf<Currency>(d.moeda, ["BRL", "USD"], "moeda"),
     quantidade: decimal(d.quantidade, "quantidade"),
     precoMedioBrl: decimal(d.precoMedioBrl, "precoMedioBrl"),
     totalInvestidoBrl: decimal(d.totalInvestidoBrl, "totalInvestidoBrl"),
-    cotacaoAtual: decimal(d.cotacaoAtual ?? "0", "cotacaoAtual"),
-    providerCotacao: d.providerCotacao === null ? "TWELVE_DATA" : oneOf<QuoteProvider>(d.providerCotacao, ["BRAPI", "ALPHA_VANTAGE", "TWELVE_DATA"], "providerCotacao"),
-    instanteCotacao: d.instanteCotacao === null ? d.valuationInstant as string : string(d.instanteCotacao, "instanteCotacao"),
-    valorAtualOrigem: decimal(d.valorAtualOrigem ?? "0", "valorAtualOrigem"),
-    valorAtualBrl: decimal(d.valorAtualBrl ?? "0", "valorAtualBrl"),
-    lucroNaoRealizadoBrl: decimal(d.lucroNaoRealizadoBrl ?? "0", "lucroNaoRealizadoBrl"),
-    rentabilidadePercentual: decimal(d.rentabilidadePercentual ?? "0", "rentabilidadePercentual"),
+    cotacaoAtual: nullableDecimal(d.cotacaoAtual, "cotacaoAtual"),
+    providerCotacao: d.providerCotacao === null || d.providerCotacao === undefined ? null : oneOf<QuoteProvider>(d.providerCotacao, ["BRAPI", "ALPHA_VANTAGE", "TWELVE_DATA"], "providerCotacao"),
+    instanteCotacao: nullableString(d.instanteCotacao, "instanteCotacao"),
+    valorAtualOrigem: nullableDecimal(d.valorAtualOrigem, "valorAtualOrigem"),
+    valorAtualBrl: nullableDecimal(d.valorAtualBrl, "valorAtualBrl"),
+    lucroNaoRealizadoBrl: nullableDecimal(d.lucroNaoRealizadoBrl, "lucroNaoRealizadoBrl"),
+    rentabilidadePercentual: nullableDecimal(d.rentabilidadePercentual, "rentabilidadePercentual"),
     cotacaoDisponivel: d.cotacaoDisponivel !== false,
   };
+}
+
+export function mapEvolution(value: unknown): PortfolioEvolutionPoint[] {
+  return array(value, "evolução").map((item) => {
+    const d = object(item, "ponto de evolução");
+    return {
+      dataReferencia: string(d.dataReferencia, "dataReferencia"),
+      totalInvestidoBrl: decimal(d.totalInvestidoBrl, "totalInvestidoBrl"),
+      resultadoNaoRealizadoBrl: decimal(d.resultadoNaoRealizadoBrl, "resultadoNaoRealizadoBrl"),
+      valorPosicoesBrl: decimal(d.valorPosicoesBrl, "valorPosicoesBrl"),
+      patrimonioTotalBrl: decimal(d.patrimonioTotalBrl, "patrimonioTotalBrl"),
+    };
+  });
 }
 
 export function mapSummary(value: unknown): PortfolioSummary {

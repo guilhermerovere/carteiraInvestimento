@@ -9,11 +9,12 @@ export function MarketFreshness({ summary }: { summary: PortfolioSummary }) {
       <details>
         <summary>Ver origem e horários</summary>
         <div className="freshness__details">
-          {summary.posicoes.filter((position) => position.cotacaoDisponivel !== false).map((position) => (
-            <p key={position.ativoId}>
+          {summary.posicoes.map((position) => {
+            if (position.cotacaoDisponivel === false || position.instanteCotacao == null || position.providerCotacao == null) return null;
+            return <p key={position.ativoId}>
               <strong>{position.ticker}</strong>: cotação de <DateTime value={position.instanteCotacao} /> · {position.providerCotacao.replaceAll("_", " ")}
-            </p>
-          ))}
+            </p>;
+          })}
           {summary.cambioAtual && (
             <p><strong>USD/BRL</strong>: câmbio de <DateTime value={summary.cambioAtual.instanteCambio} /> · {summary.cambioAtual.provider.replaceAll("_", " ")}</p>
           )}

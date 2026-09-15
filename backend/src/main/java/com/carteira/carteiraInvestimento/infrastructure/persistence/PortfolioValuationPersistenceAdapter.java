@@ -4,6 +4,7 @@ import com.carteira.carteiraInvestimento.application.port.PortfolioValuationPort
 import com.carteira.carteiraInvestimento.application.service.PrimaryWalletMissingException;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
 import com.carteira.carteiraInvestimento.domain.asset.Moeda;
+import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -26,13 +27,13 @@ public class PortfolioValuationPersistenceAdapter implements PortfolioValuationP
                         rs.getBigDecimal("saldo_caixa_brl"), rs.getLong("estado_versao")), userId)
                 .stream().findFirst().orElseThrow(PrimaryWalletMissingException::new);
         List<OpenPosition> positions = jdbc.query("""
-                SELECT p.acao_id,a.ticker,a.mercado,a.moeda,a.ativo,p.quantidade,p.preco_medio_brl,
+                SELECT p.acao_id,a.ticker,a.tipo,a.mercado,a.moeda,a.ativo,p.quantidade,p.preco_medio_brl,
                        p.total_investido_brl
                 FROM posicoes p JOIN acoes a ON a.id=p.acao_id
                 WHERE p.carteira_id=? AND p.quantidade>0
                 ORDER BY a.ticker,a.id
                 """, (rs, row) -> new OpenPosition(rs.getObject("acao_id", UUID.class), rs.getString("ticker"),
-                        Mercado.valueOf(rs.getString("mercado")), Moeda.valueOf(rs.getString("moeda")),
+                        TipoAtivo.valueOf(rs.getString("tipo")), Mercado.valueOf(rs.getString("mercado")), Moeda.valueOf(rs.getString("moeda")),
                         rs.getBoolean("ativo"), rs.getBigDecimal("quantidade"),
                         rs.getBigDecimal("preco_medio_brl"), rs.getBigDecimal("total_investido_brl")), wallet.id());
         BigDecimal realized = jdbc.queryForObject("""

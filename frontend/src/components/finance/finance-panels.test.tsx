@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CashBalance, CashMovement, Page, PortfolioSummary, Position, Transaction } from "@/lib/finance/contracts";
+import type { CashBalance, CashMovement, Page, PortfolioEvolutionPoint, PortfolioSummary, Position, Transaction } from "@/lib/finance/contracts";
 
 type QueryState<T> = {
   data: T;
@@ -25,6 +25,7 @@ const hooks = vi.hoisted(() => ({
   transactions: {} as QueryState<Page<Transaction>>,
   balance: {} as QueryState<CashBalance>,
   movements: {} as QueryState<Page<CashMovement>>,
+  evolution: {} as QueryState<PortfolioEvolutionPoint[]>,
 }));
 vi.mock("@/client/portfolio-queries", () => ({
   usePortfolioSummary: () => hooks.summary,
@@ -33,6 +34,7 @@ vi.mock("@/client/portfolio-queries", () => ({
   useTransactions: () => hooks.transactions,
   useCashBalance: () => hooks.balance,
   useCashMovements: () => hooks.movements,
+  usePortfolioEvolution: () => hooks.evolution,
 }));
 
 import { FinanceApiError } from "@/client/finance-api";
@@ -48,6 +50,16 @@ function successful<T>(data: T) {
   return { data, isPending: false, isError: false, isFetching: false, error: null, refetch: vi.fn() };
 }
 
+function evolutionPoint(day: number, multiplier = day): PortfolioEvolutionPoint {
+  return {
+    dataReferencia: `2026-09-${String(day).padStart(2, "0")}`,
+    totalInvestidoBrl: String(100 + multiplier * 10),
+    resultadoNaoRealizadoBrl: String(-20 + multiplier * 5),
+    valorPosicoesBrl: String(90 + multiplier * 12),
+    patrimonioTotalBrl: String(120 + multiplier * 14),
+  };
+}
+
 describe("painéis financeiros isolados", () => {
   beforeEach(() => {
     hooks.summary = successful(summary);
@@ -56,6 +68,7 @@ describe("painéis financeiros isolados", () => {
     hooks.transactions = successful(pageOf(transaction));
     hooks.balance = successful(cashBalance);
     hooks.movements = successful(pageOf(cashMovement));
+    hooks.evolution = successful([{ dataReferencia: "2026-09-10", totalInvestidoBrl: "10.00", resultadoNaoRealizadoBrl: "1.00", valorPosicoesBrl: "11.00", patrimonioTotalBrl: "12.00" }]);
   });
   afterEach(cleanup);
 
@@ -75,7 +88,72 @@ describe("painéis financeiros isolados", () => {
     expect(screen.getByText("Saldo em caixa")).toBeInTheDocument();
     expect(screen.getByText("Última atualização")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Minhas posições" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Evolução patrimonial" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Composição por ação" })).toBeInTheDocument();
     expect(screen.getAllByText("R$ 123.456.789,1235").length).toBeGreaterThan(0);
+  });
+
+  it("preenche Patrimônio total com a composição atual Caixa x Posições", () => {
+    render(<SummaryPanel />);
+    const wealth = screen.getByText("Patrimônio total").closest(".wealth-hero")!;
+    expect(wealth.querySelector(".current-composition")).toBeInTheDocument();
+    expect(screen.getByText("Caixa", { exact: true })).toBeInTheDocument();
+    expect(screen.getByText("Posições", { exact: true })).toBeInTheDocument();
+  });
+
+  it("mostra as proporções atuais de caixa e posições sobre o patrimônio", () => {
+    render(<SummaryPanel />);
+    expect(screen.getByText(/do patrimônio em caixa/)).toBeInTheDocument();
+    expect(screen.getByText(/do patrimônio em ativos/)).toBeInTheDocument();
+    expect(document.querySelectorAll(".current-proportion")).toHaveLength(2);
+  });
+
+  it("compara sempre Investido e Atual em duas barras compactas", () => {
+    render(<SummaryPanel />);
+    const invested = screen.getByText("Total investido").closest(".portfolio-metric")!;
+    expect(invested.querySelector(".current-comparison")).toBeInTheDocument();
+    expect(invested.querySelectorAll(".current-comparison__row")).toHaveLength(2);
+    expect(screen.getByText("Investido", { exact: true })).toBeInTheDocument();
+    expect(screen.getByText("Atual", { exact: true })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["0 snapshots", []],
+    ["1 snapshot", [evolutionPoint(10)]],
+    ["3 snapshots", [evolutionPoint(10), evolutionPoint(11), evolutionPoint(12)]],
+  ])("não faz os cards dependerem de %s", (_label, points) => {
+    hooks.evolution = successful(points);
+    render(<SummaryPanel />);
+    const metrics = document.querySelector(".summary-metrics")!;
+    expect(metrics.querySelectorAll(".current-metric")).toHaveLength(5);
+    expect(metrics.querySelector(".metric-sparkline")).toBeNull();
+    expect(metrics.querySelector(".recharts-responsive-container")).toBeNull();
+    expect(metrics.querySelector(".recharts-dot")).toBeNull();
+    expect(metrics.querySelector(".recharts-bar-rectangle")).toBeNull();
+  });
+
+  it("preserva estado neutro e as duas barras com valores zero", () => {
+    hooks.summary = successful({ ...summary, saldoCaixaBrl: "0.00", patrimonioTotalBrl: "0.00", totalInvestidoBrl: "0.00", valorPosicoesBrl: "0.00", lucroNaoRealizadoBrl: "0.00" });
+    render(<SummaryPanel />);
+    expect(screen.getByText("Sem patrimônio distribuído")).toBeInTheDocument();
+    expect(screen.getAllByText("Sem patrimônio para calcular")).toHaveLength(2);
+    expect(document.querySelectorAll(".current-comparison__row")).toHaveLength(2);
+    expect(screen.getAllByText("Resultado neutro")).toHaveLength(2);
+  });
+
+  it("nomeia resultado não realizado negativo além de usar cor", () => {
+    hooks.summary = successful({ ...summary, lucroNaoRealizadoBrl: "-2.00" });
+    render(<SummaryPanel />);
+    expect(screen.getByText("Resultado negativo")).toBeInTheDocument();
+    expect(document.querySelector(".current-result--negative")).toBeInTheDocument();
+    expect(document.querySelectorAll(".metric-accent").length).toBeGreaterThan(0);
+  });
+
+  it("mantém as visualizações atuais em Light e Dark", () => {
+    document.documentElement.classList.add("dark");
+    render(<SummaryPanel />);
+    expect(document.querySelectorAll(".current-metric")).toHaveLength(5);
+    document.documentElement.classList.remove("dark");
   });
 
   it("mantém o último resumo em falhas 409 e 502 de refresh e oferece retry", () => {

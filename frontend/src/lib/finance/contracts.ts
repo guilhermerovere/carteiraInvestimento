@@ -16,19 +16,28 @@ export type ExchangeRateSnapshot = {
 export type ValuedPosition = {
   ativoId: string;
   ticker: string;
+  tipo: "ACAO" | "FII" | "ETF";
   mercado: Market;
   moeda: Currency;
   quantidade: DecimalString;
   precoMedioBrl: DecimalString;
   totalInvestidoBrl: DecimalString;
-  cotacaoAtual: DecimalString;
-  providerCotacao: QuoteProvider;
-  instanteCotacao: string;
-  valorAtualOrigem: DecimalString;
-  valorAtualBrl: DecimalString;
-  lucroNaoRealizadoBrl: DecimalString;
-  rentabilidadePercentual: DecimalString;
+  cotacaoAtual: DecimalString | null;
+  providerCotacao: QuoteProvider | null;
+  instanteCotacao: string | null;
+  valorAtualOrigem: DecimalString | null;
+  valorAtualBrl: DecimalString | null;
+  lucroNaoRealizadoBrl: DecimalString | null;
+  rentabilidadePercentual: DecimalString | null;
   cotacaoDisponivel?: boolean;
+};
+
+export type PortfolioEvolutionPoint = {
+  dataReferencia: string;
+  totalInvestidoBrl: DecimalString;
+  resultadoNaoRealizadoBrl: DecimalString;
+  valorPosicoesBrl: DecimalString;
+  patrimonioTotalBrl: DecimalString;
 };
 
 export type PortfolioSummary = {

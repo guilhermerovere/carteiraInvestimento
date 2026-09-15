@@ -92,7 +92,7 @@ public class PortfolioValuationApplicationService implements PortfolioValuationU
             BigDecimal percentage = percentage(profit, position.investedBrl());
             positionsValue = InvestmentNumbers.derivedMoney(positionsValue.add(valueBrl), "positions total");
             unrealized = InvestmentNumbers.derivedMoney(unrealized.add(profit), "unrealized total");
-            valued.add(new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(), position.market(),
+            valued.add(new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(), position.type(), position.market(),
                     position.currency(), position.quantity(), position.averagePriceBrl(), position.investedBrl(), quote.preco(),
                     quote.provider(), quote.instanteCotacao(), sourceValue, valueBrl, profit, percentage, true));
         }
@@ -105,7 +105,7 @@ public class PortfolioValuationApplicationService implements PortfolioValuationU
     }
 
     private static PortfolioValuationResult.ValuedPosition unavailable(PortfolioValuationPort.OpenPosition position) {
-        return new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(), position.market(), position.currency(),
+        return new PortfolioValuationResult.ValuedPosition(position.assetId(), position.ticker(), position.type(), position.market(), position.currency(),
                 position.quantity(), position.averagePriceBrl(), position.investedBrl(), null, null, null, null, null, null, null, false);
     }
 

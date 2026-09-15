@@ -6,6 +6,7 @@ import { financeApi } from "./finance-api";
 export const portfolioKeys = {
   all: ["portfolio"] as const,
   summary: ["portfolio", "summary"] as const,
+  evolution: ["portfolio", "evolution"] as const,
   positions: (page: number, size: number) => ["portfolio", "positions", page, size] as const,
   position: (assetId: string) => ["portfolio", "position", assetId] as const,
   transactionPages: ["portfolio", "transactions"] as const,
@@ -18,6 +19,9 @@ export const portfolioKeys = {
 export function usePortfolioSummary() {
   return useQuery({ queryKey: portfolioKeys.summary, queryFn: financeApi.summary, retry: false, staleTime: 60_000 });
 }
+export function usePortfolioEvolution() {
+  return useQuery({ queryKey: portfolioKeys.evolution, queryFn: financeApi.evolution, retry: false, staleTime: 60_000 });
+}
 
 export function useRefreshPortfolioSummary() {
   const queryClient = useQueryClient();
@@ -28,6 +32,7 @@ export function useRefreshPortfolioSummary() {
     onSuccess: async (summary) => {
       queryClient.setQueryData(portfolioKeys.summary, summary);
       await queryClient.invalidateQueries({ queryKey: portfolioKeys.summary, exact: true });
+      await queryClient.invalidateQueries({ queryKey: portfolioKeys.evolution, exact: true });
     },
   });
 }

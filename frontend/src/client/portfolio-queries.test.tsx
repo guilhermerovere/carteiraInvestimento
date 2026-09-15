@@ -23,7 +23,8 @@ describe("queries de portfólio", () => {
     await waitFor(() => expect(request).toHaveBeenCalledOnce());
     expect(queryClient.getQueryData(portfolioKeys.summary)).toEqual(summary);
     expect(queryClient.getQueryData(portfolioKeys.positions(0, 20))).toEqual({ marker: "custódia" });
-    expect(invalidate).toHaveBeenCalledOnce();
+    expect(invalidate).toHaveBeenCalledTimes(2);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: portfolioKeys.summary, exact: true });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: portfolioKeys.evolution, exact: true });
   });
 });

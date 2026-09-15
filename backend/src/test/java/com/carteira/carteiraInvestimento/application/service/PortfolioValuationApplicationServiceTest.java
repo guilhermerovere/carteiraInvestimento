@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.carteira.carteiraInvestimento.application.port.PortfolioValuationPort;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
 import com.carteira.carteiraInvestimento.domain.asset.Moeda;
+import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import com.carteira.carteiraInvestimento.domain.fx.CambioProvider;
 import com.carteira.carteiraInvestimento.domain.fx.MoedaCambio;
 import com.carteira.carteiraInvestimento.domain.fx.ObservacaoCambio;
@@ -171,7 +172,7 @@ class PortfolioValuationApplicationServiceTest {
     }
     private PortfolioValuationPort.OpenPosition position(UUID id, String ticker, Mercado market, Moeda currency,
             String quantity, String average, String invested) {
-        return new PortfolioValuationPort.OpenPosition(id, ticker, market, currency, true,
+        return new PortfolioValuationPort.OpenPosition(id, ticker, TipoAtivo.ACAO, market, currency, true,
                 new BigDecimal(quantity), new BigDecimal(average), new BigDecimal(invested));
     }
     private Cotacao quote(UUID id, Moeda currency, String price, QuoteProvider provider) {
