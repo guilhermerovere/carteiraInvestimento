@@ -1,0 +1,3 @@
+import { test, expect } from "@playwright/test";
+test("/ redireciona anonimamente para /login", async ({ page }) => { await page.goto("/"); await expect(page).toHaveURL("/login"); await expect(page.getByRole("heading", { name: "Bem-vindo de volta" })).toBeVisible(); });
+test("rota protegida redireciona anonimamente sem expor token", async ({ page }) => { await page.goto("/inicio"); await expect(page).toHaveURL(/\/login\?returnTo=%2Finicio/); const response = await page.request.post("/api/auth/login", { data: { email: "a@b.test", senha: "invalid" }, headers: { Origin: "http://127.0.0.1:3000" } }); expect(await response.text()).not.toContain("accessToken"); });

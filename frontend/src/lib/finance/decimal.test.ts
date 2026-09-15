@@ -1,0 +1,13 @@
+import { describe,expect,it,vi } from "vitest";
+import { estimateAverage,estimateBuyTotal,estimateCash,estimateSellNet,estimateSellResult,localDateTimeWithOffset,moneyEstimate,parsePtBrDecimal,parsePtBrDecimalPaste } from "./decimal";
+import { formatAveragePrice } from "./format";
+describe("decimal financeiro",()=>{
+ it("preserva pt-BR e rejeita agrupamento ou escala",()=>{expect(parsePtBrDecimal("0,10000001",8).canonical).toBe("0.10000001");expect(parsePtBrDecimal("123456789,12345678",8).canonical).toBe("123456789.12345678");expect(parsePtBrDecimal("1.234,50",2).error).toBeTruthy();expect(parsePtBrDecimal("1,001",2).error).toBeTruthy();expect(parsePtBrDecimal(",",2).intermediate).toBe(true)});
+ it("rejeita letras, notação científica e segundo separador sem arredondar",()=>{expect(parsePtBrDecimal("1e10",8).error).toBeTruthy();expect(parsePtBrDecimal("abc",8).error).toBeTruthy();expect(parsePtBrDecimal("12,34,56",8).error).toBeTruthy();expect(parsePtBrDecimal("10,123",2).error).toBeTruthy();expect(parsePtBrDecimal("0,00000001",8).canonical).toBe("0.00000001")});
+ it("aceita somente paste pt-BR inequívoco e formata preço médio",()=>{expect(parsePtBrDecimalPaste("R$ 1.234,56",2).canonical).toBe("1234.56");expect(parsePtBrDecimalPaste("1.234",2).error).toBeTruthy();expect(formatAveragePrice("22.00000000")).toBe("R$ 22,00");expect(formatAveragePrice("23.33000000")).toBe("R$ 23,33");expect(formatAveragePrice("23.33333333")).toBe("R$ 23,3333")});
+ it("arredonda estimativas BRL HALF_EVEN",()=>{expect(moneyEstimate("1.005")).toBe("1.00");expect(moneyEstimate("1.015")).toBe("1.02");expect(estimateCash("10.00","0.01",true)).toBe("9.99");expect(estimateAverage("1","1.00000000","1","2.00000000")).toBe("1.50000000")});
+ it("calcula BUY B3 pelo preço editado e taxas, ignorando FX residual e posição anterior",()=>{expect(estimateBuyTotal("1","1.00","0","B3","5.14")).toBe("1.00");expect(estimateBuyTotal("4","22.19","0","B3","5.14")).toBe("88.76")});
+ it("mantém conversão para BUY US",()=>{expect(estimateBuyTotal("2","10.00","1.00","US","5.14")).toBe("103.80")});
+ it("estima SELL parcial e total preservando o custo residual exato",()=>{expect(estimateSellNet("2","10","1")).toBe("19.00");expect(estimateSellResult("19.00","1","2","10.01")).toBe("14.00");expect(estimateSellResult("19.00","2","2","10.01")).toBe("8.99")});
+ it("serializa data local com offset",()=>{const fake=new Date("2026-01-15T12:30:00");vi.spyOn(fake,"getTimezoneOffset").mockReturnValue(180);expect(localDateTimeWithOffset("2026-01-15T12:30",fake)).toBe("2026-01-15T12:30:00-03:00");expect(()=>localDateTimeWithOffset("invalid")).toThrow()});
+});

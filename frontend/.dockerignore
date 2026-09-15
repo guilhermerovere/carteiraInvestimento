@@ -1,0 +1,13 @@
+.next/
+node_modules/
+*.tsbuildinfo
+.git/
+.idea/
+.vscode/
+*.iml
+.env
+.env.*
+!.env.example
+npm-debug.log*
+Dockerfile*
+README.md

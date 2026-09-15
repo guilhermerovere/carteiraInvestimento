@@ -1,0 +1,2 @@
+import { financeErrorResponse,financeJson } from "@/server/finance/response";import { financeBackendRequest } from "@/server/finance/transport";import { assertNoQuery,safeCorrelationId } from "@/server/finance/validation";
+export async function GET(request:Request){const c=safeCorrelationId(request.headers.get("x-correlation-id"));try{assertNoQuery(request);const r=await financeBackendRequest("/api/v1/cambio/usd-brl",{correlationId:c});return financeJson(r.data,r.correlationId);}catch(e){return financeErrorResponse(e,c);}}

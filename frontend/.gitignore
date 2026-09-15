@@ -1,0 +1,9 @@
+.next/
+node_modules/
+out/
+coverage/
+test-results/
+*.tsbuildinfo
+npm-debug.log*
+.env*
+!.env.example
