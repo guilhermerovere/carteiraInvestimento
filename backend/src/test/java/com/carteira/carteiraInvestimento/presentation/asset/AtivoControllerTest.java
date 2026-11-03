@@ -18,6 +18,9 @@ import com.carteira.carteiraInvestimento.application.port.AtivoQuery;
 import com.carteira.carteiraInvestimento.application.port.AtivoReadScope;
 import com.carteira.carteiraInvestimento.application.port.AtivoSort;
 import com.carteira.carteiraInvestimento.application.port.SortDirection;
+import com.carteira.carteiraInvestimento.application.port.AssetDiscoveryProviderPort;
+import com.carteira.carteiraInvestimento.domain.asset.Moeda;
+import com.carteira.carteiraInvestimento.domain.shared.LogoProvider;
 import com.carteira.carteiraInvestimento.application.service.AtivoNotFoundException;
 import com.carteira.carteiraInvestimento.application.service.AtivoUseCase;
 import com.carteira.carteiraInvestimento.application.service.DuplicateTickerException;
@@ -172,10 +175,15 @@ class AtivoControllerTest {
 
 	@Test
 	void userCanUseB3DiscoveryBeforeRegistration() throws Exception {
-		when(useCase.descobrir("PETR", Mercado.B3)).thenReturn(List.of("PETR4", "PETR4F"));
+		when(useCase.descobrir("PETR", Mercado.B3)).thenReturn(List.of(new AssetDiscoveryProviderPort.AssetPreview(
+				"PETR4", "Petróleo Brasileiro S.A.", TipoAtivo.ACAO, Mercado.B3, Moeda.BRL,
+				LogoProvider.BRAPI, "https://icons.brapi.dev/icons/PETR4.svg", new java.math.BigDecimal("39.18"))));
 		mvc.perform(get("/api/v1/acoes/discovery?q=PETR&mercado=B3").principal(user))
 				.andExpect(status().isOk()).andExpect(jsonPath("$[0].ticker").value("PETR4"))
-				.andExpect(jsonPath("$[1].ticker").value("PETR4F"));
+				.andExpect(jsonPath("$[0].nome").value("Petróleo Brasileiro S.A."))
+				.andExpect(jsonPath("$[0].tipo").value("ACAO"))
+				.andExpect(jsonPath("$[0].moeda").value("BRL"))
+				.andExpect(jsonPath("$[0].cotacaoAtual").value(39.18));
 	}
 
 	private Ativo asset(String ticker, String nome) {

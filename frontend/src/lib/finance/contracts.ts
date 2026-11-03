@@ -127,7 +127,10 @@ export type SafeProblemDetail = {
 };
 
 export type Asset = { id: string; ticker: string; nome: string; tipo: "ACAO" | "FII" | "ETF"; mercado: Market; moeda: Currency; ativo: boolean; logoProvider: LogoProvider | null; logoReference: string | null };
-export type AssetDiscovery = { ticker: string; mercado: Market };
+export type AssetDiscovery = {
+  ticker: string; nome: string; tipo: "ACAO" | "FII" | "ETF"; mercado: Market; moeda: Currency;
+  logoProvider: LogoProvider | null; logoReference: string | null; cotacaoAtual: DecimalString;
+};
 export type Broker = { id: string; razaoSocial: string; nomeFantasia: string | null; logoProvider: LogoProvider | null; logoReference: string | null };
 export type MarketQuote = { id: string; ativoId: string; preco: DecimalString; moeda: Currency; instanteCotacao: string; provider: QuoteProvider; recebidoEm: string };
 export type ExchangeRate = { id: string; moedaOrigem: "USD"; moedaDestino: "BRL"; taxa: DecimalString; instanteCotacao: string; provider: ExchangeProvider; registradoEm: string };

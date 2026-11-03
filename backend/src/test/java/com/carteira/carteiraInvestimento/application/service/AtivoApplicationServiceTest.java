@@ -12,6 +12,8 @@ import com.carteira.carteiraInvestimento.application.port.AtivoQuery;
 import com.carteira.carteiraInvestimento.application.port.AtivoReadScope;
 import com.carteira.carteiraInvestimento.application.port.AtivoSort;
 import com.carteira.carteiraInvestimento.application.port.AssetMetadataProviderPort;
+import com.carteira.carteiraInvestimento.application.port.AssetDiscoveryProviderPort;
+import com.carteira.carteiraInvestimento.domain.asset.Moeda;
 import com.carteira.carteiraInvestimento.application.port.SortDirection;
 import com.carteira.carteiraInvestimento.domain.asset.Ativo;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
@@ -126,5 +128,38 @@ class AtivoApplicationServiceTest {
 		assertThatThrownBy(() -> new AtivoApplicationService(port, List.of(provider)).registrar("PETR4", Mercado.B3))
 				.isInstanceOf(DuplicateTickerException.class);
 		verify(provider, Mockito.never()).validate(any());
+	}
+
+	@Test
+	void discoveryReturnsEnrichedPreviewWithoutSaving() {
+		AssetDiscoveryProviderPort provider = Mockito.mock(AssetDiscoveryProviderPort.class);
+		when(provider.market()).thenReturn(Mercado.B3);
+		var preview = new AssetDiscoveryProviderPort.AssetPreview("HGLG11", "CSHG Logística FII",
+				TipoAtivo.FII, Mercado.B3, Moeda.BRL, LogoProvider.BRAPI,
+				"https://icons.brapi.dev/icons/HGLG11.svg", new java.math.BigDecimal("158.73"));
+		when(provider.discover("HGLG")).thenReturn(List.of(preview));
+		assertThat(new AtivoApplicationService(port, List.of(), List.of(provider)).descobrir(" HGLG ", Mercado.B3))
+				.containsExactly(preview);
+		verify(port, Mockito.never()).save(any());
+	}
+
+	@Test
+	void providerDivergenceNeverPersistsRegistration() {
+		AssetMetadataProviderPort provider = Mockito.mock(AssetMetadataProviderPort.class);
+		when(provider.market()).thenReturn(Mercado.B3);
+		when(provider.validate("SANB11")).thenThrow(new AssetValidationUnavailableException("identity quote divergence"));
+		assertThatThrownBy(() -> new AtivoApplicationService(port, List.of(provider)).registrar("SANB11", Mercado.B3))
+				.isInstanceOf(AssetValidationUnavailableException.class);
+		verify(port, Mockito.never()).save(any());
+	}
+
+	@Test
+	void missingRequiredProviderDataNeverPersistsRegistrationOrDiscovery() {
+		AssetMetadataProviderPort metadata = Mockito.mock(AssetMetadataProviderPort.class);
+		when(metadata.market()).thenReturn(Mercado.B3);
+		when(metadata.validate("PETR4")).thenThrow(new AssetValidationUnavailableException("provider payload is incomplete"));
+		var service = new AtivoApplicationService(port, List.of(metadata));
+		assertThatThrownBy(() -> service.registrar("PETR4", Mercado.B3)).isInstanceOf(AssetValidationUnavailableException.class);
+		verify(port, Mockito.never()).save(any());
 	}
 }

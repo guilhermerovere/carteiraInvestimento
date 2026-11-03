@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doThrow;
 import com.carteira.carteiraInvestimento.application.service.QuoteIntegrationException;
 import com.carteira.carteiraInvestimento.application.service.QuoteNotFoundException;
 import com.carteira.carteiraInvestimento.application.service.AssetValidationUnavailableException;
+import com.carteira.carteiraInvestimento.application.port.AssetDiscoveryProviderPort;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
 import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import com.carteira.carteiraInvestimento.domain.asset.Moeda;
@@ -151,8 +152,8 @@ class QuoteProviderAdaptersTest {
 				new TwelveStockItem("AAPL", "Apple Fund", "United States", "USD", "NASDAQ", "XNGS", "Mutual Fund")),
 				"ok", null, null));
 		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
-
-		assertThat(adapter.discover("AAPL")).containsExactly("AAPL");
+		assertThat(adapter.discover("AAPL")).extracting(AssetDiscoveryProviderPort.AssetPreview::ticker)
+				.containsExactly("AAPL");
 	}
 
 	@Test

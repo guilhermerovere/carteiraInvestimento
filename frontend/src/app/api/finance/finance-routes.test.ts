@@ -13,6 +13,7 @@ import { GET as getPositions } from "./positions/route";
 import { GET as getTransactions } from "./transactions/route";
 import { GET as getCash } from "./cash/route";
 import { GET as getMovements } from "./cash/movements/route";
+import { GET as getAssetDiscovery } from "./catalog/assets/discovery/route";
 import { correlationId, pageOf, position, summary, transaction, cashBalance, cashMovement } from "@/test/finance-fixtures";
 
 describe("Route Handlers financeiros same-origin", () => {
@@ -76,5 +77,19 @@ describe("Route Handlers financeiros same-origin", () => {
     expect(response.headers.get("x-correlation-id")).toBe(correlationId);
     expect(await response.json()).toEqual([{ dataReferencia: "2026-09-10", totalInvestidoBrl: "123.45000000", resultadoNaoRealizadoBrl: "-2.00000000", valorPosicoesBrl: "121.45000000", patrimonioTotalBrl: "122.45000000" }]);
     expect(backendRequest).toHaveBeenCalledWith("/api/v1/carteira/graficos/evolucao", { correlationId });
+  });
+
+  it("aplica allowlist e preserva decimal lossless na prévia B3", async () => {
+    backendRequest.mockResolvedValue({ data: [{ ticker:"HGLG11", nome:"CSHG Logística FII", tipo:"FII", mercado:"B3", moeda:"BRL", logoProvider:null, logoReference:null, cotacaoAtual:"158.73000000", providerSecret:"never" }] });
+    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=HGLG"));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([{ ticker:"HGLG11", nome:"CSHG Logística FII", tipo:"FII", mercado:"B3", moeda:"BRL", logoProvider:null, logoReference:null, cotacaoAtual:"158.73000000" }]);
+  });
+
+  it("rejeita prévia backend malformada sem encaminhar payload bruto", async () => {
+    backendRequest.mockResolvedValue({ data: [{ ticker:"HGLG11", nome:"CSHG Logística FII", tipo:"FII", mercado:"B3", moeda:"BRL", logoProvider:null, logoReference:null, cotacaoAtual:158.73, providerSecret:"never" }] });
+    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=HGLG"));
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ status:502, title:"Resposta financeira inválida." });
   });
 });
