@@ -43,13 +43,16 @@ public class TwelveDataQuoteAdapter implements CotacaoProviderPort, AssetMetadat
 	@Override public QuoteProvider provider() { return QuoteProvider.TWELVE_DATA; }
 	@Override public Mercado market() { return Mercado.US; }
 
-	@Override public List<String> discover(String search) {
+	@Override public List<AssetPreview> discover(String search) {
 		if (!properties.twelveData().configured()) throw validation("configuration", null);
 		try {
 			TwelveStocksResponse response = client.stocks(search, properties.twelveData().credential());
 			ensureValidDiscoveryResponse(response);
-			return response.data().stream().filter(this::isUsStock).map(TwelveStockItem::symbol)
-					.map(TickerCanonicalizer::canonicalize).filter(Mercado.US::aceitaTicker).distinct().toList();
+			return response.data().stream().filter(this::isUsStock).map(item -> {
+				String ticker = TickerCanonicalizer.canonicalize(item.symbol());
+				return new AssetPreview(ticker, requiredValidationName(item.name()), type(item.type()), Mercado.US, Moeda.USD,
+						LogoProvider.LOGO_DEV, "ticker/" + ticker, null);
+			}).toList();
 		} catch (AssetValidationUnavailableException exception) { throw exception;
 		} catch (IllegalArgumentException exception) { throw exception;
 		} catch (RetryableException exception) { throw validation("timeout", exception);

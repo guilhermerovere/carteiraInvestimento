@@ -1,6 +1,7 @@
 import { financeErrorResponse, financeJson } from "@/server/finance/response";
 import { financeBackendRequest } from "@/server/finance/transport";
 import { FinanceValidationError, safeCorrelationId } from "@/server/finance/validation";
+import { mapAssetDiscovery } from "@/server/finance/mappers";
 
 export async function GET(request: Request) {
   const correlationId = safeCorrelationId(request.headers.get("x-correlation-id"));
@@ -10,6 +11,6 @@ export async function GET(request: Request) {
     const q = params.get("q")?.trim();
     if (!q || q.length > 128) throw new FinanceValidationError();
     const result = await financeBackendRequest("/api/v1/acoes/discovery?q=" + encodeURIComponent(q) + "&mercado=B3", { correlationId });
-    return financeJson(result.data, result.correlationId);
+    return financeJson(mapAssetDiscovery(result.data), result.correlationId);
   } catch (error) { return financeErrorResponse(error, correlationId); }
 }

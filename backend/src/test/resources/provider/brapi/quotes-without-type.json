@@ -1,0 +1,8 @@
+{
+  "results": [
+    { "requestedSymbol": "SANB11", "symbol": "SANB11", "changed": false, "data": { "shortName": "SANB11", "longName": "Banco Santander (Brasil) S.A. Units", "currency": "BRL", "regularMarketPrice": 27.41, "regularMarketTime": "2026-10-30T20:07:00Z", "logourl": "https://icons.brapi.dev/icons/SANB11.svg" } },
+    { "requestedSymbol": "HGLG11", "symbol": "HGLG11", "changed": false, "data": { "shortName": "HGLG11", "longName": "CSHG Logística FII", "currency": "BRL", "regularMarketPrice": 158.73, "regularMarketTime": "2026-10-30T20:07:00Z", "logourl": "https://icons.brapi.dev/icons/HGLG11.svg" } },
+    { "requestedSymbol": "BOVA11", "symbol": "BOVA11", "changed": false, "data": { "shortName": "BOVA11", "longName": "iShares Ibovespa Fundo de Índice", "currency": "BRL", "regularMarketPrice": 132.56, "regularMarketTime": "2026-10-30T20:07:00Z", "logourl": "https://icons.brapi.dev/icons/BOVA11.svg" } },
+    { "requestedSymbol": "PETR4", "symbol": "PETR4", "changed": false, "data": { "shortName": "PETR4", "longName": "Petróleo Brasileiro S.A. - Petrobras", "currency": "BRL", "regularMarketPrice": 39.18, "regularMarketTime": "2026-10-30T20:07:00Z", "logourl": "https://icons.brapi.dev/icons/PETR4.svg" } }
+  ]
+}
