@@ -143,6 +143,19 @@ class QuoteProviderAdaptersTest {
 	}
 
 	@Test
+	void twelveDataValidationRejectsForeignOrNonUsdInstrumentBeforeRegistration() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.quote(anyString(), anyString())).thenReturn(
+				new TwelveResponse("AAPL", "Apple Inc.", "Vienna", "XWBO", "EUR", "Common Stock",
+						"201.535", 1782923400L, "ok", null, null));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		assertThatThrownBy(() -> adapter.validate("AAPL"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("asset is not a supported US instrument");
+	}
+
+	@Test
 	void twelveDataDiscoverySelectsTheUsStockInsteadOfTheFirstSameTickerResult() {
 		TwelveDataClient client = mock(TwelveDataClient.class);
 		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
