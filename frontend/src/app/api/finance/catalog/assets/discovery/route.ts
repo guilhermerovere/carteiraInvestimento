@@ -7,10 +7,11 @@ export async function GET(request: Request) {
   const correlationId = safeCorrelationId(request.headers.get("x-correlation-id"));
   try {
     const params = new URL(request.url).searchParams;
-    for (const key of params.keys()) if (key !== "q") throw new FinanceValidationError();
+    for (const key of params.keys()) if (key !== "q" && key !== "mercado") throw new FinanceValidationError();
     const q = params.get("q")?.trim();
-    if (!q || q.length > 128) throw new FinanceValidationError();
-    const result = await financeBackendRequest("/api/v1/acoes/discovery?q=" + encodeURIComponent(q) + "&mercado=B3", { correlationId });
+    const mercado = params.get("mercado");
+    if (!q || q.length > 128 || (mercado !== "B3" && mercado !== "US")) throw new FinanceValidationError();
+    const result = await financeBackendRequest("/api/v1/acoes/discovery?q=" + encodeURIComponent(q) + "&mercado=" + mercado, { correlationId });
     return financeJson(mapAssetDiscovery(result.data), result.correlationId);
   } catch (error) { return financeErrorResponse(error, correlationId); }
 }

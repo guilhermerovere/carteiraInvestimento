@@ -81,15 +81,31 @@ describe("Route Handlers financeiros same-origin", () => {
 
   it("aplica allowlist e preserva decimal lossless na prévia B3", async () => {
     backendRequest.mockResolvedValue({ data: [{ ticker:"HGLG11", nome:"CSHG Logística FII", tipo:"FII", mercado:"B3", moeda:"BRL", logoProvider:null, logoReference:null, cotacaoAtual:"158.73000000", providerSecret:"never" }] });
-    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=HGLG"));
+    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=HGLG&mercado=B3"));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual([{ ticker:"HGLG11", nome:"CSHG Logística FII", tipo:"FII", mercado:"B3", moeda:"BRL", logoProvider:null, logoReference:null, cotacaoAtual:"158.73000000" }]);
   });
 
   it("rejeita prévia backend malformada sem encaminhar payload bruto", async () => {
     backendRequest.mockResolvedValue({ data: [{ ticker:"HGLG11", nome:"CSHG Logística FII", tipo:"FII", mercado:"B3", moeda:"BRL", logoProvider:null, logoReference:null, cotacaoAtual:158.73, providerSecret:"never" }] });
-    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=HGLG"));
+    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=HGLG&mercado=B3"));
     expect(response.status).toBe(502);
     expect(await response.json()).toEqual({ status:502, title:"Resposta financeira inválida." });
+  });
+
+  it("exige mercado explícito e encaminha a descoberta US sem campos do provider", async () => {
+    backendRequest.mockResolvedValue({ data: [{ ticker:"AAPL", nome:"Apple Inc.", tipo:"ACAO", mercado:"US", moeda:"USD", logoProvider:"LOGO_DEV", logoReference:"ticker/AAPL", cotacaoAtual:"201.53500000", providerSecret:"never" }], correlationId });
+    const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?q=AAPL&mercado=US", { headers: { "X-Correlation-ID": correlationId } }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([{ ticker:"AAPL", nome:"Apple Inc.", tipo:"ACAO", mercado:"US", moeda:"USD", logoProvider:"LOGO_DEV", logoReference:"ticker/AAPL", cotacaoAtual:"201.53500000" }]);
+    expect(backendRequest).toHaveBeenCalledWith("/api/v1/acoes/discovery?q=AAPL&mercado=US", { correlationId });
+  });
+
+  it("rejeita discovery sem mercado, mercado inválido ou parâmetros adicionais", async () => {
+    for (const query of ["q=AAPL", "q=AAPL&mercado=EU", "q=AAPL&mercado=US&providerSecret=never"]) {
+      const response = await getAssetDiscovery(new Request("https://app.test/api/finance/catalog/assets/discovery?" + query));
+      expect(response.status).toBe(400);
+    }
+    expect(backendRequest).not.toHaveBeenCalled();
   });
 });

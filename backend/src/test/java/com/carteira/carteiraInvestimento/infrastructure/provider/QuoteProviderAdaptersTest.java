@@ -164,9 +164,46 @@ class QuoteProviderAdaptersTest {
 				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock"),
 				new TwelveStockItem("AAPL", "Apple Fund", "United States", "USD", "NASDAQ", "XNGS", "Mutual Fund")),
 				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(quote("AAPL", "Apple Inc.", "201.535"));
 		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
 		assertThat(adapter.discover("AAPL")).extracting(AssetDiscoveryProviderPort.AssetPreview::ticker)
 				.containsExactly("AAPL");
+	}
+
+	@Test
+	void twelveDataDiscoveryBuildsUsPreviewOnlyFromAValidatedUsdQuote() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock")),
+				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(quote("AAPL", "Apple Inc.", "201.535"));
+
+		var preview = new TwelveDataQuoteAdapter(client, properties("x", "x", "key")).discover("AAPL");
+
+		assertThat(preview).singleElement().satisfies(item -> {
+			assertThat(item.ticker()).isEqualTo("AAPL");
+			assertThat(item.market()).isEqualTo(Mercado.US);
+			assertThat(item.currency()).isEqualTo(Moeda.USD);
+			assertThat(item.currentPrice()).isEqualByComparingTo("201.535");
+		});
+		verify(client).quote("AAPL", "key");
+	}
+
+	@Test
+	void twelveDataDiscoverySuppressesCandidatesWithoutAUsableUsdQuoteAndSurfacesUnavailableProvider() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock")),
+				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(new TwelveResponse("AAPL", "Apple Inc.", "NASDAQ", "XNGS", "USD",
+				"Common Stock", "0", 1782923400L, "ok", null, null));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		assertThat(adapter.discover("AAPL")).isEmpty();
+
+		when(client.quote("AAPL", "key")).thenReturn(new TwelveResponse(null, null, null, null, null, null, null, null,
+				"error", 429, "rate limit"));
+		assertThatThrownBy(() -> adapter.discover("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
 	}
 
 	@Test
