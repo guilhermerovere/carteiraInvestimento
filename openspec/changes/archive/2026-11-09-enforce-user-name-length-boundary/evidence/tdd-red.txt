@@ -1,0 +1,22 @@
+TDD red run
+Branch: feature/user-name-length-validation
+Command: cd backend; .\mvnw.cmd "-Dtest=RegistrationControllerTest,IdentityDomainTest,InitialAdminBootstrapIntegrationTest" test
+Result: exit 1 (expected before the production correction)
+
+Relevant output (no secrets recorded):
+
+[ERROR] IdentityDomainTest.enforcesTheTrimmedUserNameBoundaryWhenCreatingUsers
+Expecting code to raise a throwable.
+
+[ERROR] InitialAdminBootstrapIntegrationTest.rejectsAnOverlongAdminNameWithoutPersistingPartialBootstrapState
+Expecting actual throwable to be an instance of java.lang.IllegalArgumentException
+but was org.springframework.dao.DataIntegrityViolationException:
+ERROR: value too long for type character varying(255)
+
+[ERROR] RegistrationControllerTest.rejectsAnOverlongNameBeforeCallingRegistration
+Status expected:<400> but was:<500>
+
+[ERROR] Tests run: 11, Failures: 3, Errors: 0, Skipped: 0
+[ERROR] BUILD FAILURE
+
+The integration test was first blocked because Docker was stopped. Docker Desktop was started and the command above was rerun unchanged; Testcontainers then connected to PostgreSQL and exposed the expected persistence-boundary failure.

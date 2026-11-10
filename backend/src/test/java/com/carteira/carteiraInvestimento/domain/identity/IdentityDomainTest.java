@@ -21,4 +21,14 @@ class IdentityDomainTest {
 		assertThatThrownBy(() -> PasswordPolicy.validate("lowercase@123"))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
+
+	@Test
+	void enforcesTheTrimmedUserNameBoundaryWhenCreatingUsers() {
+		Usuario valid = Usuario.novoUsuario(" " + "a".repeat(255) + " ", "valid@example.test", "hash", Role.ROLE_USER);
+
+		assertThat(valid.nome()).isEqualTo("a".repeat(255));
+		assertThatThrownBy(() -> Usuario.novoUsuario("a".repeat(256), "invalid@example.test", "hash", Role.ROLE_USER))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("nome must contain between 1 and 255 characters");
+	}
 }

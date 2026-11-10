@@ -1,0 +1,8 @@
+Backend suite
+Command: cd backend; .\mvnw.cmd test
+Result: exit 0
+
+[INFO] Tests run: 216, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+No secrets are present in this evidence.

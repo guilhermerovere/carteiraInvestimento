@@ -1,0 +1,10 @@
+Backend clean verify
+Command: cd backend; .\mvnw.cmd clean verify
+Result: exit 0
+
+Surefire: 216 tests, 0 failures, 0 errors, 0 skipped.
+Failsafe: 111 tests, 0 failures, 0 errors, 1 skipped (the existing live-registration QA test).
+JaCoCo: consolidated execution data merged; 253 classes analyzed; all coverage checks met.
+[INFO] BUILD SUCCESS
+
+No secrets are present in this evidence.
