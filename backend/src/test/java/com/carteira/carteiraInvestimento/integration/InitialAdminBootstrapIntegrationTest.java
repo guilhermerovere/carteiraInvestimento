@@ -54,4 +54,20 @@ class InitialAdminBootstrapIntegrationTest extends PostgreSqlContainerSupport {
 		assertThat(jdbc.queryForObject("select count(*) from usuarios where email = ?", Integer.class,
 				"user-conflict@example.test")).isEqualTo(1);
 	}
+
+	@Test
+	void rejectsAnOverlongAdminNameWithoutPersistingPartialBootstrapState() {
+		String email = "overlong-admin-name@example.test";
+		int usersBefore = jdbc.queryForObject("select count(*) from usuarios where email = ?", Integer.class, email);
+		int walletsBefore = jdbc.queryForObject("select count(*) from carteiras", Integer.class);
+		int auditsBefore = jdbc.queryForObject("select count(*) from logs_auditoria", Integer.class);
+
+		assertThatThrownBy(() -> bootstrap.provision("a".repeat(256), email, "Admin@2026Secure"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("nome must contain between 1 and 255 characters");
+
+		assertThat(jdbc.queryForObject("select count(*) from usuarios where email = ?", Integer.class, email)).isEqualTo(usersBefore);
+		assertThat(jdbc.queryForObject("select count(*) from carteiras", Integer.class)).isEqualTo(walletsBefore);
+		assertThat(jdbc.queryForObject("select count(*) from logs_auditoria", Integer.class)).isEqualTo(auditsBefore);
+	}
 }

@@ -1,0 +1,20 @@
+# TDD red — nome de 255 caracteres com espaços externos
+
+Comando:
+
+```powershell
+cd backend
+.\mvnw.cmd "-Dtest=RegistrationControllerTest" test
+```
+
+Resultado: falha esperada (exit code 1).
+
+```text
+Tests run: 5, Failures: 1, Errors: 0, Skipped: 0
+RegistrationControllerTest.acceptsA255CharacterNameWithOuterSpacesAndPassesItsNormalizedValueToRegistration
+Status expected:<201> but was:<400>
+```
+
+Diagnóstico: `RegisterRequest.nome` aplicava `@Size(max = 255)` ao valor JSON antes da
+normalização usada pelo domínio. O nome com 255 caracteres não brancos e um espaço em cada
+extremidade tinha comprimento bruto 257 e era rejeitado no HTTP.

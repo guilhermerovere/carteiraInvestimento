@@ -16,9 +16,7 @@ public record Usuario(
 
 	public Usuario {
 		Objects.requireNonNull(id, "id must not be null");
-		if (nome == null || nome.isBlank()) {
-			throw new IllegalArgumentException("nome must not be blank");
-		}
+		nome = normalizarNome(nome);
 		email = EmailCanonicalizer.canonicalize(email);
 		if (senhaHash == null || senhaHash.isBlank()) {
 			throw new IllegalArgumentException("senhaHash must not be blank");
@@ -30,14 +28,18 @@ public record Usuario(
 
 	public static Usuario novoUsuario(String nome, String email, String senhaHash, Role role) {
 		Instant now = Instant.now();
-		return new Usuario(UUID.randomUUID(), nome.trim(), email, senhaHash, role, true, now, now);
+		return new Usuario(UUID.randomUUID(), nome, email, senhaHash, role, true, now, now);
 	}
 
 	public Usuario comNome(String novoNome, Instant instante) {
-		if (novoNome == null || novoNome.trim().isEmpty() || novoNome.trim().length() > 255) {
+		return new Usuario(id, novoNome, email, senhaHash, role, ativo, criadoEm, instante);
+	}
+
+	public static String normalizarNome(String nome) {
+		if (nome == null || nome.trim().isEmpty() || nome.trim().length() > 255) {
 			throw new IllegalArgumentException("nome must contain between 1 and 255 characters");
 		}
-		return new Usuario(id, novoNome.trim(), email, senhaHash, role, ativo, criadoEm, instante);
+		return nome.trim();
 	}
 
 	public Usuario comEmail(String novoEmail, Instant instante) {
