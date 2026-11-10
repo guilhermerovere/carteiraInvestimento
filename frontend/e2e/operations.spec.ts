@@ -52,7 +52,7 @@ test("BUY B3 usa somente quantidade, preço editado e taxas no formulário, revi
   await dialog.getByRole("option", { name: /ACME3/ }).click();
   await dialog.getByRole("option", { name: /XP Investimentos/ }).click();
   await dialog.getByLabel("Quantidade").fill("1");
-  await dialog.getByLabel("Preço unitário").fill("1,00");
+  await dialog.getByLabel(/Pre.*unit/).fill("1,00");
   await dialog.getByLabel("Taxas").fill("0,00");
   await expect(dialog.getByText("Total a pagar").locator("..")).toContainText("R$ 1,00");
   await dialog.getByRole("button", { name: "Revisar" }).click();
@@ -71,6 +71,7 @@ test("BUY US conserva a conversão e envia o exchangeRateId persistido", async (
   });
   await launch(page, "Comprar");
   const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Mercado").selectOption("US");
   await dialog.getByRole("option", { name: /AAPL/ }).click();
   await expect(dialog.getByText("USD/BRL")).toBeVisible();
   await dialog.getByRole("option", { name: /XP Investimentos/ }).click();
@@ -129,4 +130,39 @@ test("BUY invalida e recarrega o historico persistido mesmo com cotacao indispon
   await expect(page.locator(".transactions-page [role=alert]")).toHaveCount(0);
   expect(historyStatuses).not.toContain(404);
   expect(historyStatuses).not.toContain(502);
+});
+
+test("US discovery registers an absent AAPL before its financial BUY", async ({ page }) => {
+  let catalogPosts = 0;
+  let transactionPosts = 0;
+  await page.request.post("http://127.0.0.1:18080/__test__/catalog/reset");
+  await page.route("**/api/finance/catalog/assets", async route => {
+    if (route.request().method() === "POST") {
+      catalogPosts++;
+      expect(route.request().postDataJSON()).toEqual({ ticker:"AAPL", mercado:"US" });
+    }
+    await route.continue();
+  });
+  await page.route("**/api/finance/transactions", async route => {
+    if (route.request().method() === "POST") transactionPosts++;
+    await route.continue();
+  });
+
+  await launch(page, "Comprar");
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Mercado").selectOption("US");
+  await dialog.getByPlaceholder("Ticker ou nome").fill("AAPL");
+  await dialog.getByRole("option", { name: /AAPL/ }).click();
+  await expect(dialog.getByLabel("Pr\u00e9via de AAPL")).toContainText("US");
+  await dialog.getByRole("button", { name: "Cadastrar ativo" }).click();
+  await expect.poll(() => catalogPosts).toBe(1);
+  expect(transactionPosts).toBe(0);
+
+  await expect(dialog.getByText("USD/BRL")).toBeVisible();
+  await dialog.getByRole("option", { name: /XP Investimentos/ }).click();
+  await dialog.getByLabel("Quantidade").fill("1");
+  await dialog.getByLabel(/Pre.*unit/).fill("1,00");
+  await dialog.getByLabel("Taxas").fill("0,00");
+  await finish(page, /Compra registrada com sucesso/);
+  expect(transactionPosts).toBe(1);
 });

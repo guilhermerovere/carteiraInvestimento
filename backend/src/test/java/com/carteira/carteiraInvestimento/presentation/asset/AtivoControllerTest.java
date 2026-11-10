@@ -186,6 +186,19 @@ class AtivoControllerTest {
 				.andExpect(jsonPath("$[0].cotacaoAtual").value(39.18));
 	}
 
+	@Test
+	void userCanUseUsDiscoveryBeforeRegistration() throws Exception {
+		when(useCase.descobrir("AAPL", Mercado.US)).thenReturn(List.of(new AssetDiscoveryProviderPort.AssetPreview(
+				"AAPL", "Apple Inc.", TipoAtivo.ACAO, Mercado.US, Moeda.USD,
+				LogoProvider.LOGO_DEV, "ticker/AAPL", new java.math.BigDecimal("201.535"))));
+		mvc.perform(get("/api/v1/acoes/discovery?q=AAPL&mercado=US").principal(user))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].ticker").value("AAPL"))
+				.andExpect(jsonPath("$[0].mercado").value("US"))
+				.andExpect(jsonPath("$[0].moeda").value("USD"))
+				.andExpect(jsonPath("$[0].cotacaoAtual").value(201.535));
+		verify(useCase).descobrir("AAPL", Mercado.US);
+	}
+
 	private Ativo asset(String ticker, String nome) {
 		Mercado mercado = ticker.matches(".*\\d.*") ? Mercado.B3 : Mercado.US;
 		return Ativo.novo(ticker, nome, TipoAtivo.ACAO, mercado);
