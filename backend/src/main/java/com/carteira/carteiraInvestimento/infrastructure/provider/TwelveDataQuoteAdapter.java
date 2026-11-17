@@ -91,15 +91,13 @@ public class TwelveDataQuoteAdapter implements CotacaoProviderPort, AssetMetadat
 	@Override public AssetMetadata validate(String requestedTicker) {
 		if (!properties.twelveData().configured()) throw validation("configuration", null);
 		try {
-			TwelveResponse response = client.quote(requestedTicker, properties.twelveData().credential());
-			ensureValidValidationQuote(response);
-			String ticker = canonicalTicker(response.symbol());
-			if (!requestedTicker.equals(ticker)) throw new IllegalArgumentException("asset was not found");
-			if (!isUsVenue(response.exchange(), response.micCode()) || !"USD".equalsIgnoreCase(trim(response.currency()))) {
-				throw new IllegalArgumentException("asset is not a supported US instrument");
-			}
-			return new AssetMetadata(requestedTicker, ticker, requiredValidationName(response.name()), typeOrCommonStock(response.type()),
-					Mercado.US, LogoProvider.LOGO_DEV, "ticker/" + ticker);
+			String canonicalRequestedTicker = canonicalTicker(requestedTicker);
+			TwelveStocksResponse stocksResponse = client.stocks(canonicalRequestedTicker, properties.twelveData().credential());
+			TwelveStockItem reference = validationReference(stocksResponse, canonicalRequestedTicker);
+			TwelveResponse quotation = client.quote(canonicalRequestedTicker, properties.twelveData().credential());
+			ensureConcordantValidationQuote(quotation, canonicalRequestedTicker);
+			return new AssetMetadata(requestedTicker, canonicalRequestedTicker, requiredValidationName(reference.name()), type(reference.type()),
+					Mercado.US, LogoProvider.LOGO_DEV, "ticker/" + canonicalRequestedTicker);
 		} catch (AssetValidationUnavailableException | IllegalArgumentException exception) { throw exception;
 		} catch (RetryableException exception) { throw validation("timeout", exception);
 		} catch (FeignException exception) {
@@ -143,6 +141,45 @@ public class TwelveDataQuoteAdapter implements CotacaoProviderPort, AssetMetadat
 		try { return Mercado.US.aceitaTicker(TickerCanonicalizer.canonicalize(item.symbol())) && type(item.type()) != null; }
 		catch (IllegalArgumentException ignored) { return false; }
 	}
+	private TwelveStockItem validationReference(TwelveStocksResponse response, String requestedTicker) {
+		ensureValidDiscoveryResponse(response);
+		boolean exactIdentityFound = false;
+		boolean exactUsIdentityFound = false;
+		TwelveStockItem selected = null;
+		TipoAtivo selectedType = null;
+		String selectedName = null;
+		for (TwelveStockItem item : response.data()) {
+			if (item == null) continue;
+			String candidateTicker;
+			try { candidateTicker = TickerCanonicalizer.canonicalize(item.symbol()); }
+			catch (IllegalArgumentException invalid) { continue; }
+			if (!requestedTicker.equals(candidateTicker)) continue;
+			exactIdentityFound = true;
+			if (!"USD".equalsIgnoreCase(trim(item.currency()))
+					|| !"United States".equalsIgnoreCase(trim(item.country()))
+					|| !isUsVenue(item.exchange(), item.micCode())
+					|| !Mercado.US.aceitaTicker(candidateTicker)) continue;
+			exactUsIdentityFound = true;
+			TipoAtivo candidateType;
+			try {
+				candidateType = type(item.type());
+			} catch (IllegalArgumentException unsupported) {
+				// Another exact US entry may carry the provider's supported classification.
+				continue;
+			}
+			String candidateName = requiredValidationName(item.name());
+			if (selected != null && (selectedType != candidateType || !selectedName.equalsIgnoreCase(candidateName))) {
+				throw new IllegalArgumentException("asset identity is ambiguous");
+			}
+			selected = item;
+			selectedType = candidateType;
+			selectedName = candidateName;
+		}
+		if (selected != null) return selected;
+		if (!exactIdentityFound) throw new IllegalArgumentException("asset was not found");
+		if (!exactUsIdentityFound) throw new IllegalArgumentException("asset is not a supported US instrument");
+		throw new IllegalArgumentException("unsupported asset type");
+	}
 	private boolean isUsVenue(String exchange, String micCode) {
 		return US_EXCHANGES.contains(trim(exchange).toUpperCase(Locale.ROOT))
 				|| US_MICS.contains(trim(micCode).toUpperCase(Locale.ROOT));
@@ -151,9 +188,6 @@ public class TwelveDataQuoteAdapter implements CotacaoProviderPort, AssetMetadat
 		if (value == null || value.isBlank()) throw validation("payload", null);
 		try { return TickerCanonicalizer.canonicalize(value); }
 		catch (IllegalArgumentException invalid) { throw validation("payload", invalid); }
-	}
-	private TipoAtivo typeOrCommonStock(String raw) {
-		return trim(raw).isEmpty() ? TipoAtivo.ACAO : type(raw);
 	}
 	private TipoAtivo type(String raw) {
 		return switch (trim(raw).toLowerCase(Locale.ROOT)) {
@@ -171,6 +205,24 @@ public class TwelveDataQuoteAdapter implements CotacaoProviderPort, AssetMetadat
 	private void ensureValidValidationQuote(TwelveResponse response) {
 		if (response == null) throw validation("payload", null);
 		if (hasProviderError(response.status(), response.code())) throwValidationProviderError(response.code(), response.message());
+	}
+	private void ensureConcordantValidationQuote(TwelveResponse response, String requestedTicker) {
+		ensureValidValidationQuote(response);
+		if (!requestedTicker.equals(canonicalTicker(response.symbol()))) throw new IllegalArgumentException("asset was not found");
+		if (!isUsVenue(response.exchange(), response.micCode()) || !"USD".equalsIgnoreCase(trim(response.currency()))) {
+			throw new IllegalArgumentException("asset is not a supported US instrument");
+		}
+		ensurePositiveValidationPrice(response.close());
+		if (response.timestamp() == null || response.timestamp() <= 0) throw validation("payload", null);
+	}
+	private void ensurePositiveValidationPrice(String close) {
+		BigDecimal price;
+		try {
+			price = new BigDecimal(trim(close));
+		} catch (RuntimeException invalid) {
+			throw validation("payload", null);
+		}
+		if (price.signum() <= 0) throw validation("payload", null);
 	}
 	private void ensureValidQuoteResponse(TwelveResponse response) {
 		if (response == null) throw integration("payload");
