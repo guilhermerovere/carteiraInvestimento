@@ -233,6 +233,27 @@ npm.cmd run test:e2e
 
 `test` executa a suíte unitária e `verify` inclui os testes de integração do backend (`*IT`). Os testes de integração dependem de PostgreSQL real via Testcontainers; não há fallback H2.
 
+### Cobertura JaCoCo
+
+Com Docker/Testcontainers disponível, execute a verificação completa a partir de `backend`:
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+O JaCoCo coleta separadamente o Surefire e o Failsafe, consolida os dois arquivos de execução e gera um único relatório. A linha de base final desta change foi obtida com 213 testes no Surefire e 111 no Failsafe, sem falhas ou erros; o único teste QA live opt-in permaneceu ignorado. Os contadores do bundle consolidado são:
+
+| Métrica | Não coberto | Coberto | Total | Razão medida | Piso versionado |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Linhas | 205 | 2.233 | 2.438 | 91,5915% | 91% (`0.91`) |
+| Branches | 375 | 876 | 1.251 | 70,0240% | 70% (`0.70`) |
+
+Os relatórios ficam em `backend/target/site/jacoco/index.html`, `backend/target/site/jacoco/jacoco.xml` e `backend/target/site/jacoco/jacoco.csv`. Os arquivos de coleta auditáveis são `backend/target/jacoco-surefire.exec`, `backend/target/jacoco-failsafe.exec` e `backend/target/jacoco.exec`.
+
+Um build com testes aprovados não é, por si só, evidência de que a política de cobertura foi aprovada: o goal JaCoCo `check`, executado em `verify`, também exige os dois pisos de bundle. A demonstração controlada com o override temporário de branches `0.71` manteve os testes verdes e reprovou somente o gate; os valores versionados voltam a produzir `BUILD SUCCESS`.
+
+O teste `twelveDataValidationRejectsForeignOrNonUsdInstrumentBeforeRegistration` é um teste de caracterização de comportamento existente do PRD. Ele passou contra a produção inalterada; não ocorreu ciclo Red → Green → Refactor nesta change. Nenhuma coleção Postman ou Insomnia foi criada ou proposta por esta change.
+
 ## Notas de segurança e dados
 
 - Nunca versione `.env`, tokens, senhas ou chaves de APIs reais.

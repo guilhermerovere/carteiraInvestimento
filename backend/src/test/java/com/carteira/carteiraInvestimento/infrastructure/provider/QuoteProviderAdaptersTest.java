@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doThrow;
 import com.carteira.carteiraInvestimento.application.service.QuoteIntegrationException;
 import com.carteira.carteiraInvestimento.application.service.QuoteNotFoundException;
 import com.carteira.carteiraInvestimento.application.service.AssetValidationUnavailableException;
+import com.carteira.carteiraInvestimento.application.port.AssetDiscoveryProviderPort;
 import com.carteira.carteiraInvestimento.domain.asset.Mercado;
 import com.carteira.carteiraInvestimento.domain.asset.TipoAtivo;
 import com.carteira.carteiraInvestimento.domain.asset.Moeda;
@@ -116,8 +117,74 @@ class QuoteProviderAdaptersTest {
 	}
 
 	@Test
-	void twelveDataUsesExactQuoteForUsValidationAndAllQaTickersHaveUsdQuotes() {
+	void twelveDataValidationUsesExactStocksEquityAndDoesNotRequireQuoteType() {
 		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
+				new TwelveStockItem("AAPL", "Apple Austria", "Austria", "EUR", "Vienna", "XWBO", "Common Stock"),
+				new TwelveStockItem("MSFT", "Microsoft Corporation", "United States", "USD", "NASDAQ", "XNGS", "Equity"),
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Equity")),
+				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(quote("AAPL", "Quote name is not authoritative", "201.535"));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		var metadata = adapter.validate("AAPL");
+
+		assertThat(metadata.ticker()).isEqualTo("AAPL");
+		assertThat(metadata.name()).isEqualTo("Apple Inc.");
+		assertThat(metadata.market()).isEqualTo(Mercado.US);
+		assertThat(metadata.type()).isEqualTo(TipoAtivo.ACAO);
+		verify(client).stocks("AAPL", "key");
+		verify(client).quote("AAPL", "key");
+	}
+
+	@Test
+	void twelveDataValidationMapsExplicitStocksEtfWithoutQuoteType() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("SPY", "key")).thenReturn(stocks(
+				new TwelveStockItem("SPY", "SPDR S&P 500 ETF Trust", "United States", "USD", "NYSE ARCA", "ARCX", "ETF")));
+		when(client.quote("SPY", "key")).thenReturn(quote("SPY", "SPY", "681.12"));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		assertThat(adapter.validate("SPY").type()).isEqualTo(TipoAtivo.ETF);
+	}
+
+	@Test
+	void twelveDataValidationRejectsAbsentOrUnsupportedStocksIdentityBeforeQuote() {
+		for (TwelveStocksResponse response : List.of(
+				stocks(new TwelveStockItem("MSFT", "Microsoft", "United States", "USD", "NASDAQ", "XNGS", "Equity")),
+				stocks(new TwelveStockItem("AAPL", "Apple", "United States", "USD", "NASDAQ", "XNGS", null)),
+				stocks(new TwelveStockItem("AAPL", "Apple Fund", "United States", "USD", "NASDAQ", "XNGS", "Mutual Fund")),
+				stocks(new TwelveStockItem("AAPL", "Apple Token", "United States", "USD", "NASDAQ", "XNGS", "Digital Asset")))) {
+			TwelveDataClient client = mock(TwelveDataClient.class);
+			when(client.stocks("AAPL", "key")).thenReturn(response);
+			var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+			assertThatThrownBy(() -> adapter.validate("AAPL")).isInstanceOf(IllegalArgumentException.class);
+			verify(client, never()).quote(anyString(), anyString());
+		}
+	}
+
+	@Test
+	void twelveDataValidationRejectsConflictingExactStocksIdentityBeforeQuote() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(stocks(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Equity"),
+				new TwelveStockItem("AAPL", "Apple ETF", "United States", "USD", "NYSE ARCA", "ARCX", "ETF")));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		assertThatThrownBy(() -> adapter.validate("AAPL"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("asset identity is ambiguous");
+		verify(client, never()).quote(anyString(), anyString());
+	}
+
+	@Test
+	void twelveDataUsesExactReferenceAndQuoteForAllQaTickers() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks(anyString(), anyString())).thenAnswer(invocation -> {
+			String ticker = invocation.getArgument(0);
+			return stocks(new TwelveStockItem(ticker, ticker + " issuer", "United States", "USD", "NASDAQ", "XNGS", "Common Stock"));
+		});
 		when(client.quote(anyString(), anyString())).thenAnswer(invocation -> {
 			String ticker = invocation.getArgument(0);
 			return switch (ticker) {
@@ -138,7 +205,52 @@ class QuoteProviderAdaptersTest {
 			assertThat(metadata.type()).isEqualTo(TipoAtivo.ACAO);
 			assertThat(adapter.obter(ticker).moeda()).isEqualTo(Moeda.USD);
 		}
-		verify(client, never()).stocks(anyString(), anyString());
+	}
+
+	@Test
+	void twelveDataValidationRejectsForeignOrNonUsdInstrumentBeforeRegistration() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(stocks(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock")));
+		when(client.quote(anyString(), anyString())).thenReturn(
+				new TwelveResponse("AAPL", "Apple Inc.", "Vienna", "XWBO", "EUR", "Common Stock",
+						"201.535", 1782923400L, "ok", null, null));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+		assertThatThrownBy(() -> adapter.validate("AAPL"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("asset is not a supported US instrument");
+	}
+
+	@Test
+	void twelveDataValidationRejectsBlankNonDecimalZeroAndNegativeClose() {
+		for (String close : List.of(" ", "not-a-decimal", "0", "-0.01")) {
+			TwelveDataClient client = mock(TwelveDataClient.class);
+			when(client.stocks("AAPL", "key")).thenReturn(stocks(
+					new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Equity")));
+			when(client.quote("AAPL", "key")).thenReturn(quote("AAPL", "Apple Inc.", close));
+			var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+			assertThatThrownBy(() -> adapter.validate("AAPL"))
+					.isInstanceOf(AssetValidationUnavailableException.class)
+					.hasMessage("Twelve Data asset validation failed");
+		}
+	}
+
+	@Test
+	void twelveDataValidationRejectsMissingZeroAndNegativeTimestamp() {
+		for (Long timestamp : new Long[] {null, 0L, -1L}) {
+			TwelveDataClient client = mock(TwelveDataClient.class);
+			when(client.stocks("AAPL", "key")).thenReturn(stocks(
+					new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Equity")));
+			when(client.quote("AAPL", "key")).thenReturn(new TwelveResponse("AAPL", "Apple Inc.", "NASDAQ", "XNGS", "USD",
+					null, "201.535", timestamp, "ok", null, null));
+			var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+
+			assertThatThrownBy(() -> adapter.validate("AAPL"))
+					.isInstanceOf(AssetValidationUnavailableException.class)
+					.hasMessage("Twelve Data asset validation failed");
+		}
 	}
 
 	@Test
@@ -150,15 +262,55 @@ class QuoteProviderAdaptersTest {
 				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock"),
 				new TwelveStockItem("AAPL", "Apple Fund", "United States", "USD", "NASDAQ", "XNGS", "Mutual Fund")),
 				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(quote("AAPL", "Apple Inc.", "201.535"));
+		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+		assertThat(adapter.discover("AAPL")).extracting(AssetDiscoveryProviderPort.AssetPreview::ticker)
+				.containsExactly("AAPL");
+	}
+
+	@Test
+	void twelveDataDiscoveryBuildsUsPreviewOnlyFromAValidatedUsdQuote() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock")),
+				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(quote("AAPL", "Apple Inc.", "201.535"));
+
+		var preview = new TwelveDataQuoteAdapter(client, properties("x", "x", "key")).discover("AAPL");
+
+		assertThat(preview).singleElement().satisfies(item -> {
+			assertThat(item.ticker()).isEqualTo("AAPL");
+			assertThat(item.market()).isEqualTo(Mercado.US);
+			assertThat(item.currency()).isEqualTo(Moeda.USD);
+			assertThat(item.currentPrice()).isEqualByComparingTo("201.535");
+		});
+		verify(client).quote("AAPL", "key");
+	}
+
+	@Test
+	void twelveDataDiscoverySuppressesCandidatesWithoutAUsableUsdQuoteAndSurfacesUnavailableProvider() {
+		TwelveDataClient client = mock(TwelveDataClient.class);
+		when(client.stocks("AAPL", "key")).thenReturn(new TwelveStocksResponse(List.of(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock")),
+				"ok", null, null));
+		when(client.quote("AAPL", "key")).thenReturn(new TwelveResponse("AAPL", "Apple Inc.", "NASDAQ", "XNGS", "USD",
+				"Common Stock", "0", 1782923400L, "ok", null, null));
 		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
 
-		assertThat(adapter.discover("AAPL")).containsExactly("AAPL");
+		assertThat(adapter.discover("AAPL")).isEmpty();
+
+		when(client.quote("AAPL", "key")).thenReturn(new TwelveResponse(null, null, null, null, null, null, null, null,
+				"error", 429, "rate limit"));
+		assertThatThrownBy(() -> adapter.discover("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
 	}
 
 	@Test
 	void twelveDataValidationDoesNotReportProviderFailuresAsMissingAssets() {
 		TwelveDataClient client = mock(TwelveDataClient.class);
 		var adapter = new TwelveDataQuoteAdapter(client, properties("x", "x", "key"));
+		when(client.stocks(anyString(), anyString())).thenReturn(stocks(
+				new TwelveStockItem("AAPL", "Apple Inc.", "United States", "USD", "NASDAQ", "XNGS", "Common Stock"),
+				new TwelveStockItem("MISSING", "Missing", "United States", "USD", "NASDAQ", "XNGS", "Common Stock")));
 		for (int status : List.of(401, 403, 429)) {
 			when(client.quote(anyString(), anyString())).thenReturn(
 					new TwelveResponse(null, null, null, null, null, null, null, null, "error", status, "provider failure"));
@@ -170,9 +322,15 @@ class QuoteProviderAdaptersTest {
 		when(client.quote(anyString(), anyString())).thenReturn(null);
 		assertThatThrownBy(() -> adapter.validate("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
 		when(client.stocks(anyString(), anyString())).thenReturn(new TwelveStocksResponse(null, "error", 429, "rate limit"));
+		assertThatThrownBy(() -> adapter.validate("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
 		assertThatThrownBy(() -> adapter.discover("AAPL")).isInstanceOf(AssetValidationUnavailableException.class);
 		when(client.stocks(anyString(), anyString())).thenReturn(new TwelveStocksResponse(null, "error", 404, "symbol not found"));
+		assertThatThrownBy(() -> adapter.validate("MISSING")).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> adapter.discover("MISSING")).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	private TwelveStocksResponse stocks(TwelveStockItem... items) {
+		return new TwelveStocksResponse(List.of(items), "ok", null, null);
 	}
 
 	private TwelveResponse quote(String symbol, String name, String close) {

@@ -3,6 +3,9 @@ package com.carteira.carteiraInvestimento.presentation.auth;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -70,6 +73,37 @@ class RegistrationControllerTest {
 			.andExpect(status().isBadRequest())
 			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
 			.andExpect(content().string(not(containsString("weak"))));
+	}
+
+	@Test
+	void rejectsAnOverlongNameBeforeCallingRegistration() throws Exception {
+		String name = "a".repeat(256);
+
+		mockMvc.perform(post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.requestAttr(CorrelationIdFilter.ATTRIBUTE, UUID.randomUUID())
+				.content("{\"nome\":\"" + name + "\",\"email\":\"ana@example.test\",\"senha\":\"Valid@123\"}"))
+			.andExpect(status().isBadRequest())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON));
+
+		verifyNoInteractions(registration);
+	}
+
+	@Test
+	void acceptsA255CharacterNameWithOuterSpacesAndPassesItsNormalizedValueToRegistration() throws Exception {
+		String normalizedName = "a".repeat(255);
+		UUID id = UUID.randomUUID();
+		when(registration.register(eq(normalizedName), eq("ana@example.test"), eq("Valid@123"), any()))
+				.thenReturn(new Usuario(id, normalizedName, "ana@example.test", "hash", Role.ROLE_USER, true, Instant.now(), Instant.now()));
+
+		mockMvc.perform(post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.requestAttr(CorrelationIdFilter.ATTRIBUTE, UUID.randomUUID())
+				.content("{\"nome\":\" " + normalizedName + " \",\"email\":\"ana@example.test\",\"senha\":\"Valid@123\"}"))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.nome").value(normalizedName));
+
+		verify(registration).register(eq(normalizedName), eq("ana@example.test"), eq("Valid@123"), any());
 	}
 
 	@Test

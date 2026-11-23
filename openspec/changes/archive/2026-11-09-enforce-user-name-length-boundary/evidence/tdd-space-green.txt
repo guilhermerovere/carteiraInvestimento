@@ -1,0 +1,23 @@
+# TDD green — nome de 255 caracteres com espaços externos
+
+Comando:
+
+```powershell
+cd backend
+.\mvnw.cmd "-Dtest=RegistrationControllerTest,IdentityDomainTest,InitialAdminBootstrapIntegrationTest" test
+```
+
+Resultado: sucesso (exit code 0).
+
+```text
+IdentityDomainTest: Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+InitialAdminBootstrapIntegrationTest: Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+RegistrationControllerTest: Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+O construtor compacto de `RegisterRequest` aplica `trim` quando `nome` não é nulo. Assim,
+`@NotBlank` e `@Size(max = 255)` avaliam o valor normalizado, e o controlador encaminha esse
+mesmo valor ao fluxo de cadastro. O caso já existente de 256 caracteres permanece rejeitado
+com `400`; os testes de domínio e bootstrap continuam aplicando o limite após `trim`.

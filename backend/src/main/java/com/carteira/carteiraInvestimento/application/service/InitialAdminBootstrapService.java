@@ -23,6 +23,7 @@ public class InitialAdminBootstrapService {
 
 	@Transactional
 	public Usuario provision(String name, String email, String password) {
+		String normalizedName = Usuario.normalizarNome(name);
 		String canonical = EmailCanonicalizer.canonicalize(email);
 		PasswordPolicy.validate(password);
 		Usuario existing = usuarios.findByEmail(canonical).orElse(null);
@@ -32,7 +33,7 @@ public class InitialAdminBootstrapService {
 			}
 			return existing;
 		}
-		Usuario admin = Usuario.novoUsuario(name, canonical, passwordHasher.hash(password), Role.ROLE_ADMIN);
+		Usuario admin = Usuario.novoUsuario(normalizedName, canonical, passwordHasher.hash(password), Role.ROLE_ADMIN);
 		usuarios.save(admin);
 		auditoria.record(new AuditoriaCommand(admin.id(), TipoEvento.ADMIN_INICIAL_CRIADO,
 				ResultadoAuditoria.SUCESSO, SeveridadeAuditoria.INFO, null, UUID.randomUUID()));

@@ -1,0 +1,16 @@
+Temporary mutation check
+Mutation: changed only `Usuario.normalizarNome` maximum from 255 to 256.
+Command: cd backend; .\mvnw.cmd "-Dtest=IdentityDomainTest,InitialAdminBootstrapIntegrationTest" test
+Result: exit 1 (expected; tests detected the mutation)
+
+[ERROR] IdentityDomainTest.enforcesTheTrimmedUserNameBoundaryWhenCreatingUsers
+Expecting code to raise a throwable.
+
+[ERROR] InitialAdminBootstrapIntegrationTest.rejectsAnOverlongAdminNameWithoutPersistingPartialBootstrapState
+Expected java.lang.IllegalArgumentException but reached the database boundary with
+DataIntegrityViolationException: value too long for type character varying(255).
+
+[ERROR] Tests run: 7, Failures: 2, Errors: 0, Skipped: 0
+[ERROR] BUILD FAILURE
+
+The mutation was limited to the single maximum constant and is reverted immediately after this recorded run. No secrets are present in this evidence.

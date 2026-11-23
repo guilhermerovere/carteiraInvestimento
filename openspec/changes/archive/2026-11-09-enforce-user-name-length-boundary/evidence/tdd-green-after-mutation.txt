@@ -1,0 +1,11 @@
+Post-mutation green run
+Command: cd backend; .\mvnw.cmd "-Dtest=RegistrationControllerTest,IdentityDomainTest,InitialAdminBootstrapIntegrationTest" test
+Result: exit 0
+
+[INFO] IdentityDomainTest: Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] InitialAdminBootstrapIntegrationTest: Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] RegistrationControllerTest: Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+The only temporary source mutation was restored to the 255-character boundary before this execution. No secrets are present in this evidence.

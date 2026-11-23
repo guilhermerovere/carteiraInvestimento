@@ -40,6 +40,15 @@ describe("BFF administrativo", () => {
     expect((await patchAssetLifecycle(request(`/api/admin/assets/${id}/lifecycle`, "PATCH", { ativo: false }), context)).status).toBe(200); expect(backendRequest).toHaveBeenLastCalledWith(`/api/v1/acoes/${id}/ativo`, expect.objectContaining({ body: JSON.stringify({ ativo: false }) }));
   });
 
+  it("encaminha o cadastro administrativo simplificado de SANB11 para a mesma validação canônica", async () => {
+    const response = await postAsset(request("/api/admin/assets", "POST", { ticker: "SANB11", mercado: "B3" }));
+
+    expect(response.status).toBe(200);
+    expect(backendRequest).toHaveBeenCalledWith("/api/v1/acoes", expect.objectContaining({
+      method: "POST", body: JSON.stringify({ ticker: "SANB11", mercado: "B3" }),
+    }));
+  });
+
   it("rejeita Origin inválida e query em mutação", async () => {
     validOrigin.mockReturnValue(false); expect((await postAsset(request("/api/admin/assets", "POST", { ticker: "A", nome: "A", tipo: "ACAO", mercado: "B3" }))).status).toBe(400);
     validOrigin.mockReturnValue(true); expect((await postBroker(request("/api/admin/brokers?debug=true", "POST", { cnpj: "1" }))).status).toBe(400);

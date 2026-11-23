@@ -102,7 +102,7 @@ public class AtivoController {
 		if (!Set.of("q", "mercado").containsAll(request.getParameterMap().keySet())) {
 			throw new IllegalArgumentException("unknown query parameter");
 		}
-		return useCase.descobrir(q, mercado).stream().map(ticker -> new AssetDiscoveryResponse(ticker, mercado)).toList();
+		return useCase.descobrir(q, mercado).stream().map(AssetDiscoveryResponse::from).toList();
 	}
 
 	@PatchMapping("/{id}")

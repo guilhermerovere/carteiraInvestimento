@@ -1,6 +1,6 @@
 import "server-only";
 import type {
-  CashBalance, CashMovement, Currency, ExchangeProvider, Market, Page, PortfolioSummary,
+  AssetDiscovery, CashBalance, CashMovement, Currency, ExchangeProvider, Market, Page, PortfolioSummary,
   LogoProvider, PortfolioEvolutionPoint, Position, QuoteProvider, Transaction, TransactionType, ValuedPosition,
 } from "@/lib/finance/contracts";
 
@@ -156,6 +156,21 @@ export function mapCashMovement(value: unknown): CashMovement {
     descricao: d.descricao === null ? null : string(d.descricao, "descricao"),
     dataHora: string(d.dataHora, "dataHora"),
   };
+}
+
+export function mapAssetDiscovery(value: unknown): AssetDiscovery[] {
+  return array(value, "prévia de ativos").map((item) => {
+    const d = object(item, "prévia de ativo");
+    return {
+      ticker: string(d.ticker, "ticker"), nome: string(d.nome, "nome"),
+      tipo: oneOf(d.tipo, ["ACAO", "FII", "ETF"] as const, "tipo"),
+      mercado: oneOf<Market>(d.mercado, ["B3", "US"], "mercado"),
+      moeda: oneOf<Currency>(d.moeda, ["BRL", "USD"], "moeda"),
+      logoProvider: d.logoProvider === null ? null : oneOf<LogoProvider>(d.logoProvider, ["BRAPI", "LOGO_DEV"], "logoProvider"),
+      logoReference: nullableString(d.logoReference, "logoReference"),
+      cotacaoAtual: decimal(d.cotacaoAtual, "cotacaoAtual"),
+    };
+  });
 }
 
 export function mapPage<T>(value: unknown, itemMapper: (item: unknown) => T): Page<T> {

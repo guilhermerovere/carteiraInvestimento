@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.List;
 import com.carteira.carteiraInvestimento.application.port.AssetMetadataProviderPort;
 import com.carteira.carteiraInvestimento.application.port.AssetDiscoveryProviderPort;
+import com.carteira.carteiraInvestimento.application.port.AssetDiscoveryProviderPort.AssetPreview;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AtivoApplicationService implements AtivoUseCase {
@@ -74,7 +75,7 @@ public class AtivoApplicationService implements AtivoUseCase {
 	}
 
 	@Override
-	public List<String> descobrir(String busca, Mercado mercado) {
+	public List<AssetPreview> descobrir(String busca, Mercado mercado) {
 		if (mercado == null || busca == null || busca.isBlank()) throw new IllegalArgumentException("market and search are required");
 		return discoveryProviders.stream().filter(provider -> provider.market() == mercado).findFirst()
 				.orElseThrow(() -> new AssetValidationUnavailableException("Asset discovery provider is unavailable"))

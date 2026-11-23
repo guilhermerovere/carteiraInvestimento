@@ -1,0 +1,8 @@
+{
+  "stocks": [
+    { "stock": "SANB11", "name": "Banco Santander (Brasil) S.A. Units", "type": "unit", "logo": "https://icons.brapi.dev/icons/SANB11.svg" },
+    { "stock": "HGLG11", "name": "CSHG Logística FII", "type": "fii", "logo": "https://icons.brapi.dev/icons/HGLG11.svg" },
+    { "stock": "BOVA11", "name": "iShares Ibovespa Fundo de Índice", "type": "etf", "logo": "https://icons.brapi.dev/icons/BOVA11.svg" },
+    { "stock": "PETR4", "name": "Petróleo Brasileiro S.A. - Petrobras", "type": "stock", "logo": "https://icons.brapi.dev/icons/PETR4.svg" }
+  ]
+}
